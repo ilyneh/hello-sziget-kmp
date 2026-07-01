@@ -1,6 +1,7 @@
 package com.ilyne.hello_sziget_kmp.data.repository
 
 import com.ilyne.hello_sziget_kmp.data.api.SzigetApiService
+import com.ilyne.hello_sziget_kmp.data.api.dto.ArtistDto
 import com.ilyne.hello_sziget_kmp.data.api.dto.toDomain
 import com.ilyne.hello_sziget_kmp.data.db.ArtistDao
 import com.ilyne.hello_sziget_kmp.data.db.ArtistEntity
@@ -37,11 +38,9 @@ class ArtistRepository(
     }
 }
 
-private fun com.ilyne.hello_sziget_kmp.data.api.dto.ArtistDto.toEntity() = ArtistEntity(
+private fun ArtistDto.toEntity() = ArtistEntity(
     id = id,
     name = name,
-    genre = genre,
-    imageUrl = imageUrl,
     bio = bio,
     isFavorited = isFavorited,
 )
@@ -49,8 +48,6 @@ private fun com.ilyne.hello_sziget_kmp.data.api.dto.ArtistDto.toEntity() = Artis
 private fun ArtistEntity.toDomain() = Artist(
     id = id,
     name = name,
-    genre = genre,
-    imageUrl = imageUrl,
     bio = bio,
     isFavorited = isFavorited,
 )

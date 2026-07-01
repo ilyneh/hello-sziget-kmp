@@ -1,5 +1,6 @@
 package com.ilyne.hello_sziget_kmp.di
 
+import com.ilyne.hello_sziget_kmp.BASE_URL_LOCALHOST
 import com.ilyne.hello_sziget_kmp.auth.GoogleAuthProvider
 import com.ilyne.hello_sziget_kmp.data.api.SzigetApiService
 import com.ilyne.hello_sziget_kmp.data.api.createHttpClient
@@ -26,7 +27,7 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 val appModule = module {
     // Network
     single { createHttpClient() }
-    single { SzigetApiService(client = get(), baseUrl = "https://api.sziget.hu/v1") }
+    single { SzigetApiService(client = get(), baseUrl = BASE_URL_LOCALHOST) }
 
     // Database
     single { createDatabase(getDatabaseBuilder()) }

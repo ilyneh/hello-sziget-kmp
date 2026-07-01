@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.hello_sziget_kmp.domain.model.SetTime
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
+import com.ilyne.hello_sziget_kmp.presentation.schedule.components.stageColor
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -181,7 +182,7 @@ private fun TimelineGridView(setTimes: List<SetTime>, stages: List<Stage>) {
                         text = stage.name,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(stage.color),
+                        color = stageColor(stage.id),
                     )
                 }
             }
@@ -272,7 +273,7 @@ private fun SwimLaneView(setTimes: List<SetTime>, stages: List<Stage>) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.width(80.dp).fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
-                        Text(stage.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(stage.color), modifier = Modifier.padding(start = 8.dp))
+                        Text(stage.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = stageColor(stage.id), modifier = Modifier.padding(start = 8.dp))
                     }
 
                     val totalWidth = ((maxHour - minHour) * HOUR_HEIGHT_DP).dp

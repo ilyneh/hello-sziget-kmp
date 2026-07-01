@@ -62,12 +62,14 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             // Ktor
+            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.serialization.kotlinx.json)
             // Serialization
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
             // Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)

@@ -6,8 +6,6 @@ import androidx.compose.runtime.Immutable
 data class Artist(
     val id: String,
     val name: String,
-    val genre: String,
-    val imageUrl: String?,
     val bio: String?,
     val isFavorited: Boolean,
 )

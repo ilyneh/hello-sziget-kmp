@@ -7,8 +7,6 @@ import androidx.room.PrimaryKey
 data class ArtistEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val genre: String,
-    val imageUrl: String?,
     val bio: String?,
     val isFavorited: Boolean,
 )
@@ -17,14 +15,15 @@ data class ArtistEntity(
 data class StageEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val color: Long,
+    val description: String?,
 )
 
 @Entity(tableName = "set_times")
 data class SetTimeEntity(
     @PrimaryKey val id: String,
     val artistId: String,
-    val stageId: String,
+    val stageId: String?,
     val startTime: Long,
     val endTime: Long,
+    val hideEndTime: Boolean,
 )

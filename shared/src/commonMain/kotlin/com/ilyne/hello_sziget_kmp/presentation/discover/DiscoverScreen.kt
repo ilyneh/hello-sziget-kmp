@@ -54,10 +54,11 @@ private fun ArtistCard(artist: Artist, onFavoriteToggle: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().aspectRatio(0.8f)) {
         Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
             Column {
-                // TODO: AsyncImage for artist.imageUrl
                 Spacer(modifier = Modifier.weight(1f))
                 Text(artist.name, fontWeight = FontWeight.Bold, maxLines = 1)
-                Text(artist.genre, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                artist.bio?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                }
             }
             IconButton(onClick = onFavoriteToggle, modifier = Modifier.align(Alignment.TopEnd)) {
                 Text(if (artist.isFavorited) "♥" else "♡", fontSize = 20.sp)

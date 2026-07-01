@@ -6,5 +6,5 @@ import androidx.compose.runtime.Immutable
 data class Stage(
     val id: String,
     val name: String,
-    val color: Long,
+    val description: String?,
 )

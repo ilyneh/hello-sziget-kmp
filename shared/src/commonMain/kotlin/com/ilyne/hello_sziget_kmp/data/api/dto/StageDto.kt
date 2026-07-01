@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 data class StageDto(
     val id: String,
     val name: String,
-    val color: Long = 0xFF6C63FF,
+    val description: String?,
 )
 
 fun StageDto.toDomain() = Stage(
     id = id,
     name = name,
-    color = color,
+    description = description,
 )

@@ -8,17 +8,14 @@ import kotlinx.serialization.Serializable
 data class ArtistDto(
     val id: String,
     val name: String,
-    val genre: String,
-    @SerialName("image_url") val imageUrl: String? = null,
     val bio: String? = null,
+    @SerialName("favorite_count") val favoriteCount: Int,
     @SerialName("is_favorited") val isFavorited: Boolean = false,
 )
 
 fun ArtistDto.toDomain() = Artist(
     id = id,
     name = name,
-    genre = genre,
-    imageUrl = imageUrl,
     bio = bio,
-    isFavorited = isFavorited,
+    isFavorited = isFavorited
 )

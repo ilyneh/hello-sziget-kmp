@@ -42,7 +42,7 @@ fun MyLineupScreen() {
                 items(uiState.favorites, key = { it.id }) { artist ->
                     ListItem(
                         headlineContent = { Text(artist.name, fontWeight = FontWeight.SemiBold) },
-                        supportingContent = { Text(artist.genre) },
+                        supportingContent = artist.bio?.let { bio -> { Text(bio) } },
                         trailingContent = {
                             IconButton(onClick = { viewModel.removeFavorite(artist.id) }) {
                                 Text("♥", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)

@@ -34,11 +34,12 @@ class ScheduleRepository(
                     stageId = st.stageId,
                     startTime = st.startTime,
                     endTime = st.endTime,
+                    hideEndTime = st.hideEndTime,
                     artist = artistMap[st.artistId]?.let {
-                        Artist(it.id, it.name, it.genre, it.imageUrl, it.bio, it.isFavorited)
+                        Artist(it.id, it.name, it.bio, it.isFavorited)
                     },
                     stage = stageMap[st.stageId]?.let {
-                        Stage(it.id, it.name, it.color)
+                        Stage(it.id, it.name, it.description)
                     },
                 )
             }
@@ -46,16 +47,16 @@ class ScheduleRepository(
 
     fun observeStages(): Flow<List<Stage>> =
         stageDao.observeAll().map { entities ->
-            entities.map { Stage(it.id, it.name, it.color) }
+            entities.map { Stage(it.id, it.name, it.description) }
         }
 
     suspend fun refresh() {
         val stages = api.getStages()
-        stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.color) })
+        stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.description) })
 
         val setTimes = api.getSetTimes()
         setTimeDao.upsertAll(setTimes.map {
-            SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime)
+            SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
         })
     }
 }

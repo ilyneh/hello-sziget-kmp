@@ -23,7 +23,7 @@ fun SetTimeCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-    val color = Color(setTime.stage?.color ?: 0xFF6C63FF)
+    val color = Color.Green
 
     Box(
         modifier = modifier
@@ -47,9 +47,9 @@ fun SetTimeCard(
                 fontSize = 11.sp,
                 color = color.copy(alpha = 0.8f),
             )
-            setTime.artist?.genre?.let { genre ->
+            setTime.stage?.name?.let { stageName ->
                 Text(
-                    text = genre,
+                    text = stageName,
                     fontSize = 11.sp,
                     color = color.copy(alpha = 0.7f),
                     maxLines = 1,
@@ -59,6 +59,14 @@ fun SetTimeCard(
         }
     }
 }
+
+private val stagePalette = listOf(
+    Color(0xFFE63950), Color(0xFF3B9AE1), Color(0xFF8C63E6),
+    Color(0xFFE6A23B), Color(0xFF2FAE7C), Color(0xFFE057A0),
+)
+
+fun stageColor(stageId: String): Color =
+    stagePalette[stageId.hashCode().mod(stagePalette.size)]
 
 private fun formatTime(epochMillis: Long): String {
     val totalMinutes = (epochMillis / 60_000) % (24 * 60)
