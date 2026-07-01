@@ -1,0 +1,7 @@
+TEAM_ID=U3TDTWW6W5
+
+PRODUCT_NAME=hello-sziget-kmp
+PRODUCT_BUNDLE_IDENTIFIER=com.ilyne.hello_sziget_kmp.hello-sziget-kmp$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0

@@ -1,0 +1,56 @@
+package com.ilyne.hello_sziget_kmp.data.repository
+
+import com.ilyne.hello_sziget_kmp.data.api.SzigetApiService
+import com.ilyne.hello_sziget_kmp.data.api.dto.toDomain
+import com.ilyne.hello_sziget_kmp.data.db.ArtistDao
+import com.ilyne.hello_sziget_kmp.data.db.ArtistEntity
+import com.ilyne.hello_sziget_kmp.domain.model.Artist
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+class ArtistRepository(
+    private val api: SzigetApiService,
+    private val dao: ArtistDao,
+) {
+    fun observeArtists(): Flow<List<Artist>> =
+        dao.observeAll().map { entities -> entities.map { it.toDomain() } }
+
+    fun observeArtist(id: String): Flow<Artist?> =
+        dao.observeById(id).map { it?.toDomain() }
+
+    fun observeFavorites(): Flow<List<Artist>> =
+        dao.observeFavorites().map { entities -> entities.map { it.toDomain() } }
+
+    suspend fun refresh() {
+        val dtos = api.getArtists()
+        dao.upsertAll(dtos.map { it.toEntity() })
+    }
+
+    suspend fun toggleFavorite(artistId: String, isFavorited: Boolean) {
+        dao.setFavorited(artistId, isFavorited)
+        try {
+            api.toggleFavorite(artistId, isFavorited)
+        } catch (e: Exception) {
+            dao.setFavorited(artistId, !isFavorited)
+            throw e
+        }
+    }
+}
+
+private fun com.ilyne.hello_sziget_kmp.data.api.dto.ArtistDto.toEntity() = ArtistEntity(
+    id = id,
+    name = name,
+    genre = genre,
+    imageUrl = imageUrl,
+    bio = bio,
+    isFavorited = isFavorited,
+)
+
+private fun ArtistEntity.toDomain() = Artist(
+    id = id,
+    name = name,
+    genre = genre,
+    imageUrl = imageUrl,
+    bio = bio,
+    isFavorited = isFavorited,
+)

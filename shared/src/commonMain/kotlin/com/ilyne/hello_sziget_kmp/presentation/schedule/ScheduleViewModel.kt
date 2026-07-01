@@ -1,0 +1,104 @@
+package com.ilyne.hello_sziget_kmp.presentation.schedule
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ilyne.hello_sziget_kmp.data.repository.ArtistRepository
+import com.ilyne.hello_sziget_kmp.data.repository.ScheduleRepository
+import com.ilyne.hello_sziget_kmp.domain.model.SetTime
+import com.ilyne.hello_sziget_kmp.domain.model.Stage
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+enum class ViewMode { GRID, SWIMLANE, LIST }
+
+data class FestivalDay(val label: String, val startMillis: Long, val endMillis: Long)
+
+data class ScheduleUiState(
+    val days: List<FestivalDay> = emptyList(),
+    val selectedDay: FestivalDay? = null,
+    val viewMode: ViewMode = ViewMode.GRID,
+    val stages: List<Stage> = emptyList(),
+    val setTimes: List<SetTime> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null,
+)
+
+sealed class ScheduleIntent {
+    data class SelectDay(val day: FestivalDay) : ScheduleIntent()
+    data class ChangeViewMode(val mode: ViewMode) : ScheduleIntent()
+    data class ToggleFavorite(val artistId: String, val current: Boolean) : ScheduleIntent()
+}
+
+class ScheduleViewModel(
+    private val scheduleRepository: ScheduleRepository,
+    private val artistRepository: ArtistRepository,
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ScheduleUiState())
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        val days = buildFestivalDays()
+        _uiState.update { it.copy(days = days, selectedDay = days.firstOrNull(), isLoading = true) }
+        viewModelScope.launch {
+            try {
+                scheduleRepository.refresh()
+                artistRepository.refresh()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message, isLoading = false) }
+            }
+        }
+        observeSelectedDay()
+    }
+
+    fun onIntent(intent: ScheduleIntent) {
+        when (intent) {
+            is ScheduleIntent.SelectDay -> {
+                _uiState.update { it.copy(selectedDay = intent.day) }
+                observeSelectedDay()
+            }
+            is ScheduleIntent.ChangeViewMode ->
+                _uiState.update { it.copy(viewMode = intent.mode) }
+            is ScheduleIntent.ToggleFavorite ->
+                viewModelScope.launch {
+                    try {
+                        artistRepository.toggleFavorite(intent.artistId, !intent.current)
+                    } catch (e: Exception) {
+                        _uiState.update { it.copy(error = e.message) }
+                    }
+                }
+        }
+    }
+
+    private fun observeSelectedDay() {
+        val day = _uiState.value.selectedDay ?: return
+        viewModelScope.launch {
+            combine(
+                scheduleRepository.observeSetTimesForDay(day.startMillis, day.endMillis),
+                scheduleRepository.observeStages(),
+            ) { setTimes, stages -> setTimes to stages }
+                .collect { (setTimes, stages) ->
+                    _uiState.update {
+                        it.copy(setTimes = setTimes, stages = stages, isLoading = false)
+                    }
+                }
+        }
+    }
+
+    private fun buildFestivalDays(): List<FestivalDay> {
+        // Sziget 2026: Aug 6–11 (placeholder epoch values — replace with real dates)
+        val dayLabels = listOf("WED 6", "THU 7", "FRI 8", "SAT 9", "SUN 10", "MON 11")
+        val baseMillis = 1754524800000L // Aug 6 2026 00:00 UTC approximate
+        val dayMs = 86_400_000L
+        return dayLabels.mapIndexed { i, label ->
+            FestivalDay(
+                label = label,
+                startMillis = baseMillis + i * dayMs,
+                endMillis = baseMillis + (i + 1) * dayMs,
+            )
+        }
+    }
+}
