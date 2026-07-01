@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.hello_sziget_kmp.domain.model.SetTime
+import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.stageColor
@@ -107,9 +108,9 @@ private fun ViewModeToggle(current: ViewMode, onChange: (ViewMode) -> Unit) {
 
 @Composable
 private fun DaySelector(
-    days: List<FestivalDay>,
-    selected: FestivalDay?,
-    onDaySelect: (FestivalDay) -> Unit,
+    days: List<SetTimeDay>,
+    selected: SetTimeDay?,
+    onDaySelect: (SetTimeDay) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -119,7 +120,6 @@ private fun DaySelector(
     ) {
         days.forEach { day ->
             val isSelected = day == selected
-            val parts = day.label.split(" ")
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -129,12 +129,12 @@ private fun DaySelector(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = parts.getOrElse(0) { "" },
+                    text = day.dayOfWeekLabel(),
                     fontSize = 11.sp,
                     color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = parts.getOrElse(1) { "" },
+                    text = day.dateOfMonth.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
@@ -142,6 +142,17 @@ private fun DaySelector(
             }
         }
     }
+}
+
+private fun SetTimeDay.dayOfWeekLabel(): String = when (dayOfWeek) {
+    1 -> "Mon"
+    2 -> "Tue"
+    3 -> "Wed"
+    4 -> "Thu"
+    5 -> "Fri"
+    6 -> "Sat"
+    7 -> "Sun"
+    else -> ""
 }
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
