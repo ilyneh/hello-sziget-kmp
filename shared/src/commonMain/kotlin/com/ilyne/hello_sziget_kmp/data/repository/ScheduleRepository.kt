@@ -8,10 +8,23 @@ import com.ilyne.hello_sziget_kmp.data.db.StageDao
 import com.ilyne.hello_sziget_kmp.data.db.StageEntity
 import com.ilyne.hello_sziget_kmp.domain.model.Artist
 import com.ilyne.hello_sziget_kmp.domain.model.SetTime
+import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
+import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDays
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
+import com.ilyne.hello_sziget_kmp.util.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 class ScheduleRepository(
     private val api: SzigetApiService,
@@ -50,13 +63,54 @@ class ScheduleRepository(
             entities.map { Stage(it.id, it.name, it.description) }
         }
 
+    fun observeSetTimeDays(): Flow<SetTimeDays> =
+        setTimeDao.observeSetTimeRange().map { setTimeRange ->
+            val startDate = setTimeRange.minStart.toFestivalDate()
+            val endDate = setTimeRange.maxStart.toFestivalDate()
+
+            Logger.d("findme", "startDate: ${startDate.day}")
+            val days = generateSequence(startDate) { it.plus(1, DateTimeUnit.DAY) }
+                .takeWhile { it <= endDate }
+                .map { date ->
+                    val startDayMillis = date.atTime(FESTIVAL_DAY_CUTOFF_HOURS.inWholeHours.toInt(), 0)
+                        .toInstant(FESTIVAL_TIME_ZONE)
+                        .toEpochMilliseconds()
+                    SetTimeDay(
+                        startDayMillis = startDayMillis,
+                        endDayMillis = startDayMillis + 24.hours.inWholeMilliseconds,
+                        dateOfMonth = date.day,
+                        dayOfWeek = date.dayOfWeek.isoDayNumber
+                    )
+                }
+                .toList()
+
+            SetTimeDays(days = days)
+        }
+
+    /**
+     * Maps an epoch millis timestamp to its "festival date" — a day spans 6am to 6am
+     * local time, so a set at 2am is still considered part of the previous calendar day.
+     */
+    private fun Long.toFestivalDate(): LocalDate =
+        (Instant.fromEpochMilliseconds(this) - FESTIVAL_DAY_CUTOFF_HOURS)
+            .toLocalDateTime(FESTIVAL_TIME_ZONE)
+            .date
+
+    private companion object {
+        const val TAG = "ScheduleRepository"
+        val FESTIVAL_TIME_ZONE: TimeZone = TimeZone.of("Europe/Budapest")
+        val FESTIVAL_DAY_CUTOFF_HOURS = 6.hours
+    }
+
     suspend fun refresh() {
         val stages = api.getStages()
         stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.description) })
+        Logger.d(TAG, "Refreshed ${stages.size} stages")
 
         val setTimes = api.getSetTimes()
         setTimeDao.upsertAll(setTimes.map {
             SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
         })
+        Logger.d(TAG, "Refreshed ${setTimes.size} set times")
     }
 }

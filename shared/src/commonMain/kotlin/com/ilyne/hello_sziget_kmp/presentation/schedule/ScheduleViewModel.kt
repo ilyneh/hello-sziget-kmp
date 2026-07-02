@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.hello_sziget_kmp.data.repository.ArtistRepository
 import com.ilyne.hello_sziget_kmp.data.repository.ScheduleRepository
 import com.ilyne.hello_sziget_kmp.domain.model.SetTime
+import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +18,8 @@ enum class ViewMode { GRID, SWIMLANE, LIST }
 data class FestivalDay(val label: String, val startMillis: Long, val endMillis: Long)
 
 data class ScheduleUiState(
-    val days: List<FestivalDay> = emptyList(),
-    val selectedDay: FestivalDay? = null,
+    val days: List<SetTimeDay> = emptyList(),
+    val selectedDay: SetTimeDay? = null,
     val viewMode: ViewMode = ViewMode.GRID,
     val stages: List<Stage> = emptyList(),
     val setTimes: List<SetTime> = emptyList(),
@@ -27,7 +28,7 @@ data class ScheduleUiState(
 )
 
 sealed class ScheduleIntent {
-    data class SelectDay(val day: FestivalDay) : ScheduleIntent()
+    data class SelectDay(val day: SetTimeDay) : ScheduleIntent()
     data class ChangeViewMode(val mode: ViewMode) : ScheduleIntent()
     data class ToggleFavorite(val artistId: String, val current: Boolean) : ScheduleIntent()
 }
@@ -41,8 +42,6 @@ class ScheduleViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        val days = buildFestivalDays()
-        _uiState.update { it.copy(days = days, selectedDay = days.firstOrNull(), isLoading = true) }
         viewModelScope.launch {
             try {
                 scheduleRepository.refresh()
@@ -52,6 +51,7 @@ class ScheduleViewModel(
             }
         }
         observeSelectedDay()
+        observeSetTimeDays()
     }
 
     fun onIntent(intent: ScheduleIntent) {
@@ -77,7 +77,7 @@ class ScheduleViewModel(
         val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
             combine(
-                scheduleRepository.observeSetTimesForDay(day.startMillis, day.endMillis),
+                scheduleRepository.observeSetTimesForDay(day.startDayMillis, day.endDayMillis),
                 scheduleRepository.observeStages(),
             ) { setTimes, stages -> setTimes to stages }
                 .collect { (setTimes, stages) ->
@@ -85,6 +85,14 @@ class ScheduleViewModel(
                         it.copy(setTimes = setTimes, stages = stages, isLoading = false)
                     }
                 }
+        }
+    }
+
+    private fun observeSetTimeDays() {
+        viewModelScope.launch {
+            scheduleRepository.observeSetTimeDays().collect { setTimeDays ->
+                _uiState.update { it.copy(days = setTimeDays.days) }
+            }
         }
     }
 
