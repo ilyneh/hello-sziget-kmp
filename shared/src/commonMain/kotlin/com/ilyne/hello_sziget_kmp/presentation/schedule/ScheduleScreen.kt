@@ -162,7 +162,7 @@ private const val HEADER_HEIGHT_DP = 50
 private const val TIME_LABEL_WIDTH_DP = 48
 private const val HOUR_LABEL_HEIGHT_DP = 16
 
-private fun getNormalizedHour(hour: Int): Int = if (hour < 6) hour + 24 else hour
+private fun getNormalizedHour(hour: Int): Int = if (hour <= 6) hour + 24 else hour
 
 private fun getNormalizedHourFraction(hour: Int, minute: Int): Double {
     val fraction = hour + minute / 60.0
