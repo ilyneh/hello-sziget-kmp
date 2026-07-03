@@ -161,9 +161,8 @@ private fun SetTimeDay.dayOfWeekLabel(): String = when (dayOfWeek) {
 private const val HOUR_HEIGHT_DP = 120
 private const val COLUMN_WIDTH_DP = 120
 private const val HEADER_HEIGHT_DP = 50
-private const val TIME_LABEL_WIDTH_DP = 50
-
-private const val FESTIVAL_HOUR_OFFSET = 6
+private const val TIME_LABEL_WIDTH_DP = 48
+private const val HOUR_LABEL_HEIGHT_DP = 16
 
 private fun getNormalizedHour(hour: Int): Int = if (hour < 6) hour + 24 else hour
 
@@ -232,12 +231,19 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                 Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
                     for (hour in minHour..maxHour) {
                         val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
-                        Text(
-                            text = "${hour % 24}:00",
-                            fontSize = 10.sp,
-                            modifier = Modifier.offset(x = 4.dp, y = y + 2.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        Box(
+                            modifier = Modifier
+                                .offset(x = 8.dp, y = y)
+                                .height(HOUR_LABEL_HEIGHT_DP.dp),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            Text(
+                                text = "${hour % 24}:00",
+                                fontSize = 12.sp,
+                                lineHeight = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
@@ -256,7 +262,7 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                     for (h in minHour..maxHour) {
                         val y = ((h - minHour) * HOUR_HEIGHT_DP).dp
                         Box(
-                            modifier = Modifier.offset(y = y + 2.dp)
+                            modifier = Modifier.offset(y = y + HOUR_LABEL_HEIGHT_DP.dp / 2)
                                 .fillMaxWidth()
                                 .height(1.dp)
                                 .background(MaterialTheme.colorScheme.outlineVariant)
