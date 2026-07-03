@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.hello_sziget_kmp.data.repository.ArtistRepository
 import com.ilyne.hello_sziget_kmp.data.repository.ScheduleRepository
-import com.ilyne.hello_sziget_kmp.domain.model.SetTime
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
+import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 enum class ViewMode { GRID, SWIMLANE, LIST }
 
@@ -22,7 +23,7 @@ data class ScheduleUiState(
     val selectedDay: SetTimeDay? = null,
     val viewMode: ViewMode = ViewMode.GRID,
     val stages: List<Stage> = emptyList(),
-    val setTimes: List<SetTime> = emptyList(),
+    val setTimes: List<ScheduleUiModel.SetTime> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
 )
@@ -81,8 +82,21 @@ class ScheduleViewModel(
                 scheduleRepository.observeStages(),
             ) { setTimes, stages -> setTimes to stages }
                 .collect { (setTimes, stages) ->
+                    val setTimesUiModel = setTimes.map {
+                        ScheduleUiModel.SetTime(
+                            id = it.id,
+                            artistId = it.artistId,
+                            stageId = it.stageId,
+                            startTime = it.startTime,
+                            endTime = it.endTime,
+                            hideEndTime = it.hideEndTime,
+                            artist = it.artist,
+                            stage = it.stage,
+                            isInThePast = it.endTime < Clock.System.now().toEpochMilliseconds()
+                        )
+                    }
                     _uiState.update {
-                        it.copy(setTimes = setTimes, stages = stages, isLoading = false)
+                        it.copy(setTimes = setTimesUiModel, stages = stages, isLoading = false)
                     }
                 }
         }

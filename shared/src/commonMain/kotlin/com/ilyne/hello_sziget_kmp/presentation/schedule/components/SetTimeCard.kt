@@ -13,24 +13,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ilyne.hello_sziget_kmp.domain.model.SetTime
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.artistColor
+import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
 import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 
 @Composable
 fun SetTimeCard(
-    setTime: SetTime,
+    setTime: ScheduleUiModel.SetTime,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
     val color = setTime.artist?.let(::artistColor) ?: Color.Gray
-
+    val backgroundAlpha = if (setTime.isInThePast) 0.55f else 1f
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color.copy(alpha = 0.8f))
+            .background(color.copy(alpha = backgroundAlpha))
             .clickable(onClick = onClick)
             .padding(8.dp),
     ) {
