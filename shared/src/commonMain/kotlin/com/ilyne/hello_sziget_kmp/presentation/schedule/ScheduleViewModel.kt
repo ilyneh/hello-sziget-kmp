@@ -77,6 +77,7 @@ class ScheduleViewModel(
     private fun observeSelectedDay() {
         val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
+            val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
             combine(
                 scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis),
                 scheduleRepository.observeStages(),
@@ -94,7 +95,7 @@ class ScheduleViewModel(
                                 hideEndTime = it.hideEndTime,
                                 artist = it.artist,
                                 stage = it.stage,
-                                isInThePast = it.endTime < Clock.System.now().toEpochMilliseconds()
+                                isInThePast = it.endTime < currentTimeMillis
                             )
                         }
                     _uiState.update {
