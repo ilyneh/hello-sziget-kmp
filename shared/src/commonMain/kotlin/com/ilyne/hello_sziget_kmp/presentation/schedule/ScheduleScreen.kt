@@ -259,8 +259,8 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                     .background(MaterialTheme.colorScheme.surface)
                 ) {
                     // Hour gridlines span the full scrollable grid width
-                    for (h in minHour..maxHour) {
-                        val y = ((h - minHour) * HOUR_HEIGHT_DP).dp
+                    for (hour in minHour..maxHour) {
+                        val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
                         Box(
                             modifier = Modifier.offset(y = y + HOUR_LABEL_HEIGHT_DP.dp / 2)
                                 .fillMaxWidth()
