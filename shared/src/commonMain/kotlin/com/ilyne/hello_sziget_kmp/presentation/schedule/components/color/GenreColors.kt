@@ -1,4 +1,4 @@
-package com.ilyne.hello_sziget_kmp.presentation.schedule.components
+package com.ilyne.hello_sziget_kmp.presentation.schedule.components.color
 
 import androidx.compose.ui.graphics.Color
 import com.ilyne.hello_sziget_kmp.domain.model.Artist
@@ -8,15 +8,15 @@ import com.ilyne.hello_sziget_kmp.domain.model.genreGroupOf
 // Named swatches so multiple genre groups can point at the same color by reusing a name
 // instead of repeating a hex value. Add/remove swatches as needed — this list has no
 // required size.
-private val RED = Color(0xFFE63950)
-private val BLUE = Color(0xFF3B9AE1)
-private val PURPLE = Color(0xFF8C63E6)
-private val ORANGE = Color(0xFFE6A23B)
-private val GREEN = Color(0xFF2FAE7C)
-private val PINK = Color(0xFFE057A0)
+private val RED = Color(0xFFE8354A)
+private val BLUE = Color(0xFF0EA5E9)
+private val PURPLE = Color(0xFF8B3CF7)
+private val ORANGE = Color(0xFFF59E0B)
+private val GREEN = Color(0xFF10B981)
+private val PINK = Color(0xFFEC4899)
 private val TEAL = Color(0xFF2BB8B8)
-private val YELLOW = Color(0xFFD9C94A)
-private val GRAY = Color(0xFF8A8F98)
+private val YELLOW = Color(0xFFFFDC00)
+private val GRAY = Color(0xFFAAAAAA)
 
 // Fill in the swatch for each genre group. Point multiple groups at the same swatch
 // to have them render as the same tile color.
