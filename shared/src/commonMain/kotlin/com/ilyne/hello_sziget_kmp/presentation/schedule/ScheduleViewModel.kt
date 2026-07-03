@@ -77,7 +77,7 @@ class ScheduleViewModel(
         val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
             combine(
-                scheduleRepository.observeSetTimesForDay(day.startDayMillis, day.endDayMillis),
+                scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis),
                 scheduleRepository.observeStages(),
             ) { setTimes, stages -> setTimes to stages }
                 .collect { (setTimes, stages) ->

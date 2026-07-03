@@ -11,11 +11,13 @@ data class ArtistDto(
     val bio: String? = null,
     @SerialName("favorite_count") val favoriteCount: Int,
     @SerialName("is_favorited") val isFavorited: Boolean = false,
+    val tags: List<String>?,
 )
 
 fun ArtistDto.toDomain() = Artist(
     id = id,
     name = name,
     bio = bio,
-    isFavorited = isFavorited
+    isFavorited = isFavorited,
+    tags = tags,
 )

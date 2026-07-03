@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.hello_sziget_kmp.domain.model.SetTime
+import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeFormat
 
 @Composable
 fun SetTimeCard(
@@ -23,12 +27,12 @@ fun SetTimeCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-    val color = Color.Green
+    val color = setTime.artist?.let(::artistColor) ?: Color.Gray
 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(color.copy(alpha = 0.15f))
+            .background(color.copy(alpha = 0.8f))
             .clickable(onClick = onClick)
             .padding(8.dp),
     ) {
@@ -39,38 +43,24 @@ fun SetTimeCard(
                 fontSize = 13.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = color,
+                color = Color.White,
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = formatTime(setTime.startTime),
                 fontSize = 11.sp,
-                color = color.copy(alpha = 0.8f),
+                color = Color.White,
             )
-            setTime.stage?.name?.let { stageName ->
-                Text(
-                    text = stageName,
-                    fontSize = 11.sp,
-                    color = color.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
     }
 }
 
-private val stagePalette = listOf(
-    Color(0xFFE63950), Color(0xFF3B9AE1), Color(0xFF8C63E6),
-    Color(0xFFE6A23B), Color(0xFF2FAE7C), Color(0xFFE057A0),
-)
-
-fun stageColor(stageId: String): Color =
-    stagePalette[stageId.hashCode().mod(stagePalette.size)]
 
 private fun formatTime(epochMillis: Long): String {
-    val totalMinutes = (epochMillis / 60_000) % (24 * 60)
-    val hours = (totalMinutes / 60).toInt()
-    val minutes = (totalMinutes % 60).toInt()
-    return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}"
+    val timeFormat = LocalDateTime.Format {
+        hour()
+        chars(":")
+        minute()
+    }
+    return epochMillis.toLocalDateTime().format(timeFormat)
 }

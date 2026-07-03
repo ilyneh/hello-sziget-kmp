@@ -9,6 +9,7 @@ data class ArtistEntity(
     val name: String,
     val bio: String?,
     val isFavorited: Boolean,
+    val tags: List<String>?,
 )
 
 @Entity(tableName = "stages")

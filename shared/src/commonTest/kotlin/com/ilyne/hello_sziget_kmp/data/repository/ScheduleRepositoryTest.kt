@@ -41,8 +41,8 @@ class ScheduleRepositoryTest {
 
         // Aug 6 2026 is a Thursday (isoDayNumber 4)
         assertEquals(listOf(SetTimeDay(
-            startDayMillis = millisAt("2026-08-06T06:00:00"),
-            endDayMillis = millisAt("2026-08-07T06:00:00"),
+            dayStartMillis = millisAt("2026-08-06T06:00:00"),
+            dayEndMillis = millisAt("2026-08-07T06:00:00"),
             dateOfMonth = 6,
             dayOfWeek = 4
         )), result.days)
@@ -59,8 +59,8 @@ class ScheduleRepositoryTest {
         val result = repository(range).observeSetTimeDays().first()
 
         assertEquals(listOf(SetTimeDay(
-            startDayMillis = millisAt("2026-08-06T06:00:00"),
-            endDayMillis = millisAt("2026-08-07T06:00:00"),
+            dayStartMillis = millisAt("2026-08-06T06:00:00"),
+            dayEndMillis = millisAt("2026-08-07T06:00:00"),
             dateOfMonth = 6,
             dayOfWeek = 4
         )), result.days)
@@ -78,8 +78,8 @@ class ScheduleRepositoryTest {
 
         // Aug 7 2026 is a Friday (isoDayNumber 5)
         assertEquals(listOf(SetTimeDay(
-            startDayMillis = millisAt("2026-08-07T06:00:00"),
-            endDayMillis = millisAt("2026-08-08T06:00:00"),
+            dayStartMillis = millisAt("2026-08-07T06:00:00"),
+            dayEndMillis = millisAt("2026-08-08T06:00:00"),
             dateOfMonth = 7,
             dayOfWeek = 5
         )), result.days)
@@ -97,20 +97,20 @@ class ScheduleRepositoryTest {
         assertEquals(
             listOf(
                 SetTimeDay(
-                    startDayMillis = millisAt("2026-08-06T06:00:00"),
-                    endDayMillis = millisAt("2026-08-07T06:00:00"),
+                    dayStartMillis = millisAt("2026-08-06T06:00:00"),
+                    dayEndMillis = millisAt("2026-08-07T06:00:00"),
                     dateOfMonth = 6,
                     dayOfWeek = 4
                 ), // Thu
                 SetTimeDay(
-                    startDayMillis = millisAt("2026-08-07T06:00:00"),
-                    endDayMillis = millisAt("2026-08-08T06:00:00"),
+                    dayStartMillis = millisAt("2026-08-07T06:00:00"),
+                    dayEndMillis = millisAt("2026-08-08T06:00:00"),
                     dateOfMonth = 7,
                     dayOfWeek = 5
                 ), // Fri
                 SetTimeDay(
-                    startDayMillis = millisAt("2026-08-08T06:00:00"),
-                    endDayMillis = millisAt("2026-08-09T06:00:00"),
+                    dayStartMillis = millisAt("2026-08-08T06:00:00"),
+                    dayEndMillis = millisAt("2026-08-09T06:00:00"),
                     dateOfMonth = 8,
                     dayOfWeek = 6
                 ), // Sat
@@ -131,14 +131,14 @@ class ScheduleRepositoryTest {
         assertEquals(
             listOf(
                 SetTimeDay(
-                    startDayMillis = millisAt("2026-01-31T06:00:00"),
-                    endDayMillis = millisAt("2026-02-01T06:00:00"),
+                    dayStartMillis = millisAt("2026-01-31T06:00:00"),
+                    dayEndMillis = millisAt("2026-02-01T06:00:00"),
                     dateOfMonth = 31,
                     dayOfWeek = 6
                 ), // Jan 31 2026, Sat
                 SetTimeDay(
-                    startDayMillis = millisAt("2026-02-01T06:00:00"),
-                    endDayMillis = millisAt("2026-02-02T06:00:00"),
+                    dayStartMillis = millisAt("2026-02-01T06:00:00"),
+                    dayEndMillis = millisAt("2026-02-02T06:00:00"),
                     dateOfMonth = 1,
                     dayOfWeek = 7
                 ),  // Feb 1 2026, Sun
@@ -158,8 +158,8 @@ class ScheduleRepositoryTest {
         val result = repository(range).observeSetTimeDays().first()
 
         assertEquals(listOf(SetTimeDay(
-            startDayMillis = millisAt("2026-12-31T06:00:00"),
-            endDayMillis = millisAt("2027-01-01T06:00:00"),
+            dayStartMillis = millisAt("2026-12-31T06:00:00"),
+            dayEndMillis = millisAt("2027-01-01T06:00:00"),
             dateOfMonth = 31,
             dayOfWeek = 4
         )), result.days) // Dec 31 2026, Thu
@@ -173,8 +173,8 @@ class ScheduleRepositoryTest {
         val result = repository(range).observeSetTimeDays().first()
 
         assertEquals(listOf(SetTimeDay(
-            startDayMillis = millisAt("2026-08-09T06:00:00"),
-            endDayMillis = millisAt("2026-08-10T06:00:00"),
+            dayStartMillis = millisAt("2026-08-09T06:00:00"),
+            dayEndMillis = millisAt("2026-08-10T06:00:00"),
             dateOfMonth = 9,
             dayOfWeek = 7
         )), result.days) // Aug 9 2026, Sun

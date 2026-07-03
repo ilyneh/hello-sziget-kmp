@@ -12,12 +12,12 @@ import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDays
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.util.Logger
+import com.ilyne.hello_sziget_kmp.util.datetime.DateTimeUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.plus
@@ -49,7 +49,7 @@ class ScheduleRepository(
                     endTime = st.endTime,
                     hideEndTime = st.hideEndTime,
                     artist = artistMap[st.artistId]?.let {
-                        Artist(it.id, it.name, it.bio, it.isFavorited)
+                        Artist(it.id, it.name, it.bio, it.isFavorited, it.tags)
                     },
                     stage = stageMap[st.stageId]?.let {
                         Stage(it.id, it.name, it.description)
@@ -68,16 +68,16 @@ class ScheduleRepository(
             val startDate = setTimeRange.minStart.toFestivalDate()
             val endDate = setTimeRange.maxStart.toFestivalDate()
 
-            Logger.d("findme", "startDate: ${startDate.day}")
             val days = generateSequence(startDate) { it.plus(1, DateTimeUnit.DAY) }
                 .takeWhile { it <= endDate }
                 .map { date ->
-                    val startDayMillis = date.atTime(FESTIVAL_DAY_CUTOFF_HOURS.inWholeHours.toInt(), 0)
-                        .toInstant(FESTIVAL_TIME_ZONE)
+                    val dayStartMillis = date.atTime(FESTIVAL_DAY_CUTOFF_HOURS.inWholeHours.toInt(), 0)
+                        .toInstant(DateTimeUtils.FESTIVAL_TIME_ZONE)
                         .toEpochMilliseconds()
+
                     SetTimeDay(
-                        startDayMillis = startDayMillis,
-                        endDayMillis = startDayMillis + 24.hours.inWholeMilliseconds,
+                        dayStartMillis = dayStartMillis,
+                        dayEndMillis = dayStartMillis + 24.hours.inWholeMilliseconds,
                         dateOfMonth = date.day,
                         dayOfWeek = date.dayOfWeek.isoDayNumber
                     )
@@ -93,12 +93,11 @@ class ScheduleRepository(
      */
     private fun Long.toFestivalDate(): LocalDate =
         (Instant.fromEpochMilliseconds(this) - FESTIVAL_DAY_CUTOFF_HOURS)
-            .toLocalDateTime(FESTIVAL_TIME_ZONE)
+            .toLocalDateTime(DateTimeUtils.FESTIVAL_TIME_ZONE)
             .date
 
     private companion object {
         const val TAG = "ScheduleRepository"
-        val FESTIVAL_TIME_ZONE: TimeZone = TimeZone.of("Europe/Budapest")
         val FESTIVAL_DAY_CUTOFF_HOURS = 6.hours
     }
 

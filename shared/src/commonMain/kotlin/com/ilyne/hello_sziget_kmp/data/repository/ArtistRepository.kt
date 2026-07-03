@@ -43,6 +43,7 @@ private fun ArtistDto.toEntity() = ArtistEntity(
     name = name,
     bio = bio,
     isFavorited = isFavorited,
+    tags = tags,
 )
 
 private fun ArtistEntity.toDomain() = Artist(
@@ -50,4 +51,5 @@ private fun ArtistEntity.toDomain() = Artist(
     name = name,
     bio = bio,
     isFavorited = isFavorited,
+    tags = tags,
 )
