@@ -1,4 +1,4 @@
-package com.ilyne.hello_sziget_kmp.presentation.schedule.components
+package com.ilyne.hello_sziget_kmp.presentation.schedule.components.color
 
 import androidx.compose.ui.graphics.Color
 import com.ilyne.hello_sziget_kmp.domain.model.Artist

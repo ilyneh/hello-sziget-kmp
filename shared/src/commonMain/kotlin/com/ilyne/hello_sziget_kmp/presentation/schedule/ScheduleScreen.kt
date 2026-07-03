@@ -25,7 +25,7 @@ import com.ilyne.hello_sziget_kmp.domain.model.SetTime
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
-import com.ilyne.hello_sziget_kmp.presentation.schedule.components.stageColor
+import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.stageColor
 import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 
