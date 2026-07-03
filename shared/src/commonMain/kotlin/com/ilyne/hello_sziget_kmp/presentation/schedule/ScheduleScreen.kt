@@ -262,7 +262,7 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                     for (hour in minHour..maxHour) {
                         val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
                         Box(
-                            modifier = Modifier.offset(y = y + HOUR_LABEL_HEIGHT_DP.dp / 2)
+                            modifier = Modifier.offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
                                 .fillMaxWidth()
                                 .height(1.dp)
                                 .background(MaterialTheme.colorScheme.outlineVariant)
@@ -283,14 +283,15 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                             endDateTime.hour,
                             endDateTime.minute
                         )
-                        val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP + 3).dp
+                        val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
+                        val topOffset = (3 + HOUR_LABEL_HEIGHT_DP / 2).dp
                         val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                         val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
 
                         SetTimeCard(
                             setTime = setTime,
                             modifier = Modifier
-                                .offset(x = leftDp, y = topDp)
+                                .offset(x = leftDp, y = topDp + topOffset)
                                 .width((COLUMN_WIDTH_DP - 4).dp)
                                 .height(heightDp),
                         )
