@@ -26,6 +26,7 @@ import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.stageColor
+import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
 import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -130,7 +131,7 @@ private fun DaySelector(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = day.dayOfWeekLabel().capitalize(Locale.current),
+                    text = day.dayOfWeekLabel().uppercase(),
                     fontSize = 11.sp,
                     color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -172,7 +173,7 @@ private fun getNormalizedHourFraction(hour: Int, minute: Int): Double {
 }
 
 @Composable
-private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: List<Stage>) {
+private fun TimelineGridView(dayMillis: Long?, setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
     val vertScroll = rememberScrollState()
     val horizScroll = rememberScrollState()
 
@@ -262,7 +263,7 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                     for (hour in minHour..maxHour) {
                         val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
                         Box(
-                            modifier = Modifier.offset(y = y + HOUR_LABEL_HEIGHT_DP.dp / 2)
+                            modifier = Modifier.offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
                                 .fillMaxWidth()
                                 .height(1.dp)
                                 .background(MaterialTheme.colorScheme.outlineVariant)
@@ -283,14 +284,15 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
                             endDateTime.hour,
                             endDateTime.minute
                         )
-                        val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP + 3).dp
+                        val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
+                        val topOffset = (3 + HOUR_LABEL_HEIGHT_DP / 2).dp
                         val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                         val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
 
                         SetTimeCard(
                             setTime = setTime,
                             modifier = Modifier
-                                .offset(x = leftDp, y = topDp)
+                                .offset(x = leftDp, y = topDp + topOffset)
                                 .width((COLUMN_WIDTH_DP - 4).dp)
                                 .height(heightDp),
                         )
@@ -304,7 +306,7 @@ private fun TimelineGridView(dayMillis: Long?, setTimes: List<SetTime>, stages: 
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
 
 @Composable
-private fun SwimLaneView(setTimes: List<SetTime>, stages: List<Stage>) {
+private fun SwimLaneView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
     val horizScroll = rememberScrollState()
     val vertScroll = rememberScrollState()
 
@@ -370,7 +372,7 @@ private fun SwimLaneView(setTimes: List<SetTime>, stages: List<Stage>) {
 // ── List View ─────────────────────────────────────────────────────────────────
 
 @Composable
-private fun SetTimeListView(setTimes: List<SetTime>) {
+private fun SetTimeListView(setTimes: List<ScheduleUiModel.SetTime>) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
