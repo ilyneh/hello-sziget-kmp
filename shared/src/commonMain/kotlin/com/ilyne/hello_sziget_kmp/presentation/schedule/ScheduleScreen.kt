@@ -15,13 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.hello_sziget_kmp.domain.model.SetTime
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
@@ -58,7 +55,7 @@ fun ScheduleScreen() {
                 Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
             }
             else -> when (uiState.viewMode) {
-                ViewMode.GRID -> TimelineGridView(uiState.selectedDay?.dayStartMillis, uiState.setTimes, uiState.stages)
+                ViewMode.GRID -> TimelineGridView(uiState.setTimes, uiState.stages)
                 ViewMode.SWIMLANE -> SwimLaneView(uiState.setTimes, uiState.stages)
                 ViewMode.LIST -> SetTimeListView(uiState.setTimes)
             }
@@ -173,7 +170,7 @@ private fun getNormalizedHourFraction(hour: Int, minute: Int): Double {
 }
 
 @Composable
-private fun TimelineGridView(dayMillis: Long?, setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
+private fun TimelineGridView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
     val vertScroll = rememberScrollState()
     val horizScroll = rememberScrollState()
 

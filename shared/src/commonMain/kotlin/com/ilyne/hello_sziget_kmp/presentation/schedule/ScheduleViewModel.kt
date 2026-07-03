@@ -82,19 +82,21 @@ class ScheduleViewModel(
                 scheduleRepository.observeStages(),
             ) { setTimes, stages -> setTimes to stages }
                 .collect { (setTimes, stages) ->
-                    val setTimesUiModel = setTimes.map {
-                        ScheduleUiModel.SetTime(
-                            id = it.id,
-                            artistId = it.artistId,
-                            stageId = it.stageId,
-                            startTime = it.startTime,
-                            endTime = it.endTime,
-                            hideEndTime = it.hideEndTime,
-                            artist = it.artist,
-                            stage = it.stage,
-                            isInThePast = it.endTime < Clock.System.now().toEpochMilliseconds()
-                        )
-                    }
+                    val setTimesUiModel = setTimes
+                        .filter { it.startTime != it.endTime }
+                        .map {
+                            ScheduleUiModel.SetTime(
+                                id = it.id,
+                                artistId = it.artistId,
+                                stageId = it.stageId,
+                                startTime = it.startTime,
+                                endTime = it.endTime,
+                                hideEndTime = it.hideEndTime,
+                                artist = it.artist,
+                                stage = it.stage,
+                                isInThePast = it.endTime < Clock.System.now().toEpochMilliseconds()
+                            )
+                        }
                     _uiState.update {
                         it.copy(setTimes = setTimesUiModel, stages = stages, isLoading = false)
                     }
