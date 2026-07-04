@@ -21,8 +21,8 @@ kotlin {
         }
     }
 
-    androidLibrary {
-        namespace = "com.ilyne.hello_sziget_kmp.shared"
+    android {
+        namespace = "com.ilyne.helloszigetkmp.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
