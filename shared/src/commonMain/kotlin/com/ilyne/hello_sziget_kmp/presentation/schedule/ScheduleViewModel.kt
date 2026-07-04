@@ -7,6 +7,9 @@ import com.ilyne.hello_sziget_kmp.data.repository.ScheduleRepository
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
+import com.ilyne.hello_sziget_kmp.util.datetime.normalizedFestivalHour
+import com.ilyne.hello_sziget_kmp.util.datetime.normalizedFestivalHourFraction
+import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +27,8 @@ data class ScheduleUiState(
     val viewMode: ViewMode = ViewMode.GRID,
     val stages: List<Stage> = emptyList(),
     val setTimes: List<ScheduleUiModel.SetTime> = emptyList(),
+    val gridMinHour: Int = 0,
+    val gridMaxHour: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null,
 )
@@ -83,23 +88,38 @@ class ScheduleViewModel(
                 scheduleRepository.observeStages(),
             ) { setTimes, stages -> setTimes to stages }
                 .collect { (setTimes, stages) ->
-                    val setTimesUiModel = setTimes
-                        .filter { it.startTime != it.endTime }
-                        .map {
-                            ScheduleUiModel.SetTime(
-                                id = it.id,
-                                artistId = it.artistId,
-                                stageId = it.stageId,
-                                startTime = it.startTime,
-                                endTime = it.endTime,
-                                hideEndTime = it.hideEndTime,
-                                artist = it.artist,
-                                stage = it.stage,
-                                isInThePast = it.endTime < currentTimeMillis
-                            )
-                        }
+                    val validSetTimes = setTimes.filter { it.startTime != it.endTime }
+                    val setTimesUiModel = validSetTimes.map {
+                        ScheduleUiModel.SetTime(
+                            id = it.id,
+                            artistId = it.artistId,
+                            stageId = it.stageId,
+                            startTime = it.startTime,
+                            endTime = it.endTime,
+                            hideEndTime = it.hideEndTime,
+                            artist = it.artist,
+                            stage = it.stage,
+                            isInThePast = it.endTime < currentTimeMillis,
+                            startHourFraction = it.startTime.normalizedFestivalHourFraction(),
+                            endHourFraction = it.endTime.normalizedFestivalHourFraction(),
+                        )
+                    }
+
+                    val gridMinHour = validSetTimes.minOfOrNull {
+                        it.startTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
+                    } ?: 0
+                    val gridMaxHour = validSetTimes.maxOfOrNull {
+                        it.endTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
+                    }?.plus(1) ?: 0
+
                     _uiState.update {
-                        it.copy(setTimes = setTimesUiModel, stages = stages, isLoading = false)
+                        it.copy(
+                            setTimes = setTimesUiModel,
+                            stages = stages,
+                            gridMinHour = gridMinHour,
+                            gridMaxHour = gridMaxHour,
+                            isLoading = false,
+                        )
                     }
                 }
         }

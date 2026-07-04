@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
+import com.ilyne.hello_sziget_kmp.domain.model.dayOfWeekLabel
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.ScheduleColors
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.stageColor
 import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
-import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -56,8 +56,18 @@ fun ScheduleScreen() {
                 Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
             }
             else -> when (uiState.viewMode) {
-                ViewMode.GRID -> TimelineGridView(uiState.setTimes, uiState.stages)
-                ViewMode.SWIMLANE -> SwimLaneView(uiState.setTimes, uiState.stages)
+                ViewMode.GRID -> TimelineGridView(
+                    setTimes = uiState.setTimes,
+                    stages = uiState.stages,
+                    gridMinHour = uiState.gridMinHour,
+                    gridMaxHour = uiState.gridMaxHour,
+                )
+                ViewMode.SWIMLANE -> SwimLaneView(
+                    setTimes = uiState.setTimes,
+                    stages = uiState.stages,
+                    gridMinHour = uiState.gridMinHour,
+                    gridMaxHour = uiState.gridMaxHour,
+                )
                 ViewMode.LIST -> SetTimeListView(uiState.setTimes)
             }
         }
@@ -144,17 +154,6 @@ private fun DaySelector(
     }
 }
 
-private fun SetTimeDay.dayOfWeekLabel(): String = when (dayOfWeek) {
-    1 -> "Mon"
-    2 -> "Tue"
-    3 -> "Wed"
-    4 -> "Thu"
-    5 -> "Fri"
-    6 -> "Sat"
-    7 -> "Sun"
-    else -> ""
-}
-
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
 
 private const val HOUR_HEIGHT_DP = 120
@@ -163,15 +162,13 @@ private const val HEADER_HEIGHT_DP = 50
 private const val TIME_LABEL_WIDTH_DP = 48
 private const val HOUR_LABEL_HEIGHT_DP = 16
 
-private fun getNormalizedHour(hour: Int): Int = if (hour <= 6) hour + 24 else hour
-
-private fun getNormalizedHourFraction(hour: Int, minute: Int): Double {
-    val fraction = hour + minute / 60.0
-    return if (hour < 6) fraction + 24 else fraction
-}
-
 @Composable
-private fun TimelineGridView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
+private fun TimelineGridView(
+    setTimes: List<ScheduleUiModel.SetTime>,
+    stages: List<Stage>,
+    gridMinHour: Int,
+    gridMaxHour: Int,
+) {
     val vertScroll = rememberScrollState()
     val horizScroll = rememberScrollState()
 
@@ -182,11 +179,8 @@ private fun TimelineGridView(setTimes: List<ScheduleUiModel.SetTime>, stages: Li
         return
     }
 
-    val minSetStart = setTimes.minOf { it.startTime }.toLocalDateTime()
-    val maxSetEnd = setTimes.maxOf { it.endTime }.toLocalDateTime()
-
-    val minHour = getNormalizedHour(minSetStart.hour)
-    val maxHour = getNormalizedHour(maxSetEnd.hour) + 1
+    val minHour = gridMinHour
+    val maxHour = gridMaxHour
 
     val totalGridHeight = ((maxHour - minHour) * HOUR_HEIGHT_DP).dp
     val totalGridWidth = (stages.size * COLUMN_WIDTH_DP).dp
@@ -272,16 +266,8 @@ private fun TimelineGridView(setTimes: List<ScheduleUiModel.SetTime>, stages: Li
                     setTimes.forEach { setTime ->
                         val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
                         if (stageIndex < 0) return@forEach
-                        val startDateTime = setTime.startTime.toLocalDateTime()
-                        val endDateTime = setTime.endTime.toLocalDateTime()
-                        val startHourFraction = getNormalizedHourFraction(
-                            startDateTime.hour,
-                            startDateTime.minute
-                        )
-                        val endHourFraction = getNormalizedHourFraction(
-                            endDateTime.hour,
-                            endDateTime.minute
-                        )
+                        val startHourFraction = setTime.startHourFraction
+                        val endHourFraction = setTime.endHourFraction
                         val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
                         val topOffset = (3 + HOUR_LABEL_HEIGHT_DP / 2).dp
                         val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
@@ -304,7 +290,12 @@ private fun TimelineGridView(setTimes: List<ScheduleUiModel.SetTime>, stages: Li
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
 
 @Composable
-private fun SwimLaneView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<Stage>) {
+private fun SwimLaneView(
+    setTimes: List<ScheduleUiModel.SetTime>,
+    stages: List<Stage>,
+    gridMinHour: Int,
+    gridMaxHour: Int,
+) {
     val horizScroll = rememberScrollState()
     val vertScroll = rememberScrollState()
 
@@ -315,8 +306,8 @@ private fun SwimLaneView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<S
         return
     }
 
-    val minHour = setTimes.minOf { (it.startTime / 3_600_000) % 24 }.toInt().coerceAtLeast(0)
-    val maxHour = (setTimes.maxOf { (it.endTime / 3_600_000) % 24 }.toInt() + 1).coerceAtMost(29)
+    val minHour = gridMinHour
+    val maxHour = gridMaxHour
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Time axis header
@@ -345,10 +336,8 @@ private fun SwimLaneView(setTimes: List<ScheduleUiModel.SetTime>, stages: List<S
                     val totalWidth = ((maxHour - minHour) * HOUR_HEIGHT_DP).dp
                     Box(modifier = Modifier.width(totalWidth).fillMaxHeight()) {
                         stageSets.forEach { setTime ->
-                            val startFraction = getNormalizedHour(setTime.startTime.toLocalDateTime().hour)
-                            val endFraction = getNormalizedHour(setTime.endTime.toLocalDateTime().hour)
-                            val leftDp = ((startFraction - minHour) * HOUR_HEIGHT_DP).dp
-                            val widthDp = ((endFraction - startFraction) * HOUR_HEIGHT_DP).dp
+                            val leftDp = ((setTime.startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
+                            val widthDp = ((setTime.endHourFraction - setTime.startHourFraction) * HOUR_HEIGHT_DP).dp
 
                             SetTimeCard(
                                 setTime = setTime,
