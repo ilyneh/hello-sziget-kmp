@@ -13,6 +13,8 @@ class ScheduleUiModel {
         val hideEndTime: Boolean,
         val artist: Artist? = null,
         val stage: Stage? = null,
-        val isInThePast: Boolean
+        val isInThePast: Boolean,
+        val startHourFraction: Double,
+        val endHourFraction: Double,
     )
 }
