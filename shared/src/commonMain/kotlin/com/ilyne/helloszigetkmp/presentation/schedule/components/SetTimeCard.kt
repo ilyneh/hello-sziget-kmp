@@ -42,7 +42,7 @@ fun SetTimeCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = Color.White,
-                lineHeight = 18.sp
+                lineHeight = 18.sp,
             )
             Text(
                 text = formatTime(setTime.startTime),
@@ -52,7 +52,6 @@ fun SetTimeCard(
         }
     }
 }
-
 
 private fun formatTime(epochMillis: Long): String {
     val timeFormat = LocalDateTime.Format {

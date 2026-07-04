@@ -14,11 +14,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MyLineupScreen() {
+fun MyLineupScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<LineupViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = "My Lineup",
             fontSize = 28.sp,
@@ -27,29 +27,41 @@ fun MyLineupScreen() {
         )
 
         when {
-            uiState.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            uiState.favorites.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("♡", fontSize = 48.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("No favorites yet", style = MaterialTheme.typography.titleMedium)
-                    Text("Tap the heart on any artist to add them", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            uiState.isLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
             }
-            else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(uiState.favorites, key = { it.id }) { artist ->
-                    ListItem(
-                        headlineContent = { Text(artist.name, fontWeight = FontWeight.SemiBold) },
-                        supportingContent = artist.bio?.let { bio -> { Text(bio) } },
-                        trailingContent = {
-                            IconButton(onClick = { viewModel.removeFavorite(artist.id) }) {
-                                Text("♥", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)
-                            }
-                        },
-                    )
-                    HorizontalDivider()
+
+            uiState.favorites.isEmpty() -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("♡", fontSize = 48.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("No favorites yet", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Tap the heart on any artist to add them",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            else -> {
+                LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.favorites, key = { it.id }) { artist ->
+                        ListItem(
+                            headlineContent = { Text(artist.name, fontWeight = FontWeight.SemiBold) },
+                            supportingContent = artist.bio?.let { bio -> { Text(bio) } },
+                            trailingContent = {
+                                IconButton(onClick = { viewModel.removeFavorite(artist.id) }) {
+                                    Text("♥", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)
+                                }
+                            },
+                        )
+                        HorizontalDivider()
+                    }
                 }
             }
         }

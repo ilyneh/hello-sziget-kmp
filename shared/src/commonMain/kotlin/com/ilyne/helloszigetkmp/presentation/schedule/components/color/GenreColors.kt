@@ -45,17 +45,13 @@ private val genreColors: Map<GenreGroup, Color> = mapOf(
 
 private val DEFAULT_COLOR = GRAY
 
-fun genreColor(genreGroup: GenreGroup): Color =
-    genreColors[genreGroup] ?: DEFAULT_COLOR
+fun genreColor(genreGroup: GenreGroup): Color = genreColors[genreGroup] ?: DEFAULT_COLOR
 
 // An artist can carry several tags across different genre groups — resolve them all,
 // then pick whichever group comes first in GenreGroup's declaration order so the color
 // is deterministic regardless of the order the tags happen to appear in.
 fun artistColor(artist: Artist): Color {
-    val matchedGroups = artist.tags
-        ?.mapNotNull { genreGroupOf(it) }
-        ?.toSet()
-        ?: emptySet()
+    val matchedGroups = artist.tags?.mapNotNull { genreGroupOf(it) }?.toSet() ?: emptySet()
 
     val group = GenreGroup.entries.firstOrNull { it in matchedGroups }
     return group?.let(::genreColor) ?: DEFAULT_COLOR

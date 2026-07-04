@@ -32,7 +32,10 @@ class ScheduleRepository(
     private val stageDao: StageDao,
     private val artistDao: ArtistDao,
 ) {
-    fun observeSetTimesForDay(dayStartMillis: Long, dayEndMillis: Long): Flow<List<SetTime>> =
+    fun observeSetTimesForDay(
+        dayStartMillis: Long,
+        dayEndMillis: Long,
+    ): Flow<List<SetTime>> =
         combine(
             setTimeDao.observeByDay(dayStartMillis, dayEndMillis),
             stageDao.observeAll(),
@@ -71,7 +74,8 @@ class ScheduleRepository(
             val days = generateSequence(startDate) { it.plus(1, DateTimeUnit.DAY) }
                 .takeWhile { it <= endDate }
                 .map { date ->
-                    val dayStartMillis = date.atTime(FESTIVAL_DAY_CUTOFF_HOURS.inWholeHours.toInt(), 0)
+                    val dayStartMillis = date
+                        .atTime(FESTIVAL_DAY_CUTOFF_HOURS.inWholeHours.toInt(), 0)
                         .toInstant(DateTimeUtils.FESTIVAL_TIME_ZONE)
                         .toEpochMilliseconds()
 
@@ -79,22 +83,19 @@ class ScheduleRepository(
                         dayStartMillis = dayStartMillis,
                         dayEndMillis = dayStartMillis + 24.hours.inWholeMilliseconds,
                         dateOfMonth = date.day,
-                        dayOfWeek = date.dayOfWeek.isoDayNumber
+                        dayOfWeek = date.dayOfWeek.isoDayNumber,
                     )
-                }
-                .toList()
+                }.toList()
 
             SetTimeDays(days = days)
         }
 
     /**
-     * Maps an epoch millis timestamp to its "festival date" — a day spans 6am to 6am
-     * local time, so a set at 2am is still considered part of the previous calendar day.
+     * Maps an epoch millis timestamp to its "festival date" — a day spans 6am to 6am local time, so a set at 2am is still considered part
+     * of the previous calendar day.
      */
     private fun Long.toFestivalDate(): LocalDate =
-        (Instant.fromEpochMilliseconds(this) - FESTIVAL_DAY_CUTOFF_HOURS)
-            .toLocalDateTime(DateTimeUtils.FESTIVAL_TIME_ZONE)
-            .date
+        (Instant.fromEpochMilliseconds(this) - FESTIVAL_DAY_CUTOFF_HOURS).toLocalDateTime(DateTimeUtils.FESTIVAL_TIME_ZONE).date
 
     private companion object {
         const val TAG = "ScheduleRepository"
@@ -107,9 +108,11 @@ class ScheduleRepository(
         Logger.d(TAG, "Refreshed ${stages.size} stages")
 
         val setTimes = api.getSetTimes()
-        setTimeDao.upsertAll(setTimes.map {
-            SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
-        })
+        setTimeDao.upsertAll(
+            setTimes.map {
+                SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
+            },
+        )
         Logger.d(TAG, "Refreshed ${setTimes.size} set times")
     }
 }

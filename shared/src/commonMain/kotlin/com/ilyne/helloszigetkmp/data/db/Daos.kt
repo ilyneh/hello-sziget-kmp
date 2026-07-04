@@ -21,7 +21,10 @@ interface ArtistDao {
     suspend fun upsertAll(artists: List<ArtistEntity>)
 
     @Query("UPDATE artists SET isFavorited = :isFavorited WHERE id = :id")
-    suspend fun setFavorited(id: String, isFavorited: Boolean)
+    suspend fun setFavorited(
+        id: String,
+        isFavorited: Boolean,
+    )
 }
 
 @Dao
@@ -35,14 +38,19 @@ interface StageDao {
 
 @Dao
 interface SetTimeDao {
-
-    data class SetTimeRange(val minStart: Long, val maxStart: Long)
+    data class SetTimeRange(
+        val minStart: Long,
+        val maxStart: Long,
+    )
 
     @Query("SELECT * FROM set_times ORDER BY startTime ASC")
     fun observeAll(): Flow<List<SetTimeEntity>>
 
     @Query("SELECT * FROM set_times WHERE startTime >= :dayStartMillis AND startTime < :dayEndMillis ORDER BY startTime ASC")
-    fun observeByDay(dayStartMillis: Long, dayEndMillis: Long): Flow<List<SetTimeEntity>>
+    fun observeByDay(
+        dayStartMillis: Long,
+        dayEndMillis: Long,
+    ): Flow<List<SetTimeEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(setTimes: List<SetTimeEntity>)

@@ -14,7 +14,9 @@ data class LineupUiState(
     val isLoading: Boolean = true,
 )
 
-class LineupViewModel(private val artistRepository: ArtistRepository) : ViewModel() {
+class LineupViewModel(
+    private val artistRepository: ArtistRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LineupUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -28,8 +30,10 @@ class LineupViewModel(private val artistRepository: ArtistRepository) : ViewMode
 
     fun removeFavorite(artistId: String) {
         viewModelScope.launch {
-            try { artistRepository.toggleFavorite(artistId, false) }
-            catch (_: Exception) {}
+            try {
+                artistRepository.toggleFavorite(artistId, false)
+            } catch (_: Exception) {
+            }
         }
     }
 }

@@ -13,14 +13,13 @@ actual class GoogleAuthProvider actual constructor() : KoinComponent {
     private val credentialManager by lazy { CredentialManager.create(context) }
 
     actual suspend fun signIn(): AuthUser {
-        val googleIdOption = GetGoogleIdOption.Builder()
+        val googleIdOption = GetGoogleIdOption
+            .Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(GoogleAuthConfig.WEB_CLIENT_ID)
             .build()
 
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+        val request = GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build()
         return try {
             val result = credentialManager.getCredential(request = request, context = context)
             val credential = GoogleIdTokenCredential.createFrom(result.credential.data)
@@ -42,4 +41,7 @@ actual class GoogleAuthProvider actual constructor() : KoinComponent {
     actual fun getCurrentUser(): AuthUser? = null
 }
 
-class AuthException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class AuthException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)

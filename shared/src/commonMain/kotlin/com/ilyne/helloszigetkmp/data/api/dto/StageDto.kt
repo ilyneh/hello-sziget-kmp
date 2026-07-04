@@ -10,8 +10,9 @@ data class StageDto(
     val description: String?,
 )
 
-fun StageDto.toDomain() = Stage(
-    id = id,
-    name = name,
-    description = description,
-)
+fun StageDto.toDomain() =
+    Stage(
+        id = id,
+        name = name,
+        description = description,
+    )

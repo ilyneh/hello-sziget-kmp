@@ -28,11 +28,11 @@ import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ScheduleScreen() {
+fun ScheduleScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ScheduleViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         // Header
         ScheduleHeader(
             viewMode = uiState.viewMode,
@@ -48,56 +48,73 @@ fun ScheduleScreen() {
 
         // Content
         when {
-            uiState.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+            uiState.isLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
-            uiState.error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+
+            uiState.error != null -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+                }
             }
-            else -> when (uiState.viewMode) {
-                ViewMode.GRID -> TimelineGridView(
-                    setTimes = uiState.setTimes,
-                    stages = uiState.stages,
-                    gridMinHour = uiState.gridMinHour,
-                    gridMaxHour = uiState.gridMaxHour,
-                )
-                ViewMode.SWIMLANE -> SwimLaneView(
-                    setTimes = uiState.setTimes,
-                    stages = uiState.stages,
-                    gridMinHour = uiState.gridMinHour,
-                    gridMaxHour = uiState.gridMaxHour,
-                )
-                ViewMode.LIST -> SetTimeListView(uiState.setTimes)
+
+            else -> {
+                when (uiState.viewMode) {
+                    ViewMode.GRID -> {
+                        TimelineGridView(
+                            setTimes = uiState.setTimes,
+                            stages = uiState.stages,
+                            gridMinHour = uiState.gridMinHour,
+                            gridMaxHour = uiState.gridMaxHour,
+                        )
+                    }
+
+                    ViewMode.SWIMLANE -> {
+                        SwimLaneView(
+                            setTimes = uiState.setTimes,
+                            stages = uiState.stages,
+                            gridMinHour = uiState.gridMinHour,
+                            gridMaxHour = uiState.gridMaxHour,
+                        )
+                    }
+
+                    ViewMode.LIST -> {
+                        SetTimeListView(uiState.setTimes)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ScheduleHeader(viewMode: ViewMode, onViewModeChange: (ViewMode) -> Unit) {
+private fun ScheduleHeader(
+    viewMode: ViewMode,
+    onViewModeChange: (ViewMode) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             "Schedule",
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         ViewModeToggle(current = viewMode, onChange = onViewModeChange)
     }
 }
 
 @Composable
-private fun ViewModeToggle(current: ViewMode, onChange: (ViewMode) -> Unit) {
+private fun ViewModeToggle(
+    current: ViewMode,
+    onChange: (ViewMode) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(2.dp),
+        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         ViewMode.entries.forEach { mode ->
@@ -111,7 +128,11 @@ private fun ViewModeToggle(current: ViewMode, onChange: (ViewMode) -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = when (mode) { ViewMode.GRID -> "⊞"; ViewMode.SWIMLANE -> "☰"; ViewMode.LIST -> "≡" },
+                    text = when (mode) {
+                        ViewMode.GRID -> "⊞"
+                        ViewMode.SWIMLANE -> "☰"
+                        ViewMode.LIST -> "≡"
+                    },
                     fontSize = 16.sp,
                     color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -127,9 +148,7 @@ private fun DaySelector(
     onDaySelect: (SetTimeDay) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         days.forEach { day ->
@@ -194,10 +213,7 @@ private fun TimelineGridView(
             Row(modifier = Modifier.horizontalScroll(horizScroll)) {
                 stages.forEach { stage ->
                     Box(
-                        modifier = Modifier
-                            .width(COLUMN_WIDTH_DP.dp)
-                            .height(HEADER_HEIGHT_DP.dp)
-                            .padding(horizontal = 4.dp),
+                        modifier = Modifier.width(COLUMN_WIDTH_DP.dp).height(HEADER_HEIGHT_DP.dp).padding(horizontal = 4.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -205,7 +221,7 @@ private fun TimelineGridView(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = stageColor(stage.id),
-                            lineHeight = 11.sp
+                            lineHeight = 11.sp,
                         )
                     }
                 }
@@ -220,15 +236,13 @@ private fun TimelineGridView(
                     .width(TIME_LABEL_WIDTH_DP.dp)
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.surface)
-                    .verticalScroll(vertScroll)
+                    .verticalScroll(vertScroll),
             ) {
                 Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
                     for (hour in gridMinHour..gridMaxHour) {
                         val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
                         Box(
-                            modifier = Modifier
-                                .offset(x = 8.dp, y = y)
-                                .height(HOUR_LABEL_HEIGHT_DP.dp),
+                            modifier = Modifier.offset(x = 8.dp, y = y).height(HOUR_LABEL_HEIGHT_DP.dp),
                             contentAlignment = Alignment.CenterStart,
                         ) {
                             Text(
@@ -242,24 +256,23 @@ private fun TimelineGridView(
                 }
             }
 
-            Box(modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .verticalScroll(vertScroll)
-                .horizontalScroll(horizScroll)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .verticalScroll(vertScroll)
+                    .horizontalScroll(horizScroll),
             ) {
-                Box(modifier = Modifier
-                    .size(totalGridWidth, totalGridHeight)
-                    .background(MaterialTheme.colorScheme.surface)
-                ) {
+                Box(modifier = Modifier.size(totalGridWidth, totalGridHeight).background(MaterialTheme.colorScheme.surface)) {
                     // Hour gridlines span the full scrollable grid width
                     for (hour in gridMinHour..gridMaxHour) {
                         val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
                         Box(
-                            modifier = Modifier.offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
+                            modifier = Modifier
+                                .offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(MaterialTheme.colorScheme.outlineVariant)
+                                .background(MaterialTheme.colorScheme.outlineVariant),
                         )
                     }
 
@@ -276,10 +289,7 @@ private fun TimelineGridView(
 
                         SetTimeCard(
                             setTime = setTime,
-                            modifier = Modifier
-                                .offset(x = leftDp, y = topDp + topOffset)
-                                .width((COLUMN_WIDTH_DP - 4).dp)
-                                .height(heightDp),
+                            modifier = Modifier.offset(x = leftDp, y = topDp + topOffset).width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
                         )
                     }
                 }
@@ -322,13 +332,17 @@ private fun SwimLaneView(
             stages.forEach { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }
                 Row(
-                    modifier = Modifier
-                        .height(80.dp)
-                        .horizontalScroll(horizScroll),
+                    modifier = Modifier.height(80.dp).horizontalScroll(horizScroll),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.width(80.dp).fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
-                        Text(stage.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = stageColor(stage.id), modifier = Modifier.padding(start = 8.dp))
+                        Text(
+                            stage.name,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = stageColor(stage.id),
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
                     }
 
                     val totalWidth = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp

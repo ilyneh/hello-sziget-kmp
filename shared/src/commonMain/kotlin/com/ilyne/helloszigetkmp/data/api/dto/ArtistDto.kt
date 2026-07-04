@@ -14,10 +14,11 @@ data class ArtistDto(
     val tags: List<String>?,
 )
 
-fun ArtistDto.toDomain() = Artist(
-    id = id,
-    name = name,
-    bio = bio,
-    isFavorited = isFavorited,
-    tags = tags,
-)
+fun ArtistDto.toDomain() =
+    Artist(
+        id = id,
+        name = name,
+        bio = bio,
+        isFavorited = isFavorited,
+        tags = tags,
+    )

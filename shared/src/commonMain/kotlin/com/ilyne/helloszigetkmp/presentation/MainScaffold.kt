@@ -46,12 +46,15 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
 @Serializable object ScheduleTab
+
 @Serializable object DiscoverTab
+
 @Serializable object LineupTab
+
 @Serializable object ProfileTab
 
 @Composable
-fun MainScaffold() {
+fun MainScaffold(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -67,48 +70,44 @@ fun MainScaffold() {
         tabs[0] to {
             Icon(
                 painter = painterResource(Res.drawable.schedule_icon),
-                contentDescription = "Schedule_Tab"
+                contentDescription = "Schedule_Tab",
             )
         },
         tabs[1] to {
             Icon(
                 painter = painterResource(Res.drawable.discover_icon),
-                contentDescription = "Discover_Tab"
+                contentDescription = "Discover_Tab",
             )
         },
         tabs[2] to {
             Icon(
                 painter = painterResource(Res.drawable.heart_icon),
-                contentDescription = "My_Lineup_Tab"
+                contentDescription = "My_Lineup_Tab",
             )
         },
         tabs[3] to {
             Icon(
                 painter = painterResource(Res.drawable.person_icon),
-                contentDescription = "Profile_Tab"
+                contentDescription = "Profile_Tab",
             )
-        }
+        },
     )
 
     Scaffold(
         bottomBar = {
             Surface(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
-                    .navigationBarsPadding()
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        shadowElevation = 8.dp.toPx() // The size/spread of the shadow
-                        shape = RoundedCornerShape(24.dp)
-                        clip = false
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp).navigationBarsPadding().fillMaxWidth().graphicsLayer {
+                    shadowElevation = 8.dp.toPx() // The size/spread of the shadow
+                    shape = RoundedCornerShape(24.dp)
+                    clip = false
 
-                        // Lower the intensity by reducing the alpha (opacity) of the shadow colors
-                        ambientShadowColor = Color.Black.copy(alpha = 0.2f) // Ultra soft ambient glow
-                        spotShadowColor = Color.Black.copy(alpha = 0.4f)    // Softer directional shadow
-                    },
+                    // Lower the intensity by reducing the alpha (opacity) of the shadow colors
+                    ambientShadowColor = Color.Black.copy(alpha = 0.2f) // Ultra soft ambient glow
+                    spotShadowColor = Color.Black.copy(alpha = 0.4f) // Softer directional shadow
+                },
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.25.dp
+                tonalElevation = 0.25.dp,
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp),
@@ -134,15 +133,14 @@ fun MainScaffold() {
                     }
                 }
             }
-        }
+        },
     ) { innerPadding ->
+        // Keep the top status-bar inset but drop the bottom one, so content flows
+        // underneath the floating navigation bar instead of stopping above it.
         NavHost(
             navController = navController,
             startDestination = ScheduleTab,
-            modifier = Modifier.padding(
-                top = innerPadding.calculateTopPadding(), // Keeps top status bar spacing
-                bottom = 0.dp // Forces content to flow underneath the navigation barinnerPadding
-            ),
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding(), bottom = 0.dp),
         ) {
             composable<ScheduleTab> { ScheduleScreen() }
             composable<DiscoverTab> { DiscoverScreen() }
@@ -152,15 +150,18 @@ fun MainScaffold() {
     }
 }
 
-private data class BottomTab(val label: String, val route: Any)
+private data class BottomTab(
+    val label: String,
+    val route: Any,
+)
 
 @Composable
 private fun BottomTabItem(
-    modifier: Modifier = Modifier,
     label: String,
     icon: @Composable () -> Unit,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val contentColor = if (selected) {
         MaterialTheme.colorScheme.primary

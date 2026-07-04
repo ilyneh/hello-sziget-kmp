@@ -4,9 +4,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /**
- * App-wide semantic color roles, shaped like Material3's ColorScheme (same role names,
- * same on-x pairing convention) but sourced from Sziget's own brand palette rather than
- * Material's defaults.
+ * App-wide semantic color roles, shaped like Material3's ColorScheme (same role names, same on-x pairing convention) but sourced from
+ * Sziget's own brand palette rather than Material's defaults.
  */
 data class AppColorScheme(
     val primary: Color,

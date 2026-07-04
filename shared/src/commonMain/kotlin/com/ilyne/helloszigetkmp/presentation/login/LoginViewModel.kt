@@ -22,7 +22,6 @@ sealed class LoginEffect {
 class LoginViewModel(
     private val authProvider: GoogleAuthProvider,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 

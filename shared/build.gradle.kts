@@ -8,12 +8,13 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.spotless)
 }
 
 kotlin {
     listOf(
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
@@ -98,4 +99,39 @@ dependencies {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**/*.kt") // Exclude generated KMP files
+
+        // ktlint owns both formatting and the io.nlopez.compose.rules custom "compose"
+        // ruleset (compositionlocal-allowlist, lambda-param-in-effect, function-naming
+        // exception for @Composable). no-wildcard-imports is disabled because Compose
+        // files intentionally wildcard-import androidx.compose.* packages.
+        //
+        // We'd also like multiline-expression-wrapping disabled (keep the callee on the
+        // same line as `=`, e.g. `val x = listOf(` with only the argument list wrapping
+        // below it) — confirmed via the raw ktlint CLI that disabling this rule via
+        // .editorconfig works correctly and produces exactly that output. But Spotless's
+        // ktlint integration silently drops this specific property no matter how it's
+        // supplied (editorConfigOverride map, or an explicit editorConfigPath pointing at
+        // this exact file) — every other override here takes effect except this one, so
+        // it appears to be a gap in Spotless's property bridge, not a ktlint limitation.
+        ktlint("1.8.0")
+            .customRuleSets(
+                listOf(
+                    "io.nlopez.compose.rules:ktlint:0.6.2",
+                ),
+            ).editorConfigOverride(
+                mapOf(
+                    "ktlint_standard_no-wildcard-imports" to "disabled",
+                    "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+                    "compose_allowed_composition_locals" to "LocalAppColors",
+                    "ktlint_standard_multiline-expression-wrapping" to "disabled",
+                    "ktlint_standard_string-template-indent" to "disabled",
+                ),
+            )
+    }
 }

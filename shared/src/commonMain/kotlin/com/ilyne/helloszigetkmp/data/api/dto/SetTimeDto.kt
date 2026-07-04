@@ -9,18 +9,17 @@ data class SetTimeDto(
     val id: String,
     @SerialName("artist_id") val artistId: String,
     @SerialName("stage_id") val stageId: String?,
-    @Serializable(with = EpochMillisSerializer::class)
-    @SerialName("start_time") val startTime: Long,
-    @Serializable(with = EpochMillisSerializer::class)
-    @SerialName("end_time") val endTime: Long,
-    @SerialName("hide_end_time") val hideEndTime: Boolean = false
+    @Serializable(with = EpochMillisSerializer::class) @SerialName("start_time") val startTime: Long,
+    @Serializable(with = EpochMillisSerializer::class) @SerialName("end_time") val endTime: Long,
+    @SerialName("hide_end_time") val hideEndTime: Boolean = false,
 )
 
-fun SetTimeDto.toDomain() = SetTime(
-    id = id,
-    artistId = artistId,
-    stageId = stageId,
-    startTime = startTime,
-    endTime = endTime,
-    hideEndTime = hideEndTime
-)
+fun SetTimeDto.toDomain() =
+    SetTime(
+        id = id,
+        artistId = artistId,
+        stageId = stageId,
+        startTime = startTime,
+        endTime = endTime,
+        hideEndTime = hideEndTime,
+    )

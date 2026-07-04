@@ -9,6 +9,8 @@ data class AuthUser(
 
 expect class GoogleAuthProvider() {
     suspend fun signIn(): AuthUser
+
     fun signOut()
+
     fun getCurrentUser(): AuthUser?
 }

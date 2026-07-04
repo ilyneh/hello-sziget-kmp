@@ -20,7 +20,9 @@ expect object SzigetDatabaseConstructor : RoomDatabaseConstructor<SzigetDatabase
 @TypeConverters(Converters::class)
 abstract class SzigetDatabase : RoomDatabase() {
     abstract fun artistDao(): ArtistDao
+
     abstract fun stageDao(): StageDao
+
     abstract fun setTimeDao(): SetTimeDao
 }
 

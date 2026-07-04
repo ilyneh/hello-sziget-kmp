@@ -16,11 +16,11 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DiscoverScreen() {
+fun DiscoverScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<DiscoverViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = "Discover",
             fontSize = 28.sp,
@@ -29,20 +29,25 @@ fun DiscoverScreen() {
         )
 
         when {
-            uiState.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+            uiState.isLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
-            else -> LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(uiState.artists, key = { it.id }) { artist ->
-                    ArtistCard(
-                        artist = artist,
-                        onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
-                    )
+
+            else -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    items(uiState.artists, key = { it.id }) { artist ->
+                        ArtistCard(
+                            artist = artist,
+                            onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
+                        )
+                    }
                 }
             }
         }
@@ -50,7 +55,10 @@ fun DiscoverScreen() {
 }
 
 @Composable
-private fun ArtistCard(artist: Artist, onFavoriteToggle: () -> Unit) {
+private fun ArtistCard(
+    artist: Artist,
+    onFavoriteToggle: () -> Unit,
+) {
     Card(modifier = Modifier.fillMaxWidth().aspectRatio(0.8f)) {
         Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
             Column {

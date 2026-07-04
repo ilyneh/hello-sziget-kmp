@@ -15,7 +15,9 @@ data class DiscoverUiState(
     val error: String? = null,
 )
 
-class DiscoverViewModel(private val artistRepository: ArtistRepository) : ViewModel() {
+class DiscoverViewModel(
+    private val artistRepository: ArtistRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState(isLoading = true))
     val uiState = _uiState.asStateFlow()
 
@@ -26,15 +28,24 @@ class DiscoverViewModel(private val artistRepository: ArtistRepository) : ViewMo
             }
         }
         viewModelScope.launch {
-            try { artistRepository.refresh() }
-            catch (e: Exception) { _uiState.update { it.copy(error = e.message, isLoading = false) } }
+            try {
+                artistRepository.refresh()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message, isLoading = false) }
+            }
         }
     }
 
-    fun toggleFavorite(artistId: String, current: Boolean) {
+    fun toggleFavorite(
+        artistId: String,
+        current: Boolean,
+    ) {
         viewModelScope.launch {
-            try { artistRepository.toggleFavorite(artistId, !current) }
-            catch (e: Exception) { _uiState.update { it.copy(error = e.message) } }
+            try {
+                artistRepository.toggleFavorite(artistId, !current)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 }

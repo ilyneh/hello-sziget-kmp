@@ -8,15 +8,16 @@ var googleCurrentUserHandler: (() -> AuthUser?)? = null
 
 actual class GoogleAuthProvider actual constructor() {
     actual suspend fun signIn(): AuthUser =
-        googleSignInHandler?.invoke()
-            ?: throw AuthException("Google Sign-In handler not configured on iOS")
+        googleSignInHandler?.invoke() ?: throw AuthException("Google Sign-In handler not configured on iOS")
 
     actual fun signOut() {
         googleSignOutHandler?.invoke()
     }
 
-    actual fun getCurrentUser(): AuthUser? =
-        googleCurrentUserHandler?.invoke()
+    actual fun getCurrentUser(): AuthUser? = googleCurrentUserHandler?.invoke()
 }
 
-class AuthException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class AuthException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)

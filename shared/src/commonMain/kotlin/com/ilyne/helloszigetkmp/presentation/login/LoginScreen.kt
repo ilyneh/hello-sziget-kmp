@@ -14,20 +14,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val viewModel = koinViewModel<LoginViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val currentOnLoginSuccess by rememberUpdatedState(onLoginSuccess)
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                LoginEffect.NavigateToMain -> onLoginSuccess()
+                LoginEffect.NavigateToMain -> currentOnLoginSuccess()
             }
         }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter,
     ) {
         // Gradient background placeholder — replace with actual gradient
@@ -36,15 +40,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         }
 
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {

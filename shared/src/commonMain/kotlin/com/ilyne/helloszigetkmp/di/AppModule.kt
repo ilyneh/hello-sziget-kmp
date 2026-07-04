@@ -9,10 +9,10 @@ import com.ilyne.helloszigetkmp.data.db.createDatabase
 import com.ilyne.helloszigetkmp.data.db.getDatabaseBuilder
 import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
-import com.ilyne.helloszigetkmp.presentation.login.LoginViewModel
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleViewModel
 import com.ilyne.helloszigetkmp.presentation.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
+import com.ilyne.helloszigetkmp.presentation.login.LoginViewModel
+import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
