@@ -2,14 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ForbiddenComment:LoginScreen.kt$// TODO: full-bleed gradient + SZIGET logo + tagline</ID>
     <ID>ForbiddenComment:ProfileScreen.kt$// TODO: friends list</ID>
     <ID>ForbiddenComment:ProfileScreen.kt$// TODO: share lineup button (native share sheet via expect/actual)</ID>
     <ID>ForbiddenComment:ProfileScreen.kt$// TODO: sign out</ID>
     <ID>ForbiddenComment:ProfileScreen.kt$// TODO: user avatar, display name, email</ID>
-    <ID>LongMethod:LoginScreen.kt$@Composable fun LoginScreen( onLoginSuccess: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>LongMethod:MainScaffold.kt$@Composable fun MainScaffold(modifier: Modifier = Modifier)</ID>
     <ID>LongMethod:ScheduleScreen.kt$@Composable private fun TimelineGridView( setTimes: List&lt;ScheduleUiModel.SetTime&gt;, stages: List&lt;Stage&gt;, gridMinHour: Int, gridMaxHour: Int, )</ID>
+    <ID>LongMethod:SignInCard.kt$@Composable fun SignInCard( isLoading: Boolean, error: String?, onSignIn: () -&gt; Unit, onContinueAsGuest: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:WelcomeBackground.kt$@Composable fun WelcomeBackground(modifier: Modifier = Modifier)</ID>
     <ID>LongParameterList:ScheduleUiModel.kt$ScheduleUiModel.SetTime$( val id: String, val artistId: String, val stageId: String?, val startTime: Long, // epoch millis val endTime: Long, // epoch millis val hideEndTime: Boolean, val artist: Artist? = null, val stage: Stage? = null, val isInThePast: Boolean, val startHourFraction: Double, val endHourFraction: Double, )</ID>
     <ID>MagicNumber:AppColors.kt$0xFF121212</ID>
     <ID>MagicNumber:AppColors.kt$0xFF1A1A1A</ID>
@@ -57,6 +57,11 @@
     <ID>MagicNumber:StageColors.kt$0xFFE057A0</ID>
     <ID>MagicNumber:StageColors.kt$0xFFE63950</ID>
     <ID>MagicNumber:StageColors.kt$0xFFE6A23B</ID>
+    <ID>MagicNumber:WelcomeBackground.kt$0xFF3B00DD</ID>
+    <ID>MagicNumber:WelcomeBackground.kt$0xFFB83DD8</ID>
+    <ID>MagicNumber:WelcomeBackground.kt$0xFFFF4958</ID>
+    <ID>MagicNumber:WelcomeBackground.kt$0xFFFFDC00</ID>
+    <ID>MagicNumber:WelcomeBackground.kt$6f</ID>
     <ID>MatchingDeclarationName:AppColors.kt$AppColorScheme</ID>
     <ID>MatchingDeclarationName:Platform.android.kt$AndroidPlatform : Platform</ID>
     <ID>MatchingDeclarationName:Platform.ios.kt$IOSPlatform : Platform</ID>
@@ -71,9 +76,6 @@
     <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.runtime.*</ID>
