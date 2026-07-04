@@ -22,6 +22,10 @@ ktlint_ignore_back_ticked_identifier = true
 # packages, so no-wildcard-imports is disabled.
 ktlint_standard_no-wildcard-imports = disabled
 
+# Allow capitalized @Composable function names (the standard Compose convention), which
+# would otherwise trip the lowercase-camelCase requirement.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
 # We'd like assignments to keep the callee on the same line as `=` (only the argument
 # list wraps below), rather than moving the whole value to its own line. Disabling this
 # rule here works correctly for the ktlint CLI and IDE plugins that read .editorconfig

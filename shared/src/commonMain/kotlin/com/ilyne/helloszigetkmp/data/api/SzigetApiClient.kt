@@ -13,22 +13,25 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-fun createHttpClient(): HttpClient = HttpClient {
-    install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        })
-    }
-    install(Logging) {
-        logger = Logger.SIMPLE
-        level = LogLevel.INFO
-    }
-    install(Auth) {
-        bearer {
-            loadTokens {
-                BearerTokens(accessToken = BEARER_TOKEN_LOCALHOST, refreshToken = null)
+fun createHttpClient(): HttpClient =
+    HttpClient {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                },
+            )
+        }
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.INFO
+        }
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    BearerTokens(accessToken = BEARER_TOKEN_LOCALHOST, refreshToken = null)
+                }
             }
         }
     }
-}

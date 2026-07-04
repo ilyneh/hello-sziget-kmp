@@ -24,14 +24,8 @@ kotlin {
 
     android {
         namespace = "com.ilyne.helloszigetkmp.shared"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
@@ -133,14 +127,11 @@ spotless {
             ).editorConfigOverride(
                 mapOf(
                     "ktlint_standard_no-wildcard-imports" to "disabled",
+                    "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
                     "compose_allowed_composition_locals" to "LocalAppColors",
                     "ktlint_standard_multiline-expression-wrapping" to "disabled",
                     "ktlint_standard_string-template-indent" to "disabled",
                 ),
             )
-    }
-    kotlinGradle {
-        target("*.gradle.kts") // default target for kotlinGradle
-        ktlint() // or ktfmt() or prettier()
     }
 }
