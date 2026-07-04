@@ -1,11 +1,11 @@
 package com.ilyne.helloszigetkmp.presentation.login.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,19 +49,21 @@ fun SignInCard(
             Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Text(
                     text = "Plan your festival",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                 )
+                Spacer(Modifier.height(16.dp))
+
                 Text(
                     text = "Build your lineup & see who's going",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
+                Spacer(Modifier.height(16.dp))
 
                 if (error != null) {
                     Text(
