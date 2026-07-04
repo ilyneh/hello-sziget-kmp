@@ -1,0 +1,79 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  # CompositionLocalAllowlist's `allowedCompositionLocals` works at runtime but isn't
+  # listed in compose-rules' bundled default config, so detekt's validator treats it
+  # as an unknown property unless explicitly excluded here.
+  excludes: 'Compose>CompositionLocalAllowlist>allowedCompositionLocals'
+
+style:
+  MaxLineLength:
+    active: false
+
+naming:
+  # Composable functions are PascalCase by convention; ktlint already carves out
+  # the same exception (ktlint_function_naming_ignore_when_annotated_with).
+  FunctionNaming:
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  CompositionLocalAllowlist:
+    active: true
+    allowedCompositionLocals:
+      - 'LocalAppColors'
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  ContentSlotReused:
+    active: true
+  ContentTrailingLambda:
+    active: true
+  DefaultsVisibility:
+    active: true
+  LambdaParameterEventTrailing:
+    active: true
+  LambdaParameterInRestartableEffect:
+    active: true
+  ModifierClickableOrder:
+    active: true
+  ModifierComposed:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableParams:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  MutableStateParam:
+    active: true
+  ParameterNaming:
+    active: true
+  PreviewAnnotationNaming:
+    active: true
+  RememberContentMissing:
+    active: true
+  RememberMissing:
+    active: true
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true

@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ForbiddenComment:LoginScreen.kt$// TODO: full-bleed gradient + SZIGET logo + tagline</ID>
+    <ID>ForbiddenComment:ProfileScreen.kt$// TODO: friends list</ID>
+    <ID>ForbiddenComment:ProfileScreen.kt$// TODO: share lineup button (native share sheet via expect/actual)</ID>
+    <ID>ForbiddenComment:ProfileScreen.kt$// TODO: sign out</ID>
+    <ID>ForbiddenComment:ProfileScreen.kt$// TODO: user avatar, display name, email</ID>
+    <ID>LongMethod:LoginScreen.kt$@Composable fun LoginScreen( onLoginSuccess: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:MainScaffold.kt$@Composable fun MainScaffold(modifier: Modifier = Modifier)</ID>
+    <ID>LongMethod:ScheduleScreen.kt$@Composable private fun TimelineGridView( setTimes: List&lt;ScheduleUiModel.SetTime&gt;, stages: List&lt;Stage&gt;, gridMinHour: Int, gridMaxHour: Int, )</ID>
+    <ID>LongParameterList:ScheduleUiModel.kt$ScheduleUiModel.SetTime$( val id: String, val artistId: String, val stageId: String?, val startTime: Long, // epoch millis val endTime: Long, // epoch millis val hideEndTime: Boolean, val artist: Artist? = null, val stage: Stage? = null, val isInThePast: Boolean, val startHourFraction: Double, val endHourFraction: Double, )</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF121212</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF1A1A1A</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF2A2A2E</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF33333A</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF4A4A4E</ID>
+    <ID>MagicNumber:AppColors.kt$0xFF5C1420</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFAAAAAA</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFB3261E</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFCCCCCC</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFE5E5E8</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFE8354A</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFEDEDED</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFF4F4F6</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFFCE4E7</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFFF6B7D</ID>
+    <ID>MagicNumber:AppColors.kt$0xFFFFB4AB</ID>
+    <ID>MagicNumber:DateTimeUtils.kt$24</ID>
+    <ID>MagicNumber:DateTimeUtils.kt$60.0</ID>
+    <ID>MagicNumber:DiscoverScreen.kt$0.8f</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFF0EA5E9</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFF10B981</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFF2BB8B8</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFF8B3CF7</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFFAAAAAA</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFFE8354A</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFFEC4899</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFFF59E0B</ID>
+    <ID>MagicNumber:GenreColors.kt$0xFFFFDC00</ID>
+    <ID>MagicNumber:MainScaffold.kt$3</ID>
+    <ID>MagicNumber:ScheduleScreen.kt$24</ID>
+    <ID>MagicNumber:ScheduleScreen.kt$3</ID>
+    <ID>MagicNumber:ScheduleScreen.kt$4</ID>
+    <ID>MagicNumber:ScheduleViewModel.kt$ScheduleViewModel$1754524800000L</ID>
+    <ID>MagicNumber:ScheduleViewModel.kt$ScheduleViewModel$86_400_000L</ID>
+    <ID>MagicNumber:SetTimeCard.kt$0.55f</ID>
+    <ID>MagicNumber:SetTimeDays.kt$3</ID>
+    <ID>MagicNumber:SetTimeDays.kt$4</ID>
+    <ID>MagicNumber:SetTimeDays.kt$5</ID>
+    <ID>MagicNumber:SetTimeDays.kt$6</ID>
+    <ID>MagicNumber:SetTimeDays.kt$7</ID>
+    <ID>MagicNumber:StageColors.kt$0xFF2FAE7C</ID>
+    <ID>MagicNumber:StageColors.kt$0xFF3B9AE1</ID>
+    <ID>MagicNumber:StageColors.kt$0xFF8C63E6</ID>
+    <ID>MagicNumber:StageColors.kt$0xFFE057A0</ID>
+    <ID>MagicNumber:StageColors.kt$0xFFE63950</ID>
+    <ID>MagicNumber:StageColors.kt$0xFFE6A23B</ID>
+    <ID>MatchingDeclarationName:AppColors.kt$AppColorScheme</ID>
+    <ID>MatchingDeclarationName:Platform.android.kt$AndroidPlatform : Platform</ID>
+    <ID>MatchingDeclarationName:Platform.ios.kt$IOSPlatform : Platform</ID>
+    <ID>TooGenericExceptionCaught:ArtistRepository.kt$ArtistRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DiscoverViewModel.kt$DiscoverViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GoogleAuthProvider.android.kt$GoogleAuthProvider$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LoginViewModel.kt$LoginViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ScheduleViewModel.kt$ScheduleViewModel$e: Exception</ID>
+    <ID>UnusedParameter:MainScaffold.kt$modifier: Modifier = Modifier</ID>
+    <ID>UnusedParameter:SzigetApiService.kt$SzigetApiService$isFavorited: Boolean</ID>
+    <ID>UnusedPrivateMember:ScheduleViewModel.kt$ScheduleViewModel$private fun buildFestivalDays(): List&lt;FestivalDay&gt;</ID>
+    <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DiscoverScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:LoginScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:MyLineupScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ProfileScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ProfileScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ScheduleScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ScheduleScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ScheduleScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SetTimeCard.kt$import androidx.compose.foundation.layout.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -27,6 +27,10 @@ credentials = "1.5.0"
 googleid = "1.1.1"
 kotlinx-coroutines = "1.11.0"
 spotless = "8.8.0"
+detekt = "1.23.8"
+# Pinned below 0.5.0: compose-rules switched its detekt module to the dev.detekt
+# 2.x API starting at 0.5.0, which isn't compatible with detekt 1.23.x.
+detekt-compose = "0.4.28"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -77,6 +81,7 @@ credentials = { module = "androidx.credentials:credentials", version.ref = "cred
 credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -88,3 +93,4 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
