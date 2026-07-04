@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
+import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.ScheduleColors
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.stageColor
 import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
 import com.ilyne.hello_sziget_kmp.util.datetime.toLocalDateTime
@@ -122,7 +123,7 @@ private fun DaySelector(
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceVariant)
+                    .background(if (isSelected) ScheduleColors.scheduleDaySelectedColor else ScheduleColors.scheduleDayNotSelectedColor)
                     .clickable { onDaySelect(day) }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -130,13 +131,13 @@ private fun DaySelector(
                 Text(
                     text = day.dayOfWeekLabel().uppercase(),
                     fontSize = 11.sp,
-                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (isSelected) Color.White else ScheduleColors.Text.scheduleDay,
                 )
                 Text(
                     text = day.dateOfMonth.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                    color = if (isSelected) Color.White else ScheduleColors.Text.scheduleDay,
                 )
             }
         }
