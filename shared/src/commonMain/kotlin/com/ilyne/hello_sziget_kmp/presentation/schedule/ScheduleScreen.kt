@@ -23,7 +23,6 @@ import com.ilyne.hello_sziget_kmp.domain.model.SetTimeDay
 import com.ilyne.hello_sziget_kmp.domain.model.Stage
 import com.ilyne.hello_sziget_kmp.domain.model.dayOfWeekLabel
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.SetTimeCard
-import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.ScheduleColors
 import com.ilyne.hello_sziget_kmp.presentation.schedule.components.color.stageColor
 import com.ilyne.hello_sziget_kmp.presentation.schedule.model.ScheduleUiModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -133,7 +132,7 @@ private fun DaySelector(
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) ScheduleColors.scheduleDaySelectedColor else ScheduleColors.scheduleDayNotSelectedColor)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                     .clickable { onDaySelect(day) }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -141,13 +140,13 @@ private fun DaySelector(
                 Text(
                     text = day.dayOfWeekLabel().uppercase(),
                     fontSize = 11.sp,
-                    color = if (isSelected) Color.White else ScheduleColors.Text.scheduleDay,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = day.dateOfMonth.toString(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) Color.White else ScheduleColors.Text.scheduleDay,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
