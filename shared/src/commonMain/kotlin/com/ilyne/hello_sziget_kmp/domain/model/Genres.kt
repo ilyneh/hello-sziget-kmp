@@ -1,5 +1,29 @@
 package com.ilyne.hello_sziget_kmp.domain.model
 
+import com.ilyne.hello_sziget_kmp.domain.model.GenreGroup.INDIE
+
+
+enum class PerformanceType {
+    MUSIC, DANCE, ARTS_CULTURE
+}
+
+private val performanceTypeMapping = mapOf(
+    PerformanceType.MUSIC to listOf(GenreGroup.ROCK, GenreGroup.POP, INDIE, GenreGroup.JAZZ,
+        GenreGroup.ELECTRONIC, GenreGroup.TECHNO, GenreGroup.HOUSE, GenreGroup.RAP,
+        GenreGroup.HIP_HOP, GenreGroup.EXPERIMENTAL, GenreGroup.FOLK, GenreGroup.DISCO,
+        GenreGroup.TRANCE, GenreGroup.BASS, GenreGroup.WORLD,
+    ),
+    PerformanceType.DANCE to listOf(GenreGroup.DANCE),
+    PerformanceType.ARTS_CULTURE to listOf(GenreGroup.PERFORMANCE, GenreGroup.COMEDY,
+        GenreGroup.WORKSHOP, GenreGroup.VISUAL_ART
+    )
+)
+
+private val genreToPerformanceType: Map<GenreGroup, PerformanceType> =
+    performanceTypeMapping.flatMap { (performanceType, groups) ->
+        groups.map { it to performanceType }
+    }.toMap()
+
 enum class GenreGroup {
     ROCK, POP, INDIE, JAZZ, ELECTRONIC, TECHNO, HOUSE, RAP, HIP_HOP, EXPERIMENTAL, FOLK,
     DISCO, TRANCE, BASS, WORLD, DANCE, PERFORMANCE, COMEDY, WORKSHOP, VISUAL_ART
@@ -16,7 +40,7 @@ private val genreMapping = mapOf(
         "genre-pop", "genre-pop-rock", "genre-alt-pop", "genre-electropop",
         "genre-scandi-pop", "genre-frenglish-pop", "genre-ballads", "genre-avant-garde-pop",
     ),
-    GenreGroup.INDIE to listOf(
+    INDIE to listOf(
         "genre-indie", "genre-indie-rock", "genre-indie-pop", "genre-dance-pop",
         "genre-dream-pop", "genre-shoegaze",
     ),
@@ -91,3 +115,5 @@ private val tagToGenreGroup: Map<String, GenreGroup> =
     genreMapping.flatMap { (group, tags) -> tags.map { it to group } }.toMap()
 
 fun genreGroupOf(tag: String): GenreGroup? = tagToGenreGroup[tag]
+
+fun performanceTypeOf(genreGroup: GenreGroup): PerformanceType? = genreToPerformanceType[genreGroup]
