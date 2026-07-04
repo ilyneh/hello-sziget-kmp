@@ -19,11 +19,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.ilyne.hello_sziget_kmp"
+    namespace = "com.ilyne.helloszigetkmp"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.ilyne.hello_sziget_kmp"
+        applicationId = "com.ilyne.helloszigetkmp"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
