@@ -81,7 +81,12 @@ private fun ScheduleHeader(viewMode: ViewMode, onViewModeChange: (ViewMode) -> U
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("Schedule", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text(
+            "Schedule",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.weight(1f)
+        )
         ViewModeToggle(current = viewMode, onChange = onViewModeChange)
     }
 }
@@ -178,10 +183,7 @@ private fun TimelineGridView(
         return
     }
 
-    val minHour = gridMinHour
-    val maxHour = gridMaxHour
-
-    val totalGridHeight = ((maxHour - minHour) * HOUR_HEIGHT_DP).dp
+    val totalGridHeight = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp
     val totalGridWidth = (stages.size * COLUMN_WIDTH_DP).dp
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -221,8 +223,8 @@ private fun TimelineGridView(
                     .verticalScroll(vertScroll)
             ) {
                 Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
-                    for (hour in minHour..maxHour) {
-                        val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
+                    for (hour in gridMinHour..gridMaxHour) {
+                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
                         Box(
                             modifier = Modifier
                                 .offset(x = 8.dp, y = y)
@@ -251,8 +253,8 @@ private fun TimelineGridView(
                     .background(MaterialTheme.colorScheme.surface)
                 ) {
                     // Hour gridlines span the full scrollable grid width
-                    for (hour in minHour..maxHour) {
-                        val y = ((hour - minHour) * HOUR_HEIGHT_DP).dp
+                    for (hour in gridMinHour..gridMaxHour) {
+                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
                         Box(
                             modifier = Modifier.offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
                                 .fillMaxWidth()
@@ -267,7 +269,7 @@ private fun TimelineGridView(
                         if (stageIndex < 0) return@forEach
                         val startHourFraction = setTime.startHourFraction
                         val endHourFraction = setTime.endHourFraction
-                        val topDp = ((startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
+                        val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
                         val topOffset = (3 + HOUR_LABEL_HEIGHT_DP / 2).dp
                         val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                         val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
@@ -305,14 +307,11 @@ private fun SwimLaneView(
         return
     }
 
-    val minHour = gridMinHour
-    val maxHour = gridMaxHour
-
     Column(modifier = Modifier.fillMaxSize()) {
         // Time axis header
         Row(modifier = Modifier.horizontalScroll(horizScroll)) {
             Spacer(modifier = Modifier.width(80.dp))
-            for (h in minHour until maxHour) {
+            for (h in gridMinHour until gridMaxHour) {
                 Box(modifier = Modifier.width(HOUR_HEIGHT_DP.dp).height(HEADER_HEIGHT_DP.dp), contentAlignment = Alignment.CenterStart) {
                     Text("${h % 24}:00", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -332,10 +331,10 @@ private fun SwimLaneView(
                         Text(stage.name, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = stageColor(stage.id), modifier = Modifier.padding(start = 8.dp))
                     }
 
-                    val totalWidth = ((maxHour - minHour) * HOUR_HEIGHT_DP).dp
+                    val totalWidth = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp
                     Box(modifier = Modifier.width(totalWidth).fillMaxHeight()) {
                         stageSets.forEach { setTime ->
-                            val leftDp = ((setTime.startHourFraction - minHour) * HOUR_HEIGHT_DP).dp
+                            val leftDp = ((setTime.startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
                             val widthDp = ((setTime.endHourFraction - setTime.startHourFraction) * HOUR_HEIGHT_DP).dp
 
                             SetTimeCard(
