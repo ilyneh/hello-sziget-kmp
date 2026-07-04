@@ -1,0 +1,98 @@
+package com.ilyne.helloszigetkmp.presentation.schedule.components
+
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.domain.model.Stage
+import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
+
+
+// ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
+
+@Composable
+fun SwimLaneView(
+    setTimes: List<ScheduleUiModel.SetTime>,
+    stages: List<Stage>,
+    gridMinHour: Int,
+    gridMaxHour: Int,
+) {
+    val horizScroll = rememberScrollState()
+    val vertScroll = rememberScrollState()
+
+    if (setTimes.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Time axis header
+        Row(modifier = Modifier.horizontalScroll(horizScroll)) {
+            Spacer(modifier = Modifier.width(80.dp))
+            for (h in gridMinHour until gridMaxHour) {
+                Box(modifier = Modifier.width(HOUR_HEIGHT_DP.dp).height(HEADER_HEIGHT_DP.dp), contentAlignment = Alignment.CenterStart) {
+                    Text("${h % 24}:00", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+
+        Column(modifier = Modifier.verticalScroll(vertScroll)) {
+            stages.forEach { stage ->
+                val stageSets = setTimes.filter { it.stageId == stage.id }
+                Row(
+                    modifier = Modifier.height(80.dp).horizontalScroll(horizScroll),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(modifier = Modifier.width(80.dp).fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
+                        Text(
+                            stage.name,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = stageColor(stage.id),
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+
+                    val totalWidth = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp
+                    Box(modifier = Modifier.width(totalWidth).fillMaxHeight()) {
+                        stageSets.forEach { setTime ->
+                            val leftDp = ((setTime.startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            val widthDp = ((setTime.endHourFraction - setTime.startHourFraction) * HOUR_HEIGHT_DP).dp
+
+                            SetTimeCard(
+                                setTime = setTime,
+                                modifier = Modifier
+                                    .offset(x = leftDp)
+                                    .width(widthDp.coerceAtLeast(60.dp))
+                                    .fillMaxHeight()
+                                    .padding(2.dp),
+                            )
+                        }
+                    }
+                }
+                HorizontalDivider()
+            }
+        }
+    }
+}
