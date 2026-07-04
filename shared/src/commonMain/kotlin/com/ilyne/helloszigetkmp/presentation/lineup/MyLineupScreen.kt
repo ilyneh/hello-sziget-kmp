@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ilyne.helloszigetkmp.compose.MainHeader
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -19,12 +20,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = "My Lineup",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        )
+        MainHeader(text = "My Lineup")
 
         when {
             uiState.isLoading -> {

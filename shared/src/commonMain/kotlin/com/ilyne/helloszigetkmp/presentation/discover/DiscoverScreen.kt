@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ilyne.helloszigetkmp.compose.MainHeader
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -21,12 +22,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = "Discover",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        )
+        MainHeader(text = "Discover")
 
         when {
             uiState.isLoading -> {

@@ -5,17 +5,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.compose.MainHeader
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Profile", fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
+        MainHeader(
+            text = "Profile",
+            modifier = Modifier.align(Alignment.Start)
+        )
         Spacer(modifier = Modifier.height(32.dp))
         // TODO: user avatar, display name, email
         // TODO: share lineup button (native share sheet via expect/actual)
