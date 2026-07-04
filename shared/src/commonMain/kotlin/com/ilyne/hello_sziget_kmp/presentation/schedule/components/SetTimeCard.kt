@@ -42,8 +42,8 @@ fun SetTimeCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = Color.White,
+                lineHeight = 18.sp
             )
-            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = formatTime(setTime.startTime),
                 fontSize = 11.sp,
