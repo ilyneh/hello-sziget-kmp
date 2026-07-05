@@ -7,7 +7,7 @@ import org.koin.core.context.loadKoinModules
 
 class SzigetAuthService(
     val authProvider: GoogleAuthProvider,
-    val szigetAuthApiService: SzigetAuthApiService
+    val szigetAuthApiService: SzigetAuthApiService,
 ) {
     suspend fun signIn() {
         val authUser = authProvider.signIn()
