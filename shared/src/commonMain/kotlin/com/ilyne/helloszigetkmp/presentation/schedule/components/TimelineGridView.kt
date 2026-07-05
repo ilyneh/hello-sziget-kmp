@@ -133,7 +133,7 @@ fun TimelineGridView(
                         val startHourFraction = setTime.startHourFraction
                         val endHourFraction = setTime.endHourFraction
                         val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        val topOffset = (3 + HOUR_LABEL_HEIGHT_DP / 2).dp
+                        val topOffset = (2 + HOUR_LABEL_HEIGHT_DP / 2).dp
                         val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                         val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
 

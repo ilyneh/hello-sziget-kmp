@@ -5,8 +5,9 @@ import com.ilyne.helloszigetkmp.data.api.dto.SetTimeDto
 import com.ilyne.helloszigetkmp.data.api.dto.StageDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
-import io.ktor.client.request.patch
+import io.ktor.client.request.post
 
 class SzigetApiService(
     private val client: HttpClient,
@@ -22,12 +23,11 @@ class SzigetApiService(
 
     suspend fun getSetTimes(): List<SetTimeDto> = client.get("$baseUrl/set_times").body()
 
-    suspend fun toggleFavorite(
+    suspend fun favoriteArtist(
         artistId: String,
-        isFavorited: Boolean,
-    ): ArtistDto =
-        client
-            .patch("$baseUrl/artists/$artistId/favorite") {
-                // body would carry { "is_favorited": isFavorited } — add serialization body when needed
-            }.body()
+    ) = client.post(urlString = "$baseUrl/artists/$artistId/favorite")
+
+    suspend fun unfavoriteArtist(
+        artistId: String,
+    ) = client.delete(urlString = "$baseUrl/artists/$artistId/favorite")
 }
