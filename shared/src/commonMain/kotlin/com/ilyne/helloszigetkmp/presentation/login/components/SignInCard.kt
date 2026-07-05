@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.google_icon
+import hello_sziget_kmp.shared.generated.resources.ic_google
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -82,7 +81,7 @@ fun SignInCard(
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     } else {
                         Icon(
-                            painter = painterResource(Res.drawable.google_icon),
+                            painter = painterResource(Res.drawable.ic_google),
                             contentDescription = null,
                             tint = Color.Unspecified,
                         )
