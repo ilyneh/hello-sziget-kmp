@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.compose
+package com.ilyne.helloszigetkmp.presentation.compose
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

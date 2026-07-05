@@ -34,7 +34,6 @@ fun SignInCard(
     isLoading: Boolean,
     error: String?,
     onSignIn: () -> Unit,
-    onContinueAsGuest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -94,13 +93,6 @@ fun SignInCard(
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
-                }
-
-                TextButton(onClick = onContinueAsGuest) {
-                    Text(
-                        text = "Continue as guest →",
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
                 }
             }
         }
