@@ -1,6 +1,5 @@
 package com.ilyne.helloszigetkmp.data.api.dto
 
-import com.ilyne.helloszigetkmp.domain.model.Artist
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,12 +12,3 @@ data class ArtistDto(
     @SerialName("is_favorited") val isFavorited: Boolean = false,
     val tags: List<String>?,
 )
-
-fun ArtistDto.toDomain() =
-    Artist(
-        id = id,
-        name = name,
-        bio = bio,
-        isFavorited = isFavorited,
-        tags = tags,
-    )

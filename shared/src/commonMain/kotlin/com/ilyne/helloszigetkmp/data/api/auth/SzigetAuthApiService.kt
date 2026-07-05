@@ -34,7 +34,4 @@ class SzigetAuthApiService(
 data class LoginRequestDto(@SerialName("id_token") val googleToken: String)
 
 @Serializable
-data class RefreshTokenRequestDto(@SerialName("refresh_token") val refreshToken: String)
-
-@Serializable
 data class LogoutRequestDto(@SerialName("refresh_token") val refreshToken: String)

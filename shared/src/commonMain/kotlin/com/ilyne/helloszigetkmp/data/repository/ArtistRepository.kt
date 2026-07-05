@@ -2,7 +2,6 @@ package com.ilyne.helloszigetkmp.data.repository
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.api.dto.ArtistDto
-import com.ilyne.helloszigetkmp.data.api.dto.toDomain
 import com.ilyne.helloszigetkmp.data.db.ArtistDao
 import com.ilyne.helloszigetkmp.data.db.ArtistEntity
 import com.ilyne.helloszigetkmp.domain.model.Artist
@@ -30,7 +29,7 @@ class ArtistRepository(
     ) {
         dao.setFavorited(artistId, isFavorited)
         try {
-            api.toggleFavorite(artistId, isFavorited)
+            if (isFavorited) api.favoriteArtist(artistId) else api.unfavoriteArtist(artistId)
         } catch (e: Exception) {
             dao.setFavorited(artistId, !isFavorited)
             throw e
