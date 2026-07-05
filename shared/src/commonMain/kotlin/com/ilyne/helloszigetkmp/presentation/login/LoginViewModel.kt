@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
+import com.ilyne.helloszigetkmp.data.api.SzigetApiService
+import com.ilyne.helloszigetkmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 data class LoginUiState(
     val isLoading: Boolean = false,
@@ -22,7 +26,13 @@ sealed class LoginEffect {
 
 class LoginViewModel(
     private val szigetAuthService: SzigetAuthService,
-) : ViewModel() {
+    private val userRepository: UserRepository
+) : ViewModel(), KoinComponent {
+
+    // Resolved lazily: the authenticated SzigetApiService only exists in Koin
+    // once szigetAuthService.signIn() has loaded its module below.
+    private val apiService: SzigetApiService by inject()
+
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -34,6 +44,7 @@ class LoginViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 szigetAuthService.signIn()
+                userRepository.syncCurrentUser(apiService.getMe())
                 _effects.emit(LoginEffect.NavigateToMain)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }

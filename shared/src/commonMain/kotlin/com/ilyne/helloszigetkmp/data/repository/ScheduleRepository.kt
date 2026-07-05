@@ -1,11 +1,11 @@
 package com.ilyne.helloszigetkmp.data.repository
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
-import com.ilyne.helloszigetkmp.data.db.ArtistDao
-import com.ilyne.helloszigetkmp.data.db.SetTimeDao
 import com.ilyne.helloszigetkmp.data.db.SetTimeEntity
-import com.ilyne.helloszigetkmp.data.db.StageDao
 import com.ilyne.helloszigetkmp.data.db.StageEntity
+import com.ilyne.helloszigetkmp.data.db.dao.ArtistDao
+import com.ilyne.helloszigetkmp.data.db.dao.SetTimeDao
+import com.ilyne.helloszigetkmp.data.db.dao.StageDao
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay

@@ -1,0 +1,10 @@
+package com.ilyne.helloszigetkmp.domain.model
+
+import androidx.compose.runtime.Immutable
+
+@Immutable
+data class User(
+    val id: String,
+    val name: String,
+    val picture: String?,
+)

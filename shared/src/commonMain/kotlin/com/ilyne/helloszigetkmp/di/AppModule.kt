@@ -7,6 +7,7 @@ import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.data.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.data.db.createDatabase
 import com.ilyne.helloszigetkmp.data.db.getDatabaseBuilder
+import com.ilyne.helloszigetkmp.data.repository.UserRepository
 import com.ilyne.helloszigetkmp.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.login.LoginViewModel
 import org.koin.core.context.startKoin
@@ -32,7 +33,11 @@ val appModule = module {
     single { get<SzigetDatabase>().artistDao() }
     single { get<SzigetDatabase>().stageDao() }
     single { get<SzigetDatabase>().setTimeDao() }
+    single { get<SzigetDatabase>().userDao() }
+
+    // Repositories
+    single { UserRepository(dao = get()) }
 
     // View Models
-    viewModel { LoginViewModel(szigetAuthService = get()) }
+    viewModel { LoginViewModel(szigetAuthService = get(), userRepository = get()) }
 }
