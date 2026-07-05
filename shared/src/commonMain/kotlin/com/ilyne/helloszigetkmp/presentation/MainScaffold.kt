@@ -38,10 +38,10 @@ import com.ilyne.helloszigetkmp.presentation.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.profile.ProfileScreen
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleScreen
 import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.discover_icon
-import hello_sziget_kmp.shared.generated.resources.heart_icon
-import hello_sziget_kmp.shared.generated.resources.person_icon
-import hello_sziget_kmp.shared.generated.resources.schedule_icon
+import hello_sziget_kmp.shared.generated.resources.ic_discover
+import hello_sziget_kmp.shared.generated.resources.ic_heart
+import hello_sziget_kmp.shared.generated.resources.ic_person
+import hello_sziget_kmp.shared.generated.resources.ic_schedule
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
@@ -69,25 +69,25 @@ fun MainScaffold(modifier: Modifier = Modifier) {
     val icons: Map<BottomTab, @Composable () -> Unit> = mapOf(
         tabs[0] to {
             Icon(
-                painter = painterResource(Res.drawable.schedule_icon),
+                painter = painterResource(Res.drawable.ic_schedule),
                 contentDescription = "Schedule_Tab",
             )
         },
         tabs[1] to {
             Icon(
-                painter = painterResource(Res.drawable.discover_icon),
+                painter = painterResource(Res.drawable.ic_discover),
                 contentDescription = "Discover_Tab",
             )
         },
         tabs[2] to {
             Icon(
-                painter = painterResource(Res.drawable.heart_icon),
+                painter = painterResource(Res.drawable.ic_heart),
                 contentDescription = "My_Lineup_Tab",
             )
         },
         tabs[3] to {
             Icon(
-                painter = painterResource(Res.drawable.person_icon),
+                painter = painterResource(Res.drawable.ic_person),
                 contentDescription = "Profile_Tab",
             )
         },
