@@ -33,6 +33,5 @@ fun LoginScreen(
         isLoading = uiState.isLoading,
         error = uiState.error,
         onSignIn = viewModel::signInWithGoogle,
-        onContinueAsGuest = viewModel::continueAsGuest,
     )
 }

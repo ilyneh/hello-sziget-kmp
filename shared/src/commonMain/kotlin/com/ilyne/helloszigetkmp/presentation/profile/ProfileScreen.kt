@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ilyne.helloszigetkmp.compose.MainHeader
+import com.ilyne.helloszigetkmp.presentation.compose.MainHeader
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
