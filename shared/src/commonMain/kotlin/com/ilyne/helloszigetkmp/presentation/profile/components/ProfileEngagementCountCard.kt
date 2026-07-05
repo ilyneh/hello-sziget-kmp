@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.profile
+package com.ilyne.helloszigetkmp.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
