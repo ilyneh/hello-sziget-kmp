@@ -25,9 +25,7 @@ class GetSetTimeDaysUseCase(
         val FESTIVAL_DAY_CUTOFF_HOURS = 6.hours
     }
 
-    suspend fun refresh() = scheduleRepository.refresh()
-
-    fun observeSetTimeDays(): Flow<SetTimeDays> {
+    fun invoke(): Flow<SetTimeDays> {
         return scheduleRepository.observeSetTimeRange().map { setTimeRange ->
             val startDate = setTimeRange.minStart.toFestivalDate()
             val endDate = setTimeRange.maxStart.toFestivalDate()

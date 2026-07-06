@@ -75,6 +75,7 @@ class ScheduleViewModel(
     private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase = GetSetTimeDaysUseCase(scheduleRepository),
     private val getSetTimesForDayUseCase: GetSetTimesForDayUseCase = GetSetTimesForDayUseCase(scheduleRepository),
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -119,7 +120,7 @@ class ScheduleViewModel(
         val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
             val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-            getSetTimesForDayUseCase.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis).collect { data ->
+            getSetTimesForDayUseCase.invoke(day.dayStartMillis, day.dayEndMillis).collect { data ->
                 val setTimesUiModel = data.setTimes.map {
                     ScheduleUiState.SetTime(
                         id = it.id,
@@ -158,7 +159,7 @@ class ScheduleViewModel(
 
     private fun observeSetTimeDays() {
         viewModelScope.launch {
-            getSetTimeDaysUseCase.observeSetTimeDays().collect { setTimeDays ->
+            getSetTimeDaysUseCase.invoke().collect { setTimeDays ->
                 _uiState.update { it.copy(days = setTimeDays.days) }
             }
         }

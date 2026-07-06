@@ -17,7 +17,7 @@ class GetSetTimesForDayUseCase(
         val gridMaxHour: Int,
     )
 
-    fun observeSetTimesForDay(dayStartMillis: Long, dayEndMillis: Long): Flow<Data> =
+    fun invoke(dayStartMillis: Long, dayEndMillis: Long): Flow<Data> =
         scheduleRepository.observeSetTimesForDay(dayStartMillis, dayEndMillis).map { setTimes ->
             val validSetTimes = setTimes.filter { it.startTime != it.endTime }
             Data(
