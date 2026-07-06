@@ -54,7 +54,7 @@ import org.jetbrains.compose.resources.painterResource
 @Serializable object ProfileTab
 
 @Composable
-fun MainScaffold(modifier: Modifier = Modifier) {
+fun MainScaffold(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -145,7 +145,7 @@ fun MainScaffold(modifier: Modifier = Modifier) {
             composable<ScheduleTab> { ScheduleScreen() }
             composable<DiscoverTab> { DiscoverScreen() }
             composable<LineupTab> { MyLineupScreen() }
-            composable<ProfileTab> { ProfileScreen() }
+            composable<ProfileTab> { ProfileScreen(onNavigateToAddFriend = onNavigateToAddFriend) }
         }
     }
 }

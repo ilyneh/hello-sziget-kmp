@@ -7,7 +7,9 @@ import com.ilyne.helloszigetkmp.data.repository.UserRepository
 import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,6 +22,10 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val error: String? = null
 )
+
+sealed class ProfileEffect {
+    data object NavigateToAddFriend : ProfileEffect()
+}
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
@@ -45,6 +51,9 @@ class ProfileViewModel(
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _effects = MutableSharedFlow<ProfileEffect>()
+    val effects = _effects.asSharedFlow()
 
     private lateinit var currentUser: User
 
@@ -76,7 +85,9 @@ class ProfileViewModel(
 
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
-            ProfileIntent.AddFriend -> TODO()
+            ProfileIntent.AddFriend -> viewModelScope.launch {
+                _effects.emit(ProfileEffect.NavigateToAddFriend)
+            }
             is ProfileIntent.AcceptFriendRequest -> TODO()
             is ProfileIntent.DeclineFriendRequest -> TODO()
             is ProfileIntent.ViewFriend -> TODO()
