@@ -13,15 +13,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.schedule.components.color.artistColor
-import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
 import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 
 @Composable
 fun SetTimeCard(
-    setTime: ScheduleUiModel.SetTime,
+    setTime: ScheduleUiState.SetTime,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {

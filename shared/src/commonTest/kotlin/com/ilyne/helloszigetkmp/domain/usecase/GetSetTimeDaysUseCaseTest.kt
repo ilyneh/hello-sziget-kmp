@@ -1,12 +1,13 @@
-package com.ilyne.helloszigetkmp.data.repository
+package com.ilyne.helloszigetkmp.domain.usecase
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.data.db.ArtistEntity
-import com.ilyne.helloszigetkmp.data.db.SetTimeDao
+import com.ilyne.helloszigetkmp.data.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.data.db.SetTimeEntity
-import com.ilyne.helloszigetkmp.data.db.StageDao
+import com.ilyne.helloszigetkmp.data.db.dao.StageDao
 import com.ilyne.helloszigetkmp.data.db.StageEntity
+import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -22,10 +23,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * [ScheduleRepository.observeSetTimeDays] buckets the min/max set time range into festival days using a 6am local cutoff, so a set that
+ * [GetSetTimeDaysUseCase.invoke] buckets the min/max set time range into festival days using a 6am local cutoff, so a set that
  * runs past midnight still belongs to the previous festival day rather than starting a new one.
  */
-class ScheduleRepositoryTest {
+class GetSetTimeDaysUseCaseTest {
     private val budapest = TimeZone.of("Europe/Budapest")
 
     @Test
@@ -36,7 +37,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2026-08-06T20:00:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             // Aug 6 2026 is a Thursday (isoDayNumber 4)
             assertEquals(
@@ -61,7 +62,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2026-08-07T05:59:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             assertEquals(
                 listOf(
@@ -85,7 +86,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2026-08-07T06:00:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             // Aug 7 2026 is a Friday (isoDayNumber 5)
             assertEquals(
@@ -109,7 +110,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2026-08-08T14:00:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             assertEquals(
                 listOf(
@@ -144,7 +145,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2026-02-01T20:00:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             assertEquals(
                 listOf(
@@ -174,7 +175,7 @@ class ScheduleRepositoryTest {
                 maxStart = millisAt("2027-01-01T02:00:00"),
             )
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             assertEquals(
                 listOf(
@@ -195,7 +196,7 @@ class ScheduleRepositoryTest {
             val onlyMillis = millisAt("2026-08-09T21:00:00")
             val range = SetTimeDao.SetTimeRange(minStart = onlyMillis, maxStart = onlyMillis)
 
-            val result = repository(range).observeSetTimeDays().first()
+            val result = useCase(range)().first()
 
             assertEquals(
                 listOf(
@@ -211,6 +212,8 @@ class ScheduleRepositoryTest {
         }
 
     private fun millisAt(isoLocalDateTime: String): Long = LocalDateTime.parse(isoLocalDateTime).toInstant(budapest).toEpochMilliseconds()
+
+    private fun useCase(range: SetTimeDao.SetTimeRange): GetSetTimeDaysUseCase = GetSetTimeDaysUseCase(repository(range))
 
     private fun repository(range: SetTimeDao.SetTimeRange): ScheduleRepository {
         val setTimeDao = object : SetTimeDao {

@@ -9,13 +9,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
+import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
 
 
 // ── List View ─────────────────────────────────────────────────────────────────
 
 @Composable
-fun SetTimeListView(setTimes: List<ScheduleUiModel.SetTime>) {
+fun SetTimeListView(setTimes: List<ScheduleUiState.SetTime>) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),

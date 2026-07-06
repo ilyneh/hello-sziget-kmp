@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.BASE_URL_LOCALHOST
+import com.ilyne.helloszigetkmp.config.BASE_URL_LOCALHOST
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.network.createApiHttpClient
 import org.koin.core.module.Module
