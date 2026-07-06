@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.presentation.compose.MainHeader
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
@@ -35,20 +34,13 @@ import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileFriendsSe
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
-import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
-
-@Serializable object AddFriend
-
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
-    val navHost = rememberNavController()
-
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     val vertScroll = rememberScrollState()
 
     Surface(
@@ -122,8 +114,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             }
         }
     }
-
-
 }
 
 @Composable
