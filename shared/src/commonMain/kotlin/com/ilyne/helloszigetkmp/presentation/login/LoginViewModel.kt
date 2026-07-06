@@ -7,6 +7,7 @@ import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.repository.UserRepository
+import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -27,7 +28,8 @@ sealed class LoginEffect {
 
 class LoginViewModel(
     private val szigetAuthService: SzigetAuthService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val usersSyncService: UsersSyncService,
 ) : ViewModel(), KoinComponent {
 
     // Resolved lazily: the authenticated SzigetApiService only exists in Koin
@@ -51,6 +53,7 @@ class LoginViewModel(
                 }
 
                 userRepository.syncCurrentUser(apiService.getMe())
+                usersSyncService.fetchAllUsers(apiService)
 
                 _effects.emit(LoginEffect.NavigateToMain)
             } catch (e: Exception) {

@@ -41,7 +41,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ProfileScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     val vertScroll = rememberScrollState()
 
     Surface(

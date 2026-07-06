@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.presentation.MainScaffold
 import com.ilyne.helloszigetkmp.presentation.login.LoginScreen

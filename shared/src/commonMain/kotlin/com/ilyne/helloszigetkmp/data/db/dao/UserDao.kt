@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import com.ilyne.helloszigetkmp.data.db.CurrentUserEntity
 import com.ilyne.helloszigetkmp.data.db.UserEntity
 import com.ilyne.helloszigetkmp.data.db.UserFriendEntity
@@ -17,8 +19,21 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE id = :id")
     fun observeById(id: String): Flow<UserEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertAll(users: List<UserEntity>)
+    // Plain INSERT-OR-REPLACE would delete-then-reinsert conflicting rows, cascading
+    // onDelete = CASCADE on current_user's FK and wiping the signed-in user pointer.
+    // Insert-or-ignore + update instead, so existing rows are updated in place.
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnoring(users: List<UserEntity>): List<Long>
+
+    @Update
+    suspend fun updateAll(users: List<UserEntity>)
+
+    @Transaction
+    suspend fun upsertAll(users: List<UserEntity>) {
+        val insertResults = insertIgnoring(users)
+        val existing = users.filterIndexed { index, _ -> insertResults[index] == -1L }
+        if (existing.isNotEmpty()) updateAll(existing)
+    }
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
