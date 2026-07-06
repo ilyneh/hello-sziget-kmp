@@ -29,7 +29,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
 import com.ilyne.helloszigetkmp.presentation.schedule.components.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.SwimLaneView
-import com.ilyne.helloszigetkmp.presentation.schedule.components.TimelineGridView
+import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.TimelineGridView
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

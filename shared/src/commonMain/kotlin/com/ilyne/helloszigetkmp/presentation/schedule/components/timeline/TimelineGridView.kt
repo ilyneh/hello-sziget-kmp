@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components
+package com.ilyne.helloszigetkmp.presentation.schedule.components.timeline
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -21,11 +21,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
+import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.schedule.components.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
@@ -33,7 +38,8 @@ import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColo
 
 private const val COLUMN_WIDTH_DP = 120
 private const val TIME_LABEL_WIDTH_DP = 48
-private const val HOUR_LABEL_HEIGHT_DP = 16
+
+private const val HOUR_COLUMN_SHADOW_WIDTH_DP = 6
 
 @Composable
 fun TimelineGridView(
@@ -58,10 +64,14 @@ fun TimelineGridView(
     Column(modifier = Modifier.fillMaxSize()) {
         // Header row: a static spacer reserves space for the sticky hour column below,
         // stage names scroll horizontally in lockstep with the grid via horizScroll.
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Spacer(modifier = Modifier.width(TIME_LABEL_WIDTH_DP.dp).height(HEADER_HEIGHT_DP.dp))
-            Row(modifier = Modifier.horizontalScroll(horizScroll)) {
-                stages.forEach { stage ->
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(start = TIME_LABEL_WIDTH_DP.dp)
+                .horizontalScroll(horizScroll)
+        ) {
+            stages.forEach { stage ->
+                val stageColor = stageColor(stageId = stage.id)
+                Column {
                     Box(
                         modifier = Modifier.width(COLUMN_WIDTH_DP.dp).height(HEADER_HEIGHT_DP.dp).padding(horizontal = 4.dp),
                         contentAlignment = Alignment.Center,
@@ -70,7 +80,7 @@ fun TimelineGridView(
                             text = stage.name,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = stageColor(stage.id),
+                            color = stageColor,
                             lineHeight = 11.sp,
                         )
                     }
@@ -79,32 +89,15 @@ fun TimelineGridView(
         }
 
         Row(modifier = Modifier.fillMaxSize()) {
-            // Sticky hour column: only scrolls vertically (shares vertScroll with the grid),
-            // never scrolls horizontally, so it stays pinned to the left edge.
-            Box(
+            StickyHourColumn(
+                totalGridHeight = totalGridHeight,
+                gridMinHour = gridMinHour,
+                gridMaxHour = gridMaxHour,
                 modifier = Modifier
                     .width(TIME_LABEL_WIDTH_DP.dp)
                     .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .verticalScroll(vertScroll),
-            ) {
-                Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
-                    for (hour in gridMinHour..gridMaxHour) {
-                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        Box(
-                            modifier = Modifier.offset(x = 8.dp, y = y).height(HOUR_LABEL_HEIGHT_DP.dp),
-                            contentAlignment = Alignment.CenterStart,
-                        ) {
-                            Text(
-                                text = "${hour % 24}:00",
-                                fontSize = 12.sp,
-                                lineHeight = 10.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
+                    .verticalScroll(state = vertScroll)
+            )
 
             Box(
                 modifier = Modifier
@@ -113,7 +106,22 @@ fun TimelineGridView(
                     .verticalScroll(vertScroll)
                     .horizontalScroll(horizScroll),
             ) {
-                Box(modifier = Modifier.size(totalGridWidth, totalGridHeight).background(MaterialTheme.colorScheme.surface)) {
+
+                Row(modifier = Modifier.fillMaxSize()) {
+                    stages.forEach { stage ->
+                        Box(
+                            modifier = Modifier.width(COLUMN_WIDTH_DP.dp)
+                                .height(totalGridHeight)
+                                .background(color = stageColor(stageId = stage.id).copy(alpha = 0.05f))
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(totalGridWidth, totalGridHeight)
+                        .background(color = Color.Transparent)
+                ) {
                     // Hour gridlines span the full scrollable grid width
                     for (hour in gridMinHour..gridMaxHour) {
                         val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
@@ -139,7 +147,8 @@ fun TimelineGridView(
 
                         SetTimeCard(
                             setTime = setTime,
-                            modifier = Modifier.offset(x = leftDp, y = topDp + topOffset).width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
+                            modifier = Modifier.offset(x = leftDp, y = topDp + topOffset)
+                                .width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
                         )
                     }
                 }
