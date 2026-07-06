@@ -20,5 +20,5 @@ val presentationModule = module {
     viewModel { ScheduleViewModel(scheduleRepository = get(), artistRepository = get()) }
     viewModel { DiscoverViewModel(artistRepository = get()) }
     viewModel { LineupViewModel(artistRepository = get()) }
-    viewModel { ProfileViewModel(friendRepository = get(), userRepository = get()) }
+    viewModel { ProfileViewModel(friendRepository = get(), userRepository = get(), usersSyncService = get()) }
 }

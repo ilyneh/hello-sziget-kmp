@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.UserRepository
+import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +40,7 @@ sealed class ProfileIntent {
 class ProfileViewModel(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
+    private val usersSyncService: UsersSyncService,
 ) : ViewModel()  {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -59,7 +61,11 @@ class ProfileViewModel(
                     it.copy(name = currentUser.name)
                 }
 
-                friendRepository.refresh()
+                if (usersSyncService.awaitSuccessfulSync()) {
+                    friendRepository.refresh()
+                } else {
+                    Logger.e("findme", "users sync failed, skipping friends refresh")
+                }
             } catch (e: Exception) {
 
             }

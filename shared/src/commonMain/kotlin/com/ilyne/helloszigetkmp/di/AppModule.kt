@@ -8,6 +8,7 @@ import com.ilyne.helloszigetkmp.data.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.data.db.createDatabase
 import com.ilyne.helloszigetkmp.data.db.getDatabaseBuilder
 import com.ilyne.helloszigetkmp.data.repository.UserRepository
+import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.login.LoginViewModel
 import org.koin.core.context.startKoin
@@ -39,6 +40,9 @@ val appModule = module {
     // Repositories
     single { UserRepository(dao = get()) }
 
+    // Background services
+    single { UsersSyncService(userRepository = get()) }
+
     // View Models
-    viewModel { LoginViewModel(szigetAuthService = get(), userRepository = get()) }
+    viewModel { LoginViewModel(szigetAuthService = get(), userRepository = get(), usersSyncService = get()) }
 }
