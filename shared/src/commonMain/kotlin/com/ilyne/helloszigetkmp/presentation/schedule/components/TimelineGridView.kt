@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +36,7 @@ import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
 private const val COLUMN_WIDTH_DP = 120
 private const val TIME_LABEL_WIDTH_DP = 48
 private const val HOUR_LABEL_HEIGHT_DP = 16
+private const val HOUR_COLUMN_SHADOW_WIDTH_DP = 6
 
 @Composable
 fun TimelineGridView(
@@ -78,72 +81,87 @@ fun TimelineGridView(
             }
         }
 
-        Row(modifier = Modifier.fillMaxSize()) {
-            // Sticky hour column: only scrolls vertically (shares vertScroll with the grid),
-            // never scrolls horizontally, so it stays pinned to the left edge.
-            Box(
-                modifier = Modifier
-                    .width(TIME_LABEL_WIDTH_DP.dp)
-                    .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .verticalScroll(vertScroll),
-            ) {
-                Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
-                    for (hour in gridMinHour..gridMaxHour) {
-                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        Box(
-                            modifier = Modifier.offset(x = 8.dp, y = y).height(HOUR_LABEL_HEIGHT_DP.dp),
-                            contentAlignment = Alignment.CenterStart,
-                        ) {
-                            Text(
-                                text = "${hour % 24}:00",
-                                fontSize = 12.sp,
-                                lineHeight = 10.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Box(modifier = Modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                // Sticky hour column: only scrolls vertically (shares vertScroll with the grid),
+                // never scrolls horizontally, so it stays pinned to the left edge.
+                Box(
+                    modifier = Modifier
+                        .width(TIME_LABEL_WIDTH_DP.dp)
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .verticalScroll(vertScroll),
+                ) {
+                    Box(modifier = Modifier.height(totalGridHeight).fillMaxWidth()) {
+                        for (hour in gridMinHour..gridMaxHour) {
+                            val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            Box(
+                                modifier = Modifier.offset(x = 8.dp, y = y).height(HOUR_LABEL_HEIGHT_DP.dp),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                Text(
+                                    text = "${hour % 24}:00",
+                                    fontSize = 12.sp,
+                                    lineHeight = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(vertScroll)
+                        .horizontalScroll(horizScroll),
+                ) {
+                    Box(modifier = Modifier.size(totalGridWidth, totalGridHeight).background(MaterialTheme.colorScheme.surface)) {
+                        // Hour gridlines span the full scrollable grid width
+                        for (hour in gridMinHour..gridMaxHour) {
+                            val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            Box(
+                                modifier = Modifier
+                                    .offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(MaterialTheme.colorScheme.outlineVariant),
+                            )
+                        }
+
+                        // Set time cards
+                        setTimes.forEach { setTime ->
+                            val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
+                            if (stageIndex < 0) return@forEach
+                            val startHourFraction = setTime.startHourFraction
+                            val endHourFraction = setTime.endHourFraction
+                            val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            val topOffset = (2 + HOUR_LABEL_HEIGHT_DP / 2).dp
+                            val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
+                            val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
+
+                            SetTimeCard(
+                                setTime = setTime,
+                                modifier = Modifier.offset(x = leftDp, y = topDp + topOffset).width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
                             )
                         }
                     }
                 }
             }
 
+            // Shadow cast by the sticky hour column onto the scrollable grid beside it.
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .offset(x = TIME_LABEL_WIDTH_DP.dp)
+                    .width(HOUR_COLUMN_SHADOW_WIDTH_DP.dp)
                     .fillMaxHeight()
-                    .verticalScroll(vertScroll)
-                    .horizontalScroll(horizScroll),
-            ) {
-                Box(modifier = Modifier.size(totalGridWidth, totalGridHeight).background(MaterialTheme.colorScheme.surface)) {
-                    // Hour gridlines span the full scrollable grid width
-                    for (hour in gridMinHour..gridMaxHour) {
-                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        Box(
-                            modifier = Modifier
-                                .offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(MaterialTheme.colorScheme.outlineVariant),
-                        )
-                    }
-
-                    // Set time cards
-                    setTimes.forEach { setTime ->
-                        val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
-                        if (stageIndex < 0) return@forEach
-                        val startHourFraction = setTime.startHourFraction
-                        val endHourFraction = setTime.endHourFraction
-                        val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        val topOffset = (2 + HOUR_LABEL_HEIGHT_DP / 2).dp
-                        val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
-                        val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
-
-                        SetTimeCard(
-                            setTime = setTime,
-                            modifier = Modifier.offset(x = leftDp, y = topDp + topOffset).width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
-                        )
-                    }
-                }
-            }
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color.Black.copy(alpha = 0.12f), Color.Transparent),
+                        ),
+                    ),
+            )
         }
     }
 }
