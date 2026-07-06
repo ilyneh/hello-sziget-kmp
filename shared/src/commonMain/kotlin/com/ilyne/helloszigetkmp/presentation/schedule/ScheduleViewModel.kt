@@ -160,18 +160,4 @@ class ScheduleViewModel(
             }
         }
     }
-
-    private fun buildFestivalDays(): List<FestivalDay> {
-        // Sziget 2026: Aug 6–11 (placeholder epoch values — replace with real dates)
-        val dayLabels = listOf("WED 6", "THU 7", "FRI 8", "SAT 9", "SUN 10", "MON 11")
-        val baseMillis = 1754524800000L // Aug 6 2026 00:00 UTC approximate
-        val dayMs = 86_400_000L
-        return dayLabels.mapIndexed { i, label ->
-            FestivalDay(
-                label = label,
-                startMillis = baseMillis + i * dayMs,
-                endMillis = baseMillis + (i + 1) * dayMs,
-            )
-        }
-    }
 }

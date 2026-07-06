@@ -7,6 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.ilyne.helloszigetkmp.data.db.dao.ArtistDao
+import com.ilyne.helloszigetkmp.data.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.data.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.data.db.dao.StageDao
 import com.ilyne.helloszigetkmp.data.db.dao.UserDao
@@ -33,6 +34,8 @@ abstract class SzigetDatabase : RoomDatabase() {
     abstract fun setTimeDao(): SetTimeDao
 
     abstract fun userDao(): UserDao
+
+    abstract fun friendDao(): FriendDao
 }
 
 fun createDatabase(builder: RoomDatabase.Builder<SzigetDatabase>): SzigetDatabase =

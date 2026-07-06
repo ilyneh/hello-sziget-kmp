@@ -7,21 +7,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ilyne.helloszigetkmp.domain.model.User
 
 @Composable
-fun ProfileFriendsSection(modifier: Modifier = Modifier) {
+fun ProfileFriendsSection(
+    friends: List<User>,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     ProfileSectionHeader(
         modifier = Modifier.padding(top = 8.dp),
-        text = "Following - 2"
+        text = "Following - ${friends.size}"
     )
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        repeat(3) { count ->
+        friends.forEach { friend ->
             ProfileFriendItem(
-                item = ProfileFriendItemState(name = " Zaira Tomayeva"),
-                onClick = {},
+                item = ProfileFriendItemState(name = friend.name),
+                onClick = { onClick(friend.id) },
             )
         }
     }

@@ -7,22 +7,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ilyne.helloszigetkmp.domain.model.User
 
 @Composable
-fun ProfileFriendRequestsSection(modifier: Modifier = Modifier) {
+fun ProfileFriendRequestsSection(
+    friendRequests: List<User>,
+    onAccept: (String) -> Unit,
+    onDecline: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     ProfileSectionHeader(
         modifier = modifier.padding(top = 8.dp),
-        text = "Requests - 2"
+        text = "Requests - ${friendRequests.size}"
     )
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        repeat(3) { count ->
+        friendRequests.forEach { friend ->
             ProfileFriendRequestItem(
-                item = ProfileFriendRequestItemState(name = " Zack Jones"),
-                onAccept = {},
-                onDecline = {}
+                item = ProfileFriendRequestItemState(name = friend.name),
+                onAccept = { onAccept(friend.id) },
+                onDecline = { onDecline(friend.id) }
             )
         }
     }

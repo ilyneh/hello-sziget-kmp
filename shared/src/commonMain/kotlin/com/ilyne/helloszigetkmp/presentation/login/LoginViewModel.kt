@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilyne.helloszigetkmp.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
@@ -43,8 +44,14 @@ class LoginViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                szigetAuthService.signIn()
+                if (SKIP_GOOGLE_SIGN_IN) {
+                    szigetAuthService.localSignIn()
+                } else {
+                    szigetAuthService.signIn()
+                }
+
                 userRepository.syncCurrentUser(apiService.getMe())
+
                 _effects.emit(LoginEffect.NavigateToMain)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
