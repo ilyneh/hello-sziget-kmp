@@ -72,8 +72,8 @@ sealed class ScheduleIntent {
 class ScheduleViewModel(
     private val scheduleRepository: ScheduleRepository,
     private val artistRepository: ArtistRepository,
-    private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase = GetSetTimeDaysUseCase(scheduleRepository),
-    private val getSetTimesForDayUseCase: GetSetTimesForDayUseCase = GetSetTimesForDayUseCase(scheduleRepository),
+    private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase,
+    private val getSetTimesForDayUseCase: GetSetTimesForDayUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
