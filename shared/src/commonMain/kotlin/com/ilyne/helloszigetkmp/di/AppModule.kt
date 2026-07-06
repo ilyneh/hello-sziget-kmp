@@ -34,6 +34,7 @@ val appModule = module {
     single { get<SzigetDatabase>().stageDao() }
     single { get<SzigetDatabase>().setTimeDao() }
     single { get<SzigetDatabase>().userDao() }
+    single { get<SzigetDatabase>().friendDao() }
 
     // Repositories
     single { UserRepository(dao = get()) }

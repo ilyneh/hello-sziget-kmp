@@ -27,8 +27,8 @@ interface FriendDao {
     @Query(
         """
         SELECT users.* FROM users
-        INNER JOIN users_friends ON users_friends.userId = users.id
-        WHERE users_friends.friendId = (SELECT userId FROM current_user LIMIT 1)
+        INNER JOIN users_friends ON users_friends.friendId = users.id
+        WHERE users_friends.userId = (SELECT userId FROM current_user LIMIT 1)
             AND users_friends.status = 'REQUESTED'
         ORDER BY users.name ASC
         """
@@ -38,8 +38,8 @@ interface FriendDao {
     @Query(
         """
         SELECT users.* FROM users
-        INNER JOIN users_friends ON users_friends.userId = users.id
-        WHERE users_friends.friendId = (SELECT userId FROM current_user LIMIT 1)
+        INNER JOIN users_friends ON users_friends.friendId = users.id
+        WHERE users_friends.userId = (SELECT userId FROM current_user LIMIT 1)
             AND users_friends.status = 'SENT'
         ORDER BY users.name ASC
         """

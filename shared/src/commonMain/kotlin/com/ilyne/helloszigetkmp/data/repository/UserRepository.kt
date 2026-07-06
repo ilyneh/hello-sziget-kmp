@@ -15,6 +15,8 @@ class UserRepository(
 
     fun observeUser(id: String): Flow<User?> = dao.observeById(id).map { it?.toDomain() }
 
+    suspend fun getCurrentUser(): User? = dao.getCurrentUser()?.toDomain()
+
     fun observeCurrentUser(): Flow<User?> = dao.observeCurrentUser().map { it?.toDomain() }
 
     suspend fun refresh(api: SzigetApiService) {

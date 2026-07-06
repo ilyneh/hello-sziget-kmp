@@ -17,12 +17,14 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.compose.MainHeader
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
@@ -33,9 +35,13 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
+    val viewModel = koinViewModel<ProfileViewModel>()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val vertScroll = rememberScrollState()
 
     Surface(
@@ -76,7 +82,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 
                 FilledIconButton(
                     onClick = {
-                        // TODO -
+                        viewModel.onIntent(ProfileIntent.AddFriend)
                     },
                     shape = IconButtonDefaults.mediumSquareShape
                 ) {
@@ -86,13 +92,26 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            val hasFriendRequests = true
-            if (hasFriendRequests) {
-                ProfileFriendRequestsSection()
+
+            if (uiState.friendRequests.isNotEmpty()) {
+                ProfileFriendRequestsSection(
+                    friendRequests = uiState.friendRequests,
+                    onAccept = {
+                        viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = it))
+                    },
+                    onDecline = {
+                        viewModel.onIntent(ProfileIntent.DeclineFriendRequest(friendId = it))
+                    },
+                )
             }
-            val hasFriends = true
-            if (hasFriends) {
-                ProfileFriendsSection()
+
+            if (uiState.friends.isNotEmpty()) {
+                ProfileFriendsSection(
+                    friends = uiState.friends,
+                    onClick = {
+                        viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
+                    }
+                )
             }
         }
     }
