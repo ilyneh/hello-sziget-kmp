@@ -4,15 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
-import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
-import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHour
+import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
+import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
-import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -34,12 +33,26 @@ data class ScheduleUiState(
     val selectedDay: SetTimeDay? = null,
     val viewMode: ViewMode = ViewMode.GRID,
     val stages: List<Stage> = emptyList(),
-    val setTimes: List<ScheduleUiModel.SetTime> = emptyList(),
+    val setTimes: List<SetTime> = emptyList(),
     val gridMinHour: Int = 0,
     val gridMaxHour: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null,
-)
+) {
+    class SetTime(
+        val id: String,
+        val artistId: String,
+        val stageId: String?,
+        val startTime: Long, // epoch millis
+        val endTime: Long, // epoch millis
+        val hideEndTime: Boolean,
+        val artist: Artist? = null,
+        val stage: Stage? = null,
+        val isInThePast: Boolean,
+        val startHourFraction: Double,
+        val endHourFraction: Double,
+    )
+}
 
 sealed class ScheduleIntent {
     data class SelectDay(
@@ -59,6 +72,8 @@ sealed class ScheduleIntent {
 class ScheduleViewModel(
     private val scheduleRepository: ScheduleRepository,
     private val artistRepository: ArtistRepository,
+    private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase = GetSetTimeDaysUseCase(scheduleRepository),
+    private val getSetTimesForDayUseCase: GetSetTimesForDayUseCase = GetSetTimesForDayUseCase(scheduleRepository),
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
@@ -72,8 +87,9 @@ class ScheduleViewModel(
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
         }
-        observeSelectedDay()
+        observeStages()
         observeSetTimeDays()
+        observeSelectedDay()
     }
 
     fun onIntent(intent: ScheduleIntent) {
@@ -103,15 +119,9 @@ class ScheduleViewModel(
         val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
             val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-            combine(
-                scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis),
-                scheduleRepository.observeStages(),
-            ) { setTimes, stages ->
-                setTimes to stages
-            }.collect { (setTimes, stages) ->
-                val validSetTimes = setTimes.filter { it.startTime != it.endTime }
-                val setTimesUiModel = validSetTimes.map {
-                    ScheduleUiModel.SetTime(
+            getSetTimesForDayUseCase.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis).collect { data ->
+                val setTimesUiModel = data.setTimes.map {
+                    ScheduleUiState.SetTime(
                         id = it.id,
                         artistId = it.artistId,
                         stageId = it.stageId,
@@ -126,26 +136,11 @@ class ScheduleViewModel(
                     )
                 }
 
-                val gridMinHour = validSetTimes.minOfOrNull {
-                    it.startTime
-                        .toLocalDateTime()
-                        .hour
-                        .let(::normalizedFestivalHour)
-                } ?: 0
-                val gridMaxHour = validSetTimes
-                    .maxOfOrNull {
-                        it.endTime
-                            .toLocalDateTime()
-                            .hour
-                            .let(::normalizedFestivalHour)
-                    }?.plus(1) ?: 0
-
                 _uiState.update {
                     it.copy(
                         setTimes = setTimesUiModel,
-                        stages = stages,
-                        gridMinHour = gridMinHour,
-                        gridMaxHour = gridMaxHour,
+                        gridMinHour = data.gridMinHour,
+                        gridMaxHour = data.gridMaxHour,
                         isLoading = false,
                     )
                 }
@@ -153,9 +148,17 @@ class ScheduleViewModel(
         }
     }
 
+    private fun observeStages() {
+        viewModelScope.launch {
+            scheduleRepository.observeStages().collect { stages ->
+                _uiState.update { it.copy(stages = stages) }
+            }
+        }
+    }
+
     private fun observeSetTimeDays() {
         viewModelScope.launch {
-            scheduleRepository.observeSetTimeDays().collect { setTimeDays ->
+            getSetTimeDaysUseCase.observeSetTimeDays().collect { setTimeDays ->
                 _uiState.update { it.copy(days = setTimeDays.days) }
             }
         }

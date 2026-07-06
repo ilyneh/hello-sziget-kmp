@@ -2,8 +2,7 @@ package com.ilyne.helloszigetkmp.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.SKIP_GOOGLE_SIGN_IN
-import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
+import com.ilyne.helloszigetkmp.config.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.repository.UserRepository

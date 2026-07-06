@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp
+package com.ilyne.helloszigetkmp.config
 
 const val BASE_URL_LOCALHOST = " http://10.0.2.2:8000/api/v1"
 const val BASE_URL_DEBUG = ""

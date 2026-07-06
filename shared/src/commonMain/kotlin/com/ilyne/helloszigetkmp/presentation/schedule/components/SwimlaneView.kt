@@ -23,15 +23,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
+import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
-import com.ilyne.helloszigetkmp.presentation.schedule.model.ScheduleUiModel
 
 
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
 
 @Composable
 fun SwimLaneView(
-    setTimes: List<ScheduleUiModel.SetTime>,
+    setTimes: List<ScheduleUiState.SetTime>,
     stages: List<Stage>,
     gridMinHour: Int,
     gridMaxHour: Int,

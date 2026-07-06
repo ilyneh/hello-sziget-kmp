@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.auth
 
-import com.ilyne.helloszigetkmp.BEARER_TOKEN_LOCALHOST
+import com.ilyne.helloszigetkmp.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
