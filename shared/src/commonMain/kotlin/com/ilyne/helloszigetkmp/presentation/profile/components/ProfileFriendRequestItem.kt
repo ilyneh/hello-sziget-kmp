@@ -76,7 +76,7 @@ fun ProfileFriendRequestItem(
             onClick = onDecline,
             shape = IconButtonDefaults.mediumSquareShape,
             colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 contentColor = MaterialTheme.colorScheme.outline
             )
         ) {
