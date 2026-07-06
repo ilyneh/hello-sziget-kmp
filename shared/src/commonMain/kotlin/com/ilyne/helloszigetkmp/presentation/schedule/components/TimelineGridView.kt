@@ -149,19 +149,6 @@ fun TimelineGridView(
                     }
                 }
             }
-
-            // Shadow cast by the sticky hour column onto the scrollable grid beside it.
-            Box(
-                modifier = Modifier
-                    .offset(x = TIME_LABEL_WIDTH_DP.dp)
-                    .width(HOUR_COLUMN_SHADOW_WIDTH_DP.dp)
-                    .fillMaxHeight()
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(Color.Black.copy(alpha = 0.12f), Color.Transparent),
-                        ),
-                    ),
-            )
         }
     }
 }
