@@ -11,4 +11,9 @@ private val stagePalette = listOf(
     Color(0xFFE057A0),
 )
 
-fun stageColor(stageId: String): Color = stagePalette[stageId.hashCode().mod(stagePalette.size)]
+fun stageColor(stageId: String?): Color =
+    if (stageId != null) {
+        stagePalette[stageId.hashCode().mod(stagePalette.size)]
+    } else {
+        Color.DarkGray
+    }

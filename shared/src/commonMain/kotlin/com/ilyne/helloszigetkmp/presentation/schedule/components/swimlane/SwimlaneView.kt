@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components
+package com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
+import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.schedule.components.shared.SetTimeCard
 
 
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
