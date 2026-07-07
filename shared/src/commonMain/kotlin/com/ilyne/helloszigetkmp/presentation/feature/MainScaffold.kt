@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation
+package com.ilyne.helloszigetkmp.presentation.feature
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -1,15 +1,11 @@
 package com.ilyne.helloszigetkmp.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ilyne.helloszigetkmp.presentation.MainScaffold
+import com.ilyne.helloszigetkmp.presentation.feature.MainScaffold
 import com.ilyne.helloszigetkmp.presentation.addfriend.AddFriendScreen
 import com.ilyne.helloszigetkmp.presentation.login.LoginScreen
 import kotlinx.serialization.Serializable
