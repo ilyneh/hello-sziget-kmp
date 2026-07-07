@@ -11,9 +11,11 @@ import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -82,7 +84,7 @@ class ScheduleViewModel(
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
 
-    private var observeSelectedDayJob: Job? = null
+    private val selectedDay = MutableStateFlow<SetTimeDay?>(null)
 
     init {
         viewModelScope.launch {
@@ -101,8 +103,8 @@ class ScheduleViewModel(
     fun onIntent(intent: ScheduleIntent) {
         when (intent) {
             is ScheduleIntent.SelectDay -> {
-                _uiState.update { it.copy(selectedDay = intent.day) }
-                observeSelectedDay()
+                selectedDay.update { intent.day }
+                _uiState.update { it.copy(selectedDay = selectedDay.value) }
             }
 
             is ScheduleIntent.ChangeViewMode -> {
@@ -125,12 +127,13 @@ class ScheduleViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSelectedDay() {
-        val day = _uiState.value.selectedDay ?: return
-        observeSelectedDayJob?.cancel()
-        observeSelectedDayJob = viewModelScope.launch {
-            val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-            getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis).collect { data ->
+        viewModelScope.launch {
+            selectedDay.filterNotNull().flatMapLatest { day ->
+                getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis)
+            }.collect { data ->
+                val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
                 val setTimesUiModel = data.setTimes.map {
                     ScheduleUiState.SetTime(
                         id = it.id,
@@ -144,7 +147,6 @@ class ScheduleViewModel(
                         endHourFraction = it.endTime.normalizedFestivalHourFraction(),
                     )
                 }
-
                 _uiState.update {
                     it.copy(
                         setTimes = setTimesUiModel,
