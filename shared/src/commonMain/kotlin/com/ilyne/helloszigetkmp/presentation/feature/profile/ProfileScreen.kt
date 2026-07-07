@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.compose.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountItemState

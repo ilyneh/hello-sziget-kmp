@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.discover
+package com.ilyne.helloszigetkmp.presentation.feature.discover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -5,7 +5,7 @@ import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
-import com.ilyne.helloszigetkmp.presentation.discover.DiscoverViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import com.ilyne.helloszigetkmp.presentation.profile.ProfileViewModel
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleViewModel
