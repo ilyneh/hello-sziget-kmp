@@ -9,7 +9,10 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
+import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -64,7 +67,7 @@ sealed class ScheduleIntent {
     ) : ScheduleIntent()
 
     data class ToggleFavorite(
-        val artistId: String,
+        val artistId: String?,
         val current: Boolean,
     ) : ScheduleIntent()
 }
@@ -78,6 +81,8 @@ class ScheduleViewModel(
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
+
+    private var observeSelectedDayJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -105,9 +110,13 @@ class ScheduleViewModel(
             }
 
             is ScheduleIntent.ToggleFavorite -> {
+                if (intent.artistId == null) {
+                    Logger.e("findme", "Clicked on item with null artist id")
+                    throw IllegalStateException("item with null artistId")
+                }
                 viewModelScope.launch {
                     try {
-                        artistRepository.toggleFavorite(intent.artistId, !intent.current)
+                        artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
                         _uiState.update { it.copy(error = e.message) }
                     }
@@ -118,7 +127,8 @@ class ScheduleViewModel(
 
     private fun observeSelectedDay() {
         val day = _uiState.value.selectedDay ?: return
-        viewModelScope.launch {
+        observeSelectedDayJob?.cancel()
+        observeSelectedDayJob = viewModelScope.launch {
             val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
             getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis).collect { data ->
                 val setTimesUiModel = data.setTimes.map {
