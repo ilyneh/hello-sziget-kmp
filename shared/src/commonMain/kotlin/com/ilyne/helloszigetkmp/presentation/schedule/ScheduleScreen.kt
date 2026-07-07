@@ -87,7 +87,12 @@ fun ScheduleScreen(modifier: Modifier = Modifier) {
                     }
 
                     ViewMode.LIST -> {
-                        SetTimeListView(uiState.setTimes)
+                        SetTimeListView(
+                            uiState.setTimes,
+                            onToggleFavorite = { artistId, current ->
+                                viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId, current))
+                            }
+                        )
                     }
                 }
             }

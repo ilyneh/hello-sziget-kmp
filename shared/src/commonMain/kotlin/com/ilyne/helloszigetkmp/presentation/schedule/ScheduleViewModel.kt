@@ -9,9 +9,13 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
+import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -39,10 +43,8 @@ data class ScheduleUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
 ) {
-    class SetTime(
+    data class SetTime(
         val id: String,
-        val artistId: String,
-        val stageId: String?,
         val startTime: Long, // epoch millis
         val endTime: Long, // epoch millis
         val hideEndTime: Boolean,
@@ -51,7 +53,10 @@ data class ScheduleUiState(
         val isInThePast: Boolean,
         val startHourFraction: Double,
         val endHourFraction: Double,
-    )
+    ) {
+        val artistId: String? = artist?.id
+        val stageId: String? = stage?.id
+    }
 }
 
 sealed class ScheduleIntent {
@@ -64,7 +69,7 @@ sealed class ScheduleIntent {
     ) : ScheduleIntent()
 
     data class ToggleFavorite(
-        val artistId: String,
+        val artistId: String?,
         val current: Boolean,
     ) : ScheduleIntent()
 }
@@ -78,6 +83,8 @@ class ScheduleViewModel(
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val selectedDay = MutableStateFlow<SetTimeDay?>(null)
 
     init {
         viewModelScope.launch {
@@ -96,8 +103,8 @@ class ScheduleViewModel(
     fun onIntent(intent: ScheduleIntent) {
         when (intent) {
             is ScheduleIntent.SelectDay -> {
-                _uiState.update { it.copy(selectedDay = intent.day) }
-                observeSelectedDay()
+                selectedDay.update { intent.day }
+                _uiState.update { it.copy(selectedDay = selectedDay.value) }
             }
 
             is ScheduleIntent.ChangeViewMode -> {
@@ -105,9 +112,13 @@ class ScheduleViewModel(
             }
 
             is ScheduleIntent.ToggleFavorite -> {
+                if (intent.artistId == null) {
+                    Logger.e("findme", "Clicked on item with null artist id")
+                    throw IllegalStateException("item with null artistId")
+                }
                 viewModelScope.launch {
                     try {
-                        artistRepository.toggleFavorite(intent.artistId, !intent.current)
+                        artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
                         _uiState.update { it.copy(error = e.message) }
                     }
@@ -116,16 +127,16 @@ class ScheduleViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSelectedDay() {
-        val day = _uiState.value.selectedDay ?: return
         viewModelScope.launch {
-            val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-            getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis).collect { data ->
+            selectedDay.filterNotNull().flatMapLatest { day ->
+                getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis)
+            }.collect { data ->
+                val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
                 val setTimesUiModel = data.setTimes.map {
                     ScheduleUiState.SetTime(
                         id = it.id,
-                        artistId = it.artistId,
-                        stageId = it.stageId,
                         startTime = it.startTime,
                         endTime = it.endTime,
                         hideEndTime = it.hideEndTime,
@@ -136,7 +147,6 @@ class ScheduleViewModel(
                         endHourFraction = it.endTime.normalizedFestivalHourFraction(),
                     )
                 }
-
                 _uiState.update {
                     it.copy(
                         setTimes = setTimesUiModel,

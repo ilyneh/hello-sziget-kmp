@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.hours
 @Composable
 fun SetTimeListItem(
     setTime: ScheduleUiState.SetTime,
-    onFavoriteToggle: () -> Unit = {},
+    onToggleFavorite: (artistId: String?, current: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -81,17 +81,20 @@ fun SetTimeListItem(
                         .weight(weight = 1f, fill = false)
                 )
 
-                val setTime = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}"
                 SubtitleText(
-                    text = setTime,
+                    text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
         IconButton(
-            onClick = onFavoriteToggle,
-            modifier = Modifier
+            onClick = {
+                onToggleFavorite(
+                    setTime.artistId,
+                    setTime.artist?.isFavorited ?: false
+                )
+            },
         ) {
             Text(if (setTime.artist?.isFavorited ?: false) "♥" else "♡", fontSize = 20.sp)
         }
@@ -138,8 +141,6 @@ fun SetTimeListItemPreview() {
         SetTimeListItem(
             setTime = ScheduleUiState.SetTime(
                 id = "1",
-                artistId = "2",
-                stageId = "3",
                 startTime = Clock.System.now().toEpochMilliseconds(),
                 endTime = Clock.System.now().plus(duration = 1.hours).toEpochMilliseconds(),
                 hideEndTime = false,
@@ -153,7 +154,8 @@ fun SetTimeListItemPreview() {
                     isFavorited = true,
                     tags = null
                 )
-            )
+            ),
+            onToggleFavorite = { _, _ -> }
         )
     }
 }
