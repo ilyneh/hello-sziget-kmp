@@ -5,7 +5,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,16 +28,14 @@ import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
-import com.ilyne.helloszigetkmp.presentation.schedule.components.SetTimeCard
+import com.ilyne.helloszigetkmp.presentation.schedule.components.shared.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
+
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
 
-
 private const val COLUMN_WIDTH_DP = 120
 private const val TIME_LABEL_WIDTH_DP = 48
-
-private const val HOUR_COLUMN_SHADOW_WIDTH_DP = 6
 
 @Composable
 fun TimelineGridView(
