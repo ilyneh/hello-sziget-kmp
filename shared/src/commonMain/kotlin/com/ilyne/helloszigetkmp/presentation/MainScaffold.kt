@@ -33,7 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ilyne.helloszigetkmp.presentation.discover.DiscoverScreen
+import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverScreen
 import com.ilyne.helloszigetkmp.presentation.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.profile.ProfileScreen
 import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleScreen

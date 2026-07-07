@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.discover
+package com.ilyne.helloszigetkmp.presentation.feature.discover
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.compose.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import org.koin.compose.viewmodel.koinViewModel
 
