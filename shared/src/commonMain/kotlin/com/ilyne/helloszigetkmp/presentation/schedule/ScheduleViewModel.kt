@@ -12,7 +12,6 @@ import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -42,10 +41,8 @@ data class ScheduleUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
 ) {
-    class SetTime(
+    data class SetTime(
         val id: String,
-        val artistId: String,
-        val stageId: String?,
         val startTime: Long, // epoch millis
         val endTime: Long, // epoch millis
         val hideEndTime: Boolean,
@@ -54,7 +51,10 @@ data class ScheduleUiState(
         val isInThePast: Boolean,
         val startHourFraction: Double,
         val endHourFraction: Double,
-    )
+    ) {
+        val artistId: String? = artist?.id
+        val stageId: String? = stage?.id
+    }
 }
 
 sealed class ScheduleIntent {
@@ -134,8 +134,6 @@ class ScheduleViewModel(
                 val setTimesUiModel = data.setTimes.map {
                     ScheduleUiState.SetTime(
                         id = it.id,
-                        artistId = it.artistId,
-                        stageId = it.stageId,
                         startTime = it.startTime,
                         endTime = it.endTime,
                         hideEndTime = it.hideEndTime,

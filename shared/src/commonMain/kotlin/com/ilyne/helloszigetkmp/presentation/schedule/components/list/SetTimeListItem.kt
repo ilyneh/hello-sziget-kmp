@@ -81,9 +81,8 @@ fun SetTimeListItem(
                         .weight(weight = 1f, fill = false)
                 )
 
-                val setTime = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}"
                 SubtitleText(
-                    text = setTime,
+                    text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -92,7 +91,7 @@ fun SetTimeListItem(
         IconButton(
             onClick = {
                 onToggleFavorite(
-                    setTime.artist?.id,
+                    setTime.artistId,
                     setTime.artist?.isFavorited ?: false
                 )
             },
@@ -142,8 +141,6 @@ fun SetTimeListItemPreview() {
         SetTimeListItem(
             setTime = ScheduleUiState.SetTime(
                 id = "1",
-                artistId = "2",
-                stageId = "3",
                 startTime = Clock.System.now().toEpochMilliseconds(),
                 endTime = Clock.System.now().plus(duration = 1.hours).toEpochMilliseconds(),
                 hideEndTime = false,
