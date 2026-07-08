@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,8 +53,10 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         }
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.refresh() },
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             modifier = modifier.fillMaxWidth()
@@ -125,6 +128,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                 )
             }
         }
+
     }
 }
 

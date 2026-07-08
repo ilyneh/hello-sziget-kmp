@@ -71,7 +71,9 @@ class ProfileViewModel(
                 }
 
                 if (usersSyncService.awaitSuccessfulSync()) {
+                    _uiState.update { it.copy(isLoading = true) }
                     friendRepository.refresh()
+                    _uiState.update { it.copy(isLoading = false) }
                 } else {
                     Logger.e("findme", "users sync failed, skipping friends refresh")
                 }
@@ -81,6 +83,14 @@ class ProfileViewModel(
         }
         observeFriends()
         observeFriendRequests()
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            friendRepository.refresh()
+            _uiState.update { it.copy(isLoading = false) }
+        }
     }
 
     fun onIntent(intent: ProfileIntent) {
