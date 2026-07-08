@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.ilyne.helloszigetkmp.data.db.UserEntity
-import com.ilyne.helloszigetkmp.data.db.UserFriendEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

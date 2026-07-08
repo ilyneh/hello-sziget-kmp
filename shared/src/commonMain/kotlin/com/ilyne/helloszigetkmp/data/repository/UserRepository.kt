@@ -2,7 +2,7 @@ package com.ilyne.helloszigetkmp.data.repository
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.api.dto.UserDto
-import com.ilyne.helloszigetkmp.data.db.UserEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.data.db.dao.UserDao
 import com.ilyne.helloszigetkmp.domain.model.User
 import kotlinx.coroutines.flow.Flow

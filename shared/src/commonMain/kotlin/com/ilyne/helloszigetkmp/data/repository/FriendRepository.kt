@@ -2,8 +2,8 @@ package com.ilyne.helloszigetkmp.data.repository
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.api.dto.UserDto
-import com.ilyne.helloszigetkmp.data.db.UserFriendEntity
-import com.ilyne.helloszigetkmp.data.db.UserFriendEntity.Status
+import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity.Status
 import com.ilyne.helloszigetkmp.data.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.data.db.dao.UserDao
 import com.ilyne.helloszigetkmp.domain.model.User
