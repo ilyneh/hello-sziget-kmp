@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CEFDE2143F1F5613A58EDA9E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0EA268DDBFB9BD218B471355 /* GoogleSignIn */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5E2FE646507EA2F45C526B46 /* hello-sziget-kmp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hello-sziget-kmp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -41,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEFDE2143F1F5613A58EDA9E /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +90,7 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				0EA268DDBFB9BD218B471355 /* GoogleSignIn */,
 			);
 			productName = iosApp;
 			productReference = 5E2FE646507EA2F45C526B46 /* hello-sziget-kmp.app */;
@@ -114,6 +120,9 @@
 			);
 			mainGroup = 4BCD9A9FB0A6748FCD457D6D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6C93EFEAD9BBB4BDA37C8393 /* Products */;
 			projectDirPath = "";
@@ -368,6 +377,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0EA268DDBFB9BD218B471355 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AD27C1F401B462851E4810CA /* Project object */;
 }
