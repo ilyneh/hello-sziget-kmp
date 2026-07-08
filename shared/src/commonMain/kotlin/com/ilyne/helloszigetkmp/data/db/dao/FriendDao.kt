@@ -12,6 +12,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FriendDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertFriendship(friendship: UserFriendEntity)
+
+    @Query("DELETE FROM users_friends WHERE userId = :userId AND friendId = :friendId")
+    suspend fun deleteFriendship(userId: String, friendId: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertFriendships(friendships: List<UserFriendEntity>)
 

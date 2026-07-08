@@ -23,6 +23,53 @@ class FriendRepository(
     private val friendDao: FriendDao,
     private val userDao: UserDao,
 ) {
+
+    suspend fun sendFriendRequest(currentUserId: String, friendId: String) {
+        val userFriendEntity = UserFriendEntity(
+            userId = currentUserId,
+            friendId = friendId,
+            status = Status.SENT
+        )
+        friendDao.upsertFriendship(userFriendEntity)
+        try {
+            api.sendFriendRequest(friendId)
+        } catch (e: Exception) {
+            friendDao.deleteFriendship(currentUserId, friendId)
+            throw e
+        }
+    }
+
+    suspend fun acceptFriendRequest(currentUserId: String, friendId: String) {
+        val userFriendEntity = UserFriendEntity(
+            userId = currentUserId,
+            friendId = friendId,
+            status = Status.ACCEPTED
+        )
+        friendDao.upsertFriendship(userFriendEntity)
+        try {
+            api.acceptFriendRequest(friendId)
+        } catch (e: Exception) {
+            friendDao.upsertFriendship(userFriendEntity.copy(status = Status.REQUESTED))
+            throw e
+        }
+    }
+
+    suspend fun declineFriendRequest(currentUserId: String, friendId: String) {
+        friendDao.deleteFriendship(currentUserId, friendId)
+        try {
+            api.removeFriend(friendId)
+        } catch (e: Exception) {
+            friendDao.upsertFriendship(
+                UserFriendEntity(
+                    userId = currentUserId,
+                    friendId = friendId,
+                    status = Status.REQUESTED
+                )
+            )
+            throw e
+        }
+    }
+
     fun observeFriends(): Flow<List<User>> =
         friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
 
