@@ -1,10 +1,10 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.config.BASE_URL_LOCALHOST
 import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.auth.LogoutService
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.auth.TokenStorage
+import com.ilyne.helloszigetkmp.config.AppConfig
 import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.data.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.data.db.createDatabase
@@ -18,6 +18,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import kotlin.math.sin
 
 fun initKoin(platformModules: List<Module> = emptyList()) {
     startKoin {
@@ -27,12 +28,13 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 
 val appModule = module {
     // Auth
+    single { AppConfig() }
     single { Settings() }
     single { GoogleAuthProvider() }
     single { TokenStorage(settings = get()) }
     single { baseHttpClient }
-    single { SzigetAuthApiService(client = get(), baseUrl = BASE_URL_LOCALHOST) }
-    single { SzigetAuthService(authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
+    single { SzigetAuthApiService(client = get(), appConfig = get()) }
+    single { SzigetAuthService(appConfig = get(), authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
     single { LogoutService(session = get()) }
 
     // Database

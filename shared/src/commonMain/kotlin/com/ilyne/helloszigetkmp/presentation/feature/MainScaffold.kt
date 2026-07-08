@@ -96,21 +96,27 @@ fun MainScaffold(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Uni
     Scaffold(
         bottomBar = {
             Surface(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp).navigationBarsPadding().fillMaxWidth().graphicsLayer {
-                    shadowElevation = 8.dp.toPx() // The size/spread of the shadow
-                    shape = RoundedCornerShape(24.dp)
-                    clip = false
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .navigationBarsPadding()
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        shadowElevation = 8.dp.toPx() // The size/spread of the shadow
+                        shape = RoundedCornerShape(24.dp)
+                        clip = false
 
-                    // Lower the intensity by reducing the alpha (opacity) of the shadow colors
-                    ambientShadowColor = Color.Black.copy(alpha = 0.2f) // Ultra soft ambient glow
-                    spotShadowColor = Color.Black.copy(alpha = 0.4f) // Softer directional shadow
-                },
+                        // Lower the intensity by reducing the alpha (opacity) of the shadow colors
+                        ambientShadowColor = Color.Black.copy(alpha = 0.2f) // Ultra soft ambient glow
+                        spotShadowColor = Color.Black.copy(alpha = 0.4f) // Softer directional shadow
+                    },
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.25.dp,
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     tabs.forEach { tab ->
@@ -174,7 +180,7 @@ private fun BottomTabItem(
             .clip(RoundedCornerShape(24.dp))
             .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
             .selectable(selected = selected, onClick = onClick, role = Role.Tab)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) {

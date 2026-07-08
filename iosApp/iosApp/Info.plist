@@ -1,29 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-    <dict>
-        <key>CADisableMinimumFrameDurationOnPhone</key>
-        <true/>
-        <!--
-          TODO: replace both placeholders below with the iOS OAuth Client ID
-          from Google Cloud Console (APIs & Services > Credentials > Create
-          Credentials > OAuth client ID > iOS), registered for bundle ID
-          com.ilyne.helloszigetkmp.hello-sziget-kmp${TEAM_ID}.
-          GIDClientID is the raw client ID; the URL scheme is that same ID
-          with its components reversed, e.g.
-          123-abc.apps.googleusercontent.com
-            -> com.googleusercontent.apps.123-abc
-        -->
-        <key>GIDClientID</key>
-        <string>REPLACE_WITH_IOS_CLIENT_ID.apps.googleusercontent.com</string>
-        <key>CFBundleURLTypes</key>
-        <array>
-            <dict>
-                <key>CFBundleURLSchemes</key>
-                <array>
-                    <string>com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID</string>
-                </array>
-            </dict>
-        </array>
-    </dict>
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.127130301586-usgs03vut1sqra21q8meq3h8jaciciv3</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<string>127130301586-usgs03vut1sqra21q8meq3h8jaciciv3.apps.googleusercontent.com</string>
+</dict>
 </plist>

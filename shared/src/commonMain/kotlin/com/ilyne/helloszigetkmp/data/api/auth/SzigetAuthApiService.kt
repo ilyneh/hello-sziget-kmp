@@ -1,5 +1,6 @@
 package com.ilyne.helloszigetkmp.data.api.auth
 
+import com.ilyne.helloszigetkmp.config.AppConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -11,9 +12,9 @@ import kotlinx.serialization.Serializable
 
 class SzigetAuthApiService(
     private val client: HttpClient,
-    baseUrl: String,
+    private val appConfig: AppConfig,
 ) {
-    private val baseUrl = "$baseUrl/auth"
+    private val baseUrl = "${appConfig.baseUrl()}/auth"
 
     suspend fun googleLogin(googleToken: String): TokenDto {
         return client.post(urlString = "$baseUrl/google/mobile") {
