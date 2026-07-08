@@ -15,22 +15,24 @@ class SzigetAuthService(
     suspend fun signIn() {
         val authUser = authProvider.signIn()
         val token = szigetAuthApiService.googleLogin(googleToken = authUser.idToken)
-        signInWithToken(token)
+        tokenStorage.save(token)
+        loadAuthenticatedModules(token)
     }
 
     fun localSignIn() {
-        signInWithToken(
-            token = TokenDto(
-                accessToken = BEARER_TOKEN_LOCALHOST,
-                refreshToken = "",
-                tokenType = "bearer"
-            )
+        val token = TokenDto(
+            accessToken = BEARER_TOKEN_LOCALHOST,
+            refreshToken = "",
+            tokenType = "bearer"
         )
-    }
-
-    private fun signInWithToken(token: TokenDto) {
         tokenStorage.save(token)
         loadAuthenticatedModules(token)
+    }
+
+    fun restoreSession(): Boolean {
+        val tokenFromStorage = tokenStorage.read() ?: return false
+        loadAuthenticatedModules(tokenFromStorage)
+        return true
     }
 
     private fun loadAuthenticatedModules(token: TokenDto) {

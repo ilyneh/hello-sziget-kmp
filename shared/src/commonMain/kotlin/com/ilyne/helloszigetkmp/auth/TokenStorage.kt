@@ -1,18 +1,22 @@
 package com.ilyne.helloszigetkmp.auth
 
 import com.ilyne.helloszigetkmp.data.api.auth.TokenDto
+import com.ilyne.helloszigetkmp.util.Logger
 import com.russhwolf.settings.Settings
 import kotlinx.serialization.json.Json
 
+private const val TAG = "TokenStorage"
 private const val KEY = "TokenStorage"
 
 class TokenStorage(private val settings: Settings) {
 
     fun save(token: TokenDto) {
+        Logger.d(TAG, "saving token: ${Json.encodeToString(token)}")
         settings.putString(KEY, Json.encodeToString(token))
     }
 
     fun read(): TokenDto? {
+        Logger.d(TAG, "reading token: ${settings.getStringOrNull(KEY)}")
         return settings.getStringOrNull(KEY)?.let { Json.decodeFromString(it) }
     }
 
