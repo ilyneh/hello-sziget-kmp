@@ -4,14 +4,19 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.ilyne.helloszigetkmp.data.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
+import com.ilyne.helloszigetkmp.data.db.model.ArtistFriendsFavoritedSummary
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FriendDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertFriendships(friendships: List<UserFriendEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>)
 
     @Query(
         """
@@ -46,5 +51,12 @@ interface FriendDao {
     )
     fun observeSentFriendRequests(): Flow<List<UserEntity>>
 
-
+    @Query(
+        """
+        SELECT DISTINCT artists.* FROM artists
+        INNER JOIN artist_friend_favorites ON artist_friend_favorites.artistId = artists.id
+        WHERE artist_friend_favorites.friendId != (SELECT userId FROM current_user LIMIT 1)
+        """
+    )
+    fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendsFavoritedSummary>>
 }

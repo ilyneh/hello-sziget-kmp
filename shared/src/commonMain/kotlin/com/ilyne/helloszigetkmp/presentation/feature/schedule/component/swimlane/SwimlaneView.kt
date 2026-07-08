@@ -22,12 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ilyne.helloszigetkmp.domain.model.Stage
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
-import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
-import com.ilyne.helloszigetkmp.presentation.schedule.components.shared.SetTimeCard
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCardViewMode
 
 
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
@@ -85,6 +87,7 @@ fun SwimLaneView(
 
                             SetTimeCard(
                                 setTime = setTime,
+                                viewMode = SetTimeCardViewMode.SWIMLANE,
                                 modifier = Modifier
                                     .offset(x = leftDp)
                                     .width(widthDp.coerceAtLeast(60.dp))

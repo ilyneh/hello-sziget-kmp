@@ -21,8 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Artist
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
-import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.component.FriendAvatarStack
+import com.ilyne.helloszigetkmp.presentation.component.FriendAvatarStackData
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import kotlin.time.Clock
@@ -86,6 +88,17 @@ fun SetTimeListItem(
                     modifier = Modifier.weight(1f)
                 )
             }
+        }
+
+        val friendsFavorited = setTime.artistFriendsFavorited?.friendsFavorited
+        if (friendsFavorited != null) {
+            FriendAvatarStack(
+                friends = friendsFavorited.map { friend ->
+                    FriendAvatarStackData(
+                        name = friend.name
+                    )
+                },
+            )
         }
 
         IconButton(

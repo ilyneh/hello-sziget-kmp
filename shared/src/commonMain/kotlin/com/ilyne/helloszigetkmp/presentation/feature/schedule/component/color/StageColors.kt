@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components.color
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color
 
 import androidx.compose.ui.graphics.Color
 

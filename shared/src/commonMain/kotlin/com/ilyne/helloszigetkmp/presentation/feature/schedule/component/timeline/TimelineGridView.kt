@@ -25,11 +25,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleUiState
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
-import com.ilyne.helloszigetkmp.presentation.schedule.components.shared.SetTimeCard
-import com.ilyne.helloszigetkmp.presentation.schedule.components.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
@@ -143,8 +143,10 @@ fun TimelineGridView(
 
                         SetTimeCard(
                             setTime = setTime,
-                            modifier = Modifier.offset(x = leftDp, y = topDp + topOffset)
-                                .width((COLUMN_WIDTH_DP - 4).dp).height(heightDp),
+                            modifier = Modifier
+                                .offset(x = leftDp, y = topDp + topOffset)
+                                .width((COLUMN_WIDTH_DP - 4).dp)
+                                .height(heightDp),
                         )
                     }
                 }

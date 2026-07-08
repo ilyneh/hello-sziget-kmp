@@ -72,14 +72,14 @@ private fun Avatar(
 ) {
     Box(
         modifier = modifier
-            .size(24.dp)
+            .size(28.dp)
             .background(color = avatarColor, shape = CircleShape)
             .border(width = 1.dp, color = MaterialTheme.colorScheme.surface, shape = CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            fontSize = 9.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = textColor,
 
