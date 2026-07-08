@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,9 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
+import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.presentation.schedule.components.list.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.TimelineGridView
@@ -159,26 +160,28 @@ private fun DaySelector(
             val isSelected = day == selected
             Column(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                    .width(64.dp)
+                    .clip(RoundedCornerShape(11.dp))
                     .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                     .clickable { onDaySelect(day) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 Text(
                     text = day.dayOfWeekLabel().uppercase(),
-                    fontSize = 11.sp,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 10.sp,
+                    color = textColor,
+                    style = MaterialTheme.typography.labelSmall
                 )
                 Text(
                     text = day.dateOfMonth.toString(),
-                    fontSize = 20.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = textColor,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
         }
     }
 }
-
-
