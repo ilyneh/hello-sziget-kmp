@@ -27,6 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBar
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBarData
 import com.ilyne.helloszigetkmp.presentation.schedule.components.list.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.TimelineGridView
@@ -36,6 +38,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ScheduleScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ScheduleViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val filterScrollState = rememberScrollState()
 
     Column(modifier = modifier.fillMaxSize()) {
         MainHeader(text = "Schedule") {
@@ -50,6 +54,13 @@ fun ScheduleScreen(modifier: Modifier = Modifier) {
             days = uiState.days,
             selected = uiState.selectedDay,
             onDaySelect = { viewModel.onIntent(ScheduleIntent.SelectDay(it)) },
+        )
+
+        ScheduleFilterBar(
+            data = ScheduleFilterBarData(),
+            onFilterButtonClicked = { viewModel.onIntent(ScheduleIntent.OpenFilter) },
+            scrollState = filterScrollState,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         // Content
