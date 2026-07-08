@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.di
 import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendViewModel
@@ -22,6 +23,7 @@ val presentationModule = module {
     // UseCases
     single { GetSetTimeDaysUseCase(scheduleRepository = get()) }
     single { GetSetTimesForDayUseCase(scheduleRepository = get()) }
+    single { GetLikedArtistCountUseCase(artistRepository = get()) }
 
     // ViewModels
     viewModel {
@@ -35,6 +37,12 @@ val presentationModule = module {
     }
     viewModel { DiscoverViewModel(artistRepository = get()) }
     viewModel { LineupViewModel(artistRepository = get()) }
-    viewModel { ProfileViewModel(friendRepository = get(), userRepository = get(), usersSyncService = get()) }
+    viewModel { ProfileViewModel(
+        friendRepository = get(),
+        userRepository = get(),
+        usersSyncService = get(),
+        artistRepository = get(),
+        getLikedArtistCountUseCase = get()
+    ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get()) }
 }

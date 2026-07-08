@@ -20,7 +20,8 @@ fun ProfileFriendsSection(
         text = "Following - ${friends.size}"
     )
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth()
+            .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         friends.forEach { friend ->
