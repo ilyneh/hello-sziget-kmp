@@ -36,9 +36,9 @@ data class ScheduleFilterBarData (
 fun ScheduleFilterBar(
     data: ScheduleFilterBarData,
     onFilterButtonClicked: () -> Unit,
-    scrollState: ScrollState,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -87,7 +87,6 @@ fun ScheduleFilterBar(
 @Composable
 private fun ScheduleFilterBarPreview() {
     AppTheme {
-        val scrollState = rememberScrollState()
         ScheduleFilterBar(
             data = ScheduleFilterBarData(
                 filterItems = listOf(
@@ -97,7 +96,6 @@ private fun ScheduleFilterBarPreview() {
                 )
             ),
             onFilterButtonClicked = {},
-            scrollState = scrollState
         )
     }
 }
