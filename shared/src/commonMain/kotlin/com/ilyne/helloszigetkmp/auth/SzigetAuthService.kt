@@ -1,5 +1,6 @@
 package com.ilyne.helloszigetkmp.auth
 
+import com.ilyne.helloszigetkmp.config.AppConfig
 import com.ilyne.helloszigetkmp.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.data.api.auth.TokenDto
@@ -12,9 +13,10 @@ import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
 
 class SzigetAuthService(
-    val authProvider: GoogleAuthProvider,
-    val tokenStorage: TokenStorage,
-    val szigetAuthApiService: SzigetAuthApiService,
+    private val appConfig: AppConfig,
+    private val authProvider: GoogleAuthProvider,
+    private val tokenStorage: TokenStorage,
+    private val szigetAuthApiService: SzigetAuthApiService,
 ) {
 
     private var authenticatedApiModule: Module? = null
@@ -65,6 +67,7 @@ class SzigetAuthService(
 
     private fun loadAuthenticatedModules(token: TokenDto) {
         val apiModule = createAuthenticatedApiModule(
+            baseUrl = appConfig.baseUrl(),
             accessToken = token.accessToken,
             refreshToken = token.refreshToken,
             tokenStorage = tokenStorage,
