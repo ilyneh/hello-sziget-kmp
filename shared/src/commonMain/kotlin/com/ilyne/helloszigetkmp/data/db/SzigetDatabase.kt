@@ -11,6 +11,13 @@ import com.ilyne.helloszigetkmp.data.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.data.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.data.db.dao.StageDao
 import com.ilyne.helloszigetkmp.data.db.dao.UserDao
+import com.ilyne.helloszigetkmp.data.db.entity.ArtistEntity
+import com.ilyne.helloszigetkmp.data.db.entity.ArtistFriendFavoritedEntity
+import com.ilyne.helloszigetkmp.data.db.entity.CurrentUserEntity
+import com.ilyne.helloszigetkmp.data.db.entity.SetTimeEntity
+import com.ilyne.helloszigetkmp.data.db.entity.StageEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
+import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
@@ -21,6 +28,7 @@ expect object SzigetDatabaseConstructor : RoomDatabaseConstructor<SzigetDatabase
     entities = [
         ArtistEntity::class, StageEntity::class, SetTimeEntity::class,
         UserEntity::class, UserFriendEntity::class, CurrentUserEntity::class,
+        ArtistFriendFavoritedEntity::class,
     ],
     version = 2,
 )

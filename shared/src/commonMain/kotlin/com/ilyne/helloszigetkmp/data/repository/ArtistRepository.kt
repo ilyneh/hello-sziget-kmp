@@ -3,7 +3,7 @@ package com.ilyne.helloszigetkmp.data.repository
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
 import com.ilyne.helloszigetkmp.data.api.dto.ArtistDto
 import com.ilyne.helloszigetkmp.data.db.dao.ArtistDao
-import com.ilyne.helloszigetkmp.data.db.ArtistEntity
+import com.ilyne.helloszigetkmp.data.db.entity.ArtistEntity
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -46,7 +46,7 @@ private fun ArtistDto.toEntity() =
         tags = tags,
     )
 
-private fun ArtistEntity.toDomain() =
+fun ArtistEntity.toDomain() =
     Artist(
         id = id,
         name = name,

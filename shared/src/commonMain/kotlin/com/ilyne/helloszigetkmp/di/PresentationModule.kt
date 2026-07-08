@@ -8,7 +8,7 @@ import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import com.ilyne.helloszigetkmp.presentation.profile.ProfileViewModel
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -27,6 +27,7 @@ val presentationModule = module {
         ScheduleViewModel(
             scheduleRepository = get(),
             artistRepository = get(),
+            friendRepository = get(),
             getSetTimeDaysUseCase = get(),
             getSetTimesForDayUseCase = get(),
         )

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.ilyne.helloszigetkmp.data.db.StageEntity
+import com.ilyne.helloszigetkmp.data.db.entity.StageEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

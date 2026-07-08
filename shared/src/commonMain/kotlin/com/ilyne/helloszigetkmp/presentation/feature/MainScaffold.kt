@@ -36,7 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverScreen
 import com.ilyne.helloszigetkmp.presentation.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.profile.ProfileScreen
-import com.ilyne.helloszigetkmp.presentation.schedule.ScheduleScreen
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleScreen
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import hello_sziget_kmp.shared.generated.resources.ic_heart

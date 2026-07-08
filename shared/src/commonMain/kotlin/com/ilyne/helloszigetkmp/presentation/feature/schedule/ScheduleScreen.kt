@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule
+package com.ilyne.helloszigetkmp.presentation.feature.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
