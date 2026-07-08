@@ -2,10 +2,12 @@ package com.ilyne.helloszigetkmp.presentation.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.UserRepository
 import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,7 @@ data class ProfileUiState(
     val name: String? = null,
     val friends: List<User> = emptyList(),
     val friendRequests: List<User> = emptyList(),
+    val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -45,8 +48,10 @@ sealed class ProfileIntent {
 
 class ProfileViewModel(
     private val friendRepository: FriendRepository,
+    private val artistRepository: ArtistRepository,
     private val userRepository: UserRepository,
     private val usersSyncService: UsersSyncService,
+    private val getLikedArtistCountUseCase: GetLikedArtistCountUseCase,
 ) : ViewModel()  {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -73,6 +78,7 @@ class ProfileViewModel(
                 if (usersSyncService.awaitSuccessfulSync()) {
                     _uiState.update { it.copy(isLoading = true) }
                     friendRepository.refresh()
+                    artistRepository.refresh()
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
                     Logger.e("findme", "users sync failed, skipping friends refresh")
@@ -83,6 +89,15 @@ class ProfileViewModel(
         }
         observeFriends()
         observeFriendRequests()
+        observeLikedArtists()
+    }
+
+    private fun observeLikedArtists() {
+        viewModelScope.launch {
+            getLikedArtistCountUseCase.invoke().collect { likedArtistCount ->
+                _uiState.update { it.copy(likedArtistCount = likedArtistCount) }
+            }
+        }
     }
 
     fun refresh() {

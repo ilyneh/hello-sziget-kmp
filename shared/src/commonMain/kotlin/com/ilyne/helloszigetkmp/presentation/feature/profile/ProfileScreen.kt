@@ -71,15 +71,15 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
             )
             Spacer(modifier = Modifier.height(32.dp))
             ProfileAvatarAndName(
-                name = "Ilyne",
+                name = uiState.name.orEmpty(),
                 avatarText = "IH",
             )
             Spacer(modifier = Modifier.height(32.dp))
             ProfileEngagementCountCard(
                 modifier = Modifier.fillMaxWidth(),
                 items = listOf(
-                    ProfileEngagementCountItemState(16, "Hearted"),
-                    ProfileEngagementCountItemState(11, "Friends"),
+                    ProfileEngagementCountItemState(uiState.likedArtistCount, "Hearted"),
+                    ProfileEngagementCountItemState(uiState.friends.size, "Friends"),
                     ProfileEngagementCountItemState(6, "Days"),
                 )
             )
@@ -138,7 +138,6 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                 )
             }
         }
-
     }
 }
 
