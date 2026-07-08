@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,11 @@ import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
 import com.ilyne.helloszigetkmp.presentation.schedule.components.list.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.TimelineGridView
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_grid
+import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_list
+import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_swimlane
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -106,7 +113,10 @@ private fun ViewModeToggle(
     onChange: (ViewMode) -> Unit,
 ) {
     Row(
-        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(2.dp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(9.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         ViewMode.entries.forEach { mode ->
@@ -116,17 +126,19 @@ private fun ViewModeToggle(
                     .clip(RoundedCornerShape(6.dp))
                     .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
                     .clickable { onChange(mode) }
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                    .padding(horizontal = 6.dp, vertical = 9.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = when (mode) {
-                        ViewMode.GRID -> "⊞"
-                        ViewMode.SWIMLANE -> "☰"
-                        ViewMode.LIST -> "≡"
-                    },
-                    fontSize = 16.sp,
-                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                val (resource, contentDescription) = when (mode) {
+                    ViewMode.GRID -> Res.drawable.ic_view_toggle_grid to "Grid View"
+                    ViewMode.SWIMLANE -> Res.drawable.ic_view_toggle_swimlane to "Swimlane View"
+                    ViewMode.LIST -> Res.drawable.ic_view_toggle_list to "List View"
+                }
+                Icon(
+                    painter = painterResource(resource),
+                    contentDescription = contentDescription,
+                    tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp)
                 )
             }
         }
