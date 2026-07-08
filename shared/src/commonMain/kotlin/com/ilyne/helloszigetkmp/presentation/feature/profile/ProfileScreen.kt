@@ -14,7 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -105,6 +106,15 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                         contentDescription = null
                     )
                 }
+            }
+
+            if (uiState.friends.isEmpty() && uiState.friendRequests.isEmpty()) {
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                    text = "No friends",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.outline,
+                )
             }
 
             if (uiState.friendRequests.isNotEmpty()) {

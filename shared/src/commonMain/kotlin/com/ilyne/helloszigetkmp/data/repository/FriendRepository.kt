@@ -107,8 +107,13 @@ class FriendRepository(
             friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
             friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
             friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
-
             friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
+
+            // clean out previous friend relationships that no longer exist
+            val existingFriendships = (friends + friendRequests + sentFriendRequests)
+                .map { it.id }
+                .distinct()
+            friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
         }
     }
 

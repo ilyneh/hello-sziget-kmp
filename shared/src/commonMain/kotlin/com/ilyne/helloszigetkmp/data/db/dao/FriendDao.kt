@@ -19,6 +19,9 @@ interface FriendDao {
     @Query("DELETE FROM users_friends WHERE userId = :userId AND friendId = :friendId")
     suspend fun deleteFriendship(userId: String, friendId: String)
 
+    @Query("DELETE FROM users_friends WHERE friendId NOT IN (:friendIds)")
+    suspend fun deleteFriendshipsNotIn(friendIds: List<String>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertFriendships(friendships: List<UserFriendEntity>)
 

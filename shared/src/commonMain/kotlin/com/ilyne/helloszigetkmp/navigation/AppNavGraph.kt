@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.presentation.feature.MainScaffold
-import com.ilyne.helloszigetkmp.presentation.addfriend.AddFriendScreen
+import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendScreen
 import com.ilyne.helloszigetkmp.presentation.login.LoginScreen
 import kotlinx.serialization.Serializable
 
