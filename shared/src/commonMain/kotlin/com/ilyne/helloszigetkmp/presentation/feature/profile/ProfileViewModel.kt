@@ -88,9 +88,15 @@ class ProfileViewModel(
             ProfileIntent.AddFriend -> viewModelScope.launch {
                 _effects.emit(ProfileEffect.NavigateToAddFriend)
             }
-            is ProfileIntent.AcceptFriendRequest -> TODO()
-            is ProfileIntent.DeclineFriendRequest -> TODO()
-            is ProfileIntent.ViewFriend -> TODO()
+            is ProfileIntent.AcceptFriendRequest -> {
+
+            }
+            is ProfileIntent.DeclineFriendRequest -> {
+
+            }
+            is ProfileIntent.ViewFriend -> {
+
+            }
         }
     }
 
