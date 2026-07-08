@@ -28,10 +28,12 @@ data class ProfileUiState(
 
 sealed class ProfileEffect {
     data object NavigateToAddFriend : ProfileEffect()
+    object Logout : ProfileEffect()
 }
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
+    object Logout: ProfileIntent()
 
     data class AcceptFriendRequest(
         val friendId: String
@@ -121,6 +123,9 @@ class ProfileViewModel(
             }
             is ProfileIntent.ViewFriend -> {
 
+            }
+            is ProfileIntent.Logout -> viewModelScope.launch {
+                _effects.emit(ProfileEffect.Logout)
             }
         }
     }

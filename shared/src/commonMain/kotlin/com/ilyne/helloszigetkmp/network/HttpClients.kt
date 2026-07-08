@@ -1,5 +1,7 @@
 package com.ilyne.helloszigetkmp.network
 
+import com.ilyne.helloszigetkmp.auth.TokenStorage
+import com.ilyne.helloszigetkmp.data.api.auth.TokenDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.Auth
@@ -13,8 +15,6 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
 import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 val baseHttpClient =
@@ -36,7 +36,9 @@ val baseHttpClient =
 fun createApiHttpClient(
     baseUrl: String,
     accessToken: String,
-    refreshToken: String
+    refreshToken: String,
+    tokenStorage: TokenStorage,
+    onSessionInvalidated: () -> Unit,
 ): HttpClient =
     baseHttpClient.config {
         install(Auth) {
@@ -45,24 +47,22 @@ fun createApiHttpClient(
                     BearerTokens(accessToken, refreshToken)
                 }
                 refreshTokens {
-                    val refreshTokenInfo: TokenInfo = client.submitForm(
-                        url = "$baseUrl/auth/refresh",
-                        formParameters = parameters {
-                            append("refresh_token", oldTokens?.refreshToken ?: "")
-                        }
-                    ) {
-                        markAsRefreshTokenRequest()
-                    }.body()
+                    val refreshTokenInfo: TokenDto =  try {
+                        client.submitForm(
+                            url = "$baseUrl/auth/refresh",
+                            formParameters = parameters {
+                                append("refresh_token", oldTokens?.refreshToken ?: "")
+                            }
+                        ) {
+                            markAsRefreshTokenRequest()
+                        }.body()
+                    } catch (e: Exception) {
+                        onSessionInvalidated()
+                        return@refreshTokens null
+                    }
+                    tokenStorage.save(token = refreshTokenInfo)
                     BearerTokens(refreshTokenInfo.accessToken, refreshTokenInfo.refreshToken)
                 }
             }
         }
     }
-
-@Serializable
-data class TokenInfo(
-    @SerialName("access_token") val accessToken: String,
-    @SerialName("refresh_token") val refreshToken: String,
-    @SerialName("token_type") val tokenType: String,
-)
-

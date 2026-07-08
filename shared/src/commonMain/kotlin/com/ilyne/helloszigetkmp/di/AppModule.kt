@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.di
 
 import com.ilyne.helloszigetkmp.config.BASE_URL_LOCALHOST
 import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
+import com.ilyne.helloszigetkmp.auth.LogoutService
 import com.ilyne.helloszigetkmp.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.auth.TokenStorage
 import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
@@ -32,6 +33,7 @@ val appModule = module {
     single { baseHttpClient }
     single { SzigetAuthApiService(client = get(), baseUrl = BASE_URL_LOCALHOST) }
     single { SzigetAuthService(authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
+    single { LogoutService(session = get()) }
 
     // Database
     single { createDatabase(getDatabaseBuilder()) }

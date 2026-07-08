@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ilyne.helloszigetkmp.auth.LogoutService
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
@@ -38,10 +39,12 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Unit = {}) {
+    val logoutService = koinInject<LogoutService>()
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val vertScroll = rememberScrollState()
@@ -50,6 +53,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         viewModel.effects.collect { effect ->
             when (effect) {
                 ProfileEffect.NavigateToAddFriend -> onNavigateToAddFriend()
+                ProfileEffect.Logout -> logoutService.logout()
             }
         }
     }
@@ -134,6 +138,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                     friends = uiState.friends,
                     onClick = {
                         viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
+                        viewModel.onIntent(ProfileIntent.Logout)
                     }
                 )
             }
