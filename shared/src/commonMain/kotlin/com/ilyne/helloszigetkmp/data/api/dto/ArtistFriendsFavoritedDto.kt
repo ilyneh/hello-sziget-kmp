@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class ArtistFriendFavoritedDto(
+data class ArtistFriendsFavoritedDto(
     val id: String,
     @SerialName("friends_favorited") val friendsFavorited: List<String>
 )

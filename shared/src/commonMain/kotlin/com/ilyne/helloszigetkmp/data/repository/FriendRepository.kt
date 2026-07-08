@@ -1,7 +1,7 @@
 package com.ilyne.helloszigetkmp.data.repository
 
 import com.ilyne.helloszigetkmp.data.api.SzigetApiService
-import com.ilyne.helloszigetkmp.data.api.dto.ArtistFriendFavoritedDto
+import com.ilyne.helloszigetkmp.data.api.dto.ArtistFriendsFavoritedDto
 import com.ilyne.helloszigetkmp.data.api.dto.UserDto
 import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity.Status
@@ -75,7 +75,7 @@ class FriendRepository(
         }
     }
 
-    private fun List<ArtistFriendFavoritedDto>.toArtistsFriendFavoritedEntity(): List<ArtistFriendFavoritedEntity> =
+    private fun List<ArtistFriendsFavoritedDto>.toArtistsFriendFavoritedEntity(): List<ArtistFriendFavoritedEntity> =
         flatMap { artist ->
             artist.friendsFavorited.map { friendId ->
                 ArtistFriendFavoritedEntity(

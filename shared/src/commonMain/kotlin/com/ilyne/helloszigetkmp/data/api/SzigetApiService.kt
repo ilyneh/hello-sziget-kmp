@@ -1,7 +1,7 @@
 package com.ilyne.helloszigetkmp.data.api
 
 import com.ilyne.helloszigetkmp.data.api.dto.ArtistDto
-import com.ilyne.helloszigetkmp.data.api.dto.ArtistFriendFavoritedDto
+import com.ilyne.helloszigetkmp.data.api.dto.ArtistFriendsFavoritedDto
 import com.ilyne.helloszigetkmp.data.api.dto.SetTimeDto
 import com.ilyne.helloszigetkmp.data.api.dto.StageDto
 import com.ilyne.helloszigetkmp.data.api.dto.UserDto
@@ -49,6 +49,6 @@ class SzigetApiService(
 
     suspend fun removeFriend(userId: String) = client.delete(urlString = "$baseUrl/friends/$userId")
 
-    suspend fun getArtistsFriendFavorited(): List<ArtistFriendFavoritedDto> =
+    suspend fun getArtistsFriendFavorited(): List<ArtistFriendsFavoritedDto> =
         client.get(urlString = "$baseUrl/friends/favorites").body()
 }
