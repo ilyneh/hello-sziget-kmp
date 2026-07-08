@@ -12,6 +12,12 @@ data class AppColorScheme(
     val onPrimary: Color,
     val primaryContainer: Color,
     val onPrimaryContainer: Color,
+
+    val secondary: Color,
+    val onSecondary: Color,
+    val secondaryContainer: Color,
+    val onSecondaryContainer: Color,
+
     val background: Color,
     val onBackground: Color,
     val surface: Color,
@@ -29,6 +35,10 @@ val LightAppColors = AppColorScheme(
     onPrimary = Color.White,
     primaryContainer = Color(0xFFFCE4E7),
     onPrimaryContainer = Color(0xFFE8354A),
+    secondary = Color(0xFF111111),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFF111111),
+    onSecondaryContainer = Color(0xFFFFFFFF),
     background = Color.White,
     onBackground = Color(0xFF1A1A1A),
     surface = Color.White,
@@ -38,7 +48,7 @@ val LightAppColors = AppColorScheme(
     outline = Color(0xFFCCCCCC),
     outlineVariant = Color(0xFFE5E5E8),
     error = Color(0xFFB3261E),
-    onError = Color.White,
+    onError = Color.White
 )
 
 val DarkAppColors = AppColorScheme(
@@ -46,6 +56,10 @@ val DarkAppColors = AppColorScheme(
     onPrimary = Color(0xFF1A1A1A),
     primaryContainer = Color(0xFF5C1420),
     onPrimaryContainer = Color(0xFFFF6B7D),
+    secondary = Color(0xFF111111),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFF111111),
+    onSecondaryContainer = Color(0xFFFFFFFF),
     background = Color(0xFF121212),
     onBackground = Color(0xFFEDEDED),
     surface = Color(0xFF121212),

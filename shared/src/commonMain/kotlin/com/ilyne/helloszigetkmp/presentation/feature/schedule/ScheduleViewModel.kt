@@ -59,6 +59,7 @@ data class ScheduleUiState(
 }
 
 sealed class ScheduleIntent {
+    object OpenFilter : ScheduleIntent()
     data class SelectDay(
         val day: SetTimeDay,
     ) : ScheduleIntent()
@@ -124,6 +125,9 @@ class ScheduleViewModel(
                         _uiState.update { it.copy(error = e.message) }
                     }
                 }
+            }
+            is ScheduleIntent.OpenFilter -> {
+
             }
         }
     }
