@@ -30,7 +30,6 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
 import hello_sziget_kmp.shared.generated.resources.ic_discover
-import hello_sziget_kmp.shared.generated.resources.ic_search
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
