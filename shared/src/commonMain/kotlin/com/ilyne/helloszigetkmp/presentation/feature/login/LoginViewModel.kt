@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.login
+package com.ilyne.helloszigetkmp.presentation.feature.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
