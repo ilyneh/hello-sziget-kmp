@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.profile.components
+package com.ilyne.helloszigetkmp.presentation.feature.profile.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,11 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun ProfileAvatar(elevated: Boolean = false, modifier: Modifier = Modifier) {
+fun ProfileAvatar(
+    avatarText: String,
+    elevated: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     val modifier = if (elevated) modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(percent = 32)) else modifier
     Box(
         modifier = modifier
@@ -29,8 +33,10 @@ fun ProfileAvatar(elevated: Boolean = false, modifier: Modifier = Modifier) {
     ) {
         Text(
             modifier = Modifier.align(Alignment.Center).padding(4.dp),
-            text = "IH",
+            text = avatarText,
             color = Color.White,
+            maxLines = 1,
+            softWrap = false,
             autoSize = TextAutoSize.StepBased(
                 minFontSize = 16.sp,        // Minimum allowable size
                 maxFontSize = 80.sp,        // Maximum allowable size

@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.profile.components
+package com.ilyne.helloszigetkmp.presentation.feature.profile.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +25,12 @@ fun ProfileFriendsSection(
     ) {
         friends.forEach { friend ->
             ProfileFriendItem(
-                item = ProfileFriendItemState(name = friend.name),
+                item = ProfileFriendItemState(
+                    name = friend.name,
+                    avatarText = friend.name
+                        .split(" ")
+                        .joinToString(separator = "") { it.first().uppercase() }
+                ),
                 onClick = { onClick(friend.id) },
             )
         }
