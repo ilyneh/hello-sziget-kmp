@@ -7,7 +7,7 @@ import androidx.room.Query
 import com.ilyne.helloszigetkmp.data.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity
-import com.ilyne.helloszigetkmp.data.db.model.ArtistFriendFavoritedSummary
+import com.ilyne.helloszigetkmp.data.db.model.ArtistFriendsFavoritedSummary
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -58,5 +58,5 @@ interface FriendDao {
         WHERE artist_friend_favorites.friendId != (SELECT userId FROM current_user LIMIT 1)
         """
     )
-    fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendFavoritedSummary>>
+    fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendsFavoritedSummary>>
 }

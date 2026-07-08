@@ -49,6 +49,6 @@ class SzigetApiService(
 
     suspend fun removeFriend(userId: String) = client.delete(urlString = "$baseUrl/friends/$userId")
 
-    suspend fun getArtistsFriendFavorited(): List<ArtistFriendsFavoritedDto> =
+    suspend fun getArtistsFriendsFavorited(): List<ArtistFriendsFavoritedDto> =
         client.get(urlString = "$baseUrl/friends/favorites").body()
 }

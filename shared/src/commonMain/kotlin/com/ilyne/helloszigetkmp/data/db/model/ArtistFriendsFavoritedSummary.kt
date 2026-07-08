@@ -7,7 +7,7 @@ import com.ilyne.helloszigetkmp.data.db.entity.ArtistEntity
 import com.ilyne.helloszigetkmp.data.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.data.db.entity.UserEntity
 
-data class ArtistFriendFavoritedSummary(
+data class ArtistFriendsFavoritedSummary(
     @Embedded
     val artist: ArtistEntity,
 

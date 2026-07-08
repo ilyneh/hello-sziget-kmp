@@ -8,7 +8,7 @@ import com.ilyne.helloszigetkmp.data.db.entity.UserFriendEntity.Status
 import com.ilyne.helloszigetkmp.data.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.data.db.dao.UserDao
 import com.ilyne.helloszigetkmp.data.db.entity.ArtistFriendFavoritedEntity
-import com.ilyne.helloszigetkmp.data.db.model.ArtistFriendFavoritedSummary
+import com.ilyne.helloszigetkmp.data.db.model.ArtistFriendsFavoritedSummary
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
@@ -45,12 +45,12 @@ class FriendRepository(
             val friendsDeferred = async { api.getFriends() }
             val friendRequestsDeferred = async { api.getFriendRequests() }
             val sentFriendRequestsDeferred = async { api.getSentFriendRequests() }
-            val artistsFriendFavoritedDeferred = async { api.getArtistsFriendFavorited() }
+            val artistsFriendsFavoritedDeferred = async { api.getArtistsFriendsFavorited() }
 
             val friends = friendsDeferred.await()
             val friendRequests = friendRequestsDeferred.await()
             val sentFriendRequests = sentFriendRequestsDeferred.await()
-            val artistsFriendFavorited = artistsFriendFavoritedDeferred.await()
+            val artistsFriendsFavorited = artistsFriendsFavoritedDeferred.await()
 
             // Friends/requesters aren't necessarily in the local users table yet
             // (e.g. UserRepository's own sync never ran) — upsert them first so the
@@ -61,7 +61,7 @@ class FriendRepository(
             friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
             friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
 
-            friendDao.upsertArtistFriendFavorited(artistsFriendFavorited.toArtistsFriendFavoritedEntity())
+            friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
         }
     }
 
@@ -75,7 +75,7 @@ class FriendRepository(
         }
     }
 
-    private fun List<ArtistFriendsFavoritedDto>.toArtistsFriendFavoritedEntity(): List<ArtistFriendFavoritedEntity> =
+    private fun List<ArtistFriendsFavoritedDto>.toArtistsFriendsFavoritedEntity(): List<ArtistFriendFavoritedEntity> =
         flatMap { artist ->
             artist.friendsFavorited.map { friendId ->
                 ArtistFriendFavoritedEntity(
@@ -86,7 +86,7 @@ class FriendRepository(
         }
 }
 
-private fun ArtistFriendFavoritedSummary.toDomain(): ArtistFriendsFavorited =
+private fun ArtistFriendsFavoritedSummary.toDomain(): ArtistFriendsFavorited =
     ArtistFriendsFavorited(
         artist = artist.toDomain(),
         friendsFavorited = friends.map { it.toDomain() }
