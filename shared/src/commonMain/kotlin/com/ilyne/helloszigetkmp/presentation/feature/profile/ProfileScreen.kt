@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.profile
+package com.ilyne.helloszigetkmp.presentation.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
-import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileAvatar
+import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountItemState
-import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileFriendRequestsSection
-import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileFriendsSection
+import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
+import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
@@ -66,7 +66,10 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                 modifier = Modifier.align(Alignment.Start)
             )
             Spacer(modifier = Modifier.height(32.dp))
-            ProfileAvatarAndName()
+            ProfileAvatarAndName(
+                name = "Ilyne",
+                avatarText = "IH",
+            )
             Spacer(modifier = Modifier.height(32.dp))
             ProfileEngagementCountCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -126,15 +129,23 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
 }
 
 @Composable
-fun ProfileAvatarAndName(modifier: Modifier = Modifier) {
+fun ProfileAvatarAndName(
+    name: String,
+    avatarText: String,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ProfileAvatar(elevated = true, modifier = Modifier.width(72.dp).height(72.dp))
+        ProfileAvatar(
+            elevated = true,
+            avatarText = avatarText,
+            modifier = Modifier.width(72.dp).height(72.dp)
+        )
         Text(
-            text = "Ilyne",
+            text = name,
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold
         )

@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.profile.components
+package com.ilyne.helloszigetkmp.presentation.feature.profile.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,7 +31,8 @@ import org.jetbrains.compose.resources.painterResource
 
 
 data class ProfileFriendRequestItemState(
-    val name: String
+    val name: String,
+    val avatarText: String,
 )
 
 @Composable
@@ -55,7 +56,10 @@ fun ProfileFriendRequestItem(
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ProfileAvatar(modifier = Modifier.width(48.dp).height(48.dp))
+        ProfileAvatar(
+            avatarText = item.avatarText,
+            modifier = Modifier.width(48.dp).height(48.dp)
+        )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             modifier = Modifier.weight(1f),
@@ -93,7 +97,10 @@ fun ProfileFriendRequestItem(
 fun ProfileFriendRequestItemPreview() {
     AppTheme {
         ProfileFriendRequestItem(
-            item = ProfileFriendRequestItemState("Zaira Tomayeva"),
+            item = ProfileFriendRequestItemState(
+                name = "Zaira Tomayeva",
+                avatarText = "ZT"
+            ),
             onAccept = {},
             onDecline = {}
         )
