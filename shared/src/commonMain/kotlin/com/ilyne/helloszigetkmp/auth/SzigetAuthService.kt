@@ -32,9 +32,9 @@ class SzigetAuthService(
     }
 
     suspend fun logout() {
-//        tokenStorage.read()?.let {
-//            szigetAuthApiService.logout(refreshToken = it.refreshToken)
-//        }
+        tokenStorage.read()?.let {
+            szigetAuthApiService.logout(refreshToken = it.refreshToken)
+        }
         invalidateSession()
     }
 
