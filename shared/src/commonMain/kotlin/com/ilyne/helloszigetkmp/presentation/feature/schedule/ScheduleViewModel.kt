@@ -2,18 +2,19 @@ package com.ilyne.helloszigetkmp.presentation.feature.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilyne.helloszigetkmp.config.BASE_URL_PROD
 import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
+import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
-import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.MapAndFilterSetTimesUseCase
 import com.ilyne.helloszigetkmp.util.Logger
-import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +23,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.isActive
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 
 enum class ViewMode {
     GRID,
@@ -41,9 +42,8 @@ data class ScheduleUiState(
     val setTimes: List<SetTime> = emptyList(),
     val gridMinHour: Int = 0,
     val gridMaxHour: Int = 0,
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val filter: ScheduleFilter = ScheduleFilter(),
+    val activeFilterCount: Int = 0,
+    val status: Status = Status.Success,
 ) {
     data class SetTime(
         val id: String,
@@ -59,6 +59,12 @@ data class ScheduleUiState(
     ) {
         val artistId: String? = artist?.id
         val stageId: String? = stage?.id
+    }
+
+    sealed class Status {
+        object Success : Status()
+        object Loading : Status()
+        data class Error(val message: String) : Status()
     }
 }
 
@@ -91,7 +97,7 @@ class ScheduleViewModel(
     private val artistRepository: ArtistRepository,
     private val friendRepository: FriendRepository,
     private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase,
-    private val getSetTimesForDayUseCase: GetSetTimesForDayUseCase,
+    private val mapAndFilterSetTimesUseCase: MapAndFilterSetTimesUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -102,6 +108,8 @@ class ScheduleViewModel(
 
     private val selectedDay = MutableStateFlow<SetTimeDay?>(null)
 
+    private val filter = MutableStateFlow(ScheduleFilter())
+
     init {
         viewModelScope.launch {
             try {
@@ -109,12 +117,12 @@ class ScheduleViewModel(
                 artistRepository.refresh()
                 friendRepository.refresh()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(e.message.orEmpty())) }
             }
         }
-        observeStages()
         observeSetTimeDays()
         observeSelectedDay()
+        observeFilter()
     }
 
     fun onIntent(intent: ScheduleIntent) {
@@ -137,18 +145,18 @@ class ScheduleViewModel(
                     try {
                         artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
-                        _uiState.update { it.copy(error = e.message) }
+                        _uiState.update { it.copy(status = ScheduleUiState.Status.Error(e.message.orEmpty())) }
                     }
                 }
             }
             is ScheduleIntent.OpenFilter -> {
                 viewModelScope.launch {
-                    _effects.emit(ScheduleEffect.NavigateToFilter(_uiState.value.filter))
+                    _effects.emit(ScheduleEffect.NavigateToFilter(filter.value))
                 }
             }
 
             is ScheduleIntent.ApplyFilter -> {
-                _uiState.update { it.copy(filter = intent.filter) }
+                filter.update { intent.filter }
             }
         }
     }
@@ -156,53 +164,56 @@ class ScheduleViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSelectedDay() {
         viewModelScope.launch {
-            val setTimesForDay = selectedDay.filterNotNull().flatMapLatest { day ->
-                getSetTimesForDayUseCase(day.dayStartMillis, day.dayEndMillis)
-            }
-            val artistsFriendsFavorited = friendRepository.observeArtistsFriendsFavorited().map { favorited ->
-                favorited.associateBy { it.artist.id }
-            }
-
-            combine(setTimesForDay, artistsFriendsFavorited) { data, favoritedByArtistId ->
-                data to favoritedByArtistId
-            }.collect { (data, favoritedByArtistId) ->
-                val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-                val setTimesUiModel = data.setTimes.map { setTime ->
-                    ScheduleUiState.SetTime(
-                        id = setTime.id,
-                        startTime = setTime.startTime,
-                        endTime = setTime.endTime,
-                        hideEndTime = setTime.hideEndTime,
-                        artist = setTime.artist,
-                        artistFriendsFavorited = setTime.artist?.let { artist ->
-                            favoritedByArtistId[artist.id]
-                                ?: ArtistFriendsFavorited(
-                                    artist = artist,
-                                    friendsFavorited = emptyList()
-                                )
-                        },
-                        stage = setTime.stage,
-                        isInThePast = setTime.endTime < currentTimeMillis,
-                        startHourFraction = setTime.startTime.normalizedFestivalHourFraction(),
-                        endHourFraction = setTime.endTime.normalizedFestivalHourFraction(),
-                    )
+            val setTimesForDay = selectedDay.filterNotNull()
+                .flatMapLatest { day ->
+                    scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis)
                 }
+
+            val artistsFriendsFavorited = friendRepository.observeArtistsFriendsFavorited()
+                .map { favorited ->
+                    favorited.associateBy { it.artist.id }
+                }
+
+            data class CombinedData(
+                val filter: ScheduleFilter,
+                val setTimes: List<SetTime>,
+                val favoritedByArtistId: Map<String, ArtistFriendsFavorited>,
+                val allStages: List<Stage>
+            )
+
+            combine(
+                flow = filter,
+                flow2 = setTimesForDay,
+                flow3 = artistsFriendsFavorited,
+                flow4 = scheduleRepository.observeStages(),
+            ) { filter, setTimes, favoritedByArtistId, allStages ->
+                CombinedData(filter, setTimes, favoritedByArtistId, allStages)
+            }.collect { data ->
+                val filteredData = mapAndFilterSetTimesUseCase(
+                    data.filter,
+                    data.setTimes,
+                    data.favoritedByArtistId,
+                    data.allStages,
+                )
                 _uiState.update {
                     it.copy(
-                        setTimes = setTimesUiModel,
-                        gridMinHour = data.gridMinHour,
-                        gridMaxHour = data.gridMaxHour,
-                        isLoading = false,
+                        setTimes = filteredData.setTimes,
+                        stages = filteredData.stages,
+                        gridMinHour = filteredData.gridMinHour,
+                        gridMaxHour = filteredData.gridMaxHour,
+                        status = ScheduleUiState.Status.Success
                     )
                 }
             }
         }
     }
 
-    private fun observeStages() {
+    private fun observeFilter() {
         viewModelScope.launch {
-            scheduleRepository.observeStages().collect { stages ->
-                _uiState.update { it.copy(stages = stages) }
+            filter.collect { filter ->
+                _uiState.update {
+                    it.copy(activeFilterCount = filter.activeCount())
+                }
             }
         }
     }

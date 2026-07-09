@@ -5,13 +5,13 @@ import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
-import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.MapAndFilterSetTimesUseCase
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -23,8 +23,8 @@ val presentationModule = module {
 
     // UseCases
     single { GetSetTimeDaysUseCase(scheduleRepository = get()) }
-    single { GetSetTimesForDayUseCase(scheduleRepository = get()) }
     single { GetLikedArtistCountUseCase(artistRepository = get()) }
+    single { MapAndFilterSetTimesUseCase() }
 
     // ViewModels
     viewModel {
@@ -33,7 +33,7 @@ val presentationModule = module {
             artistRepository = get(),
             friendRepository = get(),
             getSetTimeDaysUseCase = get(),
-            getSetTimesForDayUseCase = get(),
+            mapAndFilterSetTimesUseCase = get()
         )
     }
     viewModel { ScheduleFilterViewModel() }
