@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,15 +41,15 @@ fun ScheduleFilterButtonChip(
         onClick = onClick,
         shape = RoundedCornerShape(100.dp),
         colors = FilterChipDefaults.filterChipColors(
-            iconColor = LightAppColors.onSecondary,
-            containerColor = LightAppColors.secondary,
-            labelColor = LightAppColors.onSecondary,
-            disabledContainerColor = LightAppColors.background,
-            disabledLabelColor = LightAppColors.onBackground,
-            disabledLeadingIconColor = LightAppColors.onBackground,
-            selectedContainerColor = LightAppColors.secondary,
-            selectedLabelColor = LightAppColors.onSecondary,
-            selectedLeadingIconColor = LightAppColors.onSecondary,
+            iconColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            labelColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.background,
+            disabledLabelColor = MaterialTheme.colorScheme.onBackground,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onBackground,
+            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondary,
         ),
         label = {
             Row(
@@ -71,7 +72,8 @@ fun ScheduleFilterButtonChip(
                 contentDescription = "Filter Chip",
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .size(16.dp)
+                    .size(16.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         },
         modifier = modifier
@@ -86,7 +88,7 @@ private fun FilterCountLabel(
     Text(
         text = text,
         fontSize = 10.sp,
-        color = LightAppColors.onPrimary,
+        color = MaterialTheme.colorScheme.onPrimary,
         fontWeight = FontWeight.SemiBold,
         style = TextStyle(
             lineHeightStyle = LineHeightStyle(
@@ -95,7 +97,7 @@ private fun FilterCountLabel(
             )
         ),
         modifier = modifier
-            .background(color = LightAppColors.primary, shape = RoundedCornerShape(100.dp))
+            .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100.dp))
             .padding(horizontal = 12.dp, vertical = 2.dp),
     )
 }

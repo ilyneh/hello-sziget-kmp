@@ -1,8 +1,9 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components.timeline
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,15 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
-import com.ilyne.helloszigetkmp.presentation.schedule.components.HEADER_HEIGHT_DP
-import com.ilyne.helloszigetkmp.presentation.schedule.components.HOUR_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HEADER_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
+import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.HOUR_LABEL_HEIGHT_DP
+import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.StickyHourColumn
 
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
 
-private const val COLUMN_WIDTH_DP = 120
+private const val MIN_COLUMN_WIDTH_DP = 120
 private const val TIME_LABEL_WIDTH_DP = 48
 
 @Composable
@@ -55,99 +58,116 @@ fun TimelineGridView(
     }
 
     val totalGridHeight = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp
-    val totalGridWidth = (stages.size * COLUMN_WIDTH_DP).dp
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Header row: a static spacer reserves space for the sticky hour column below,
-        // stage names scroll horizontally in lockstep with the grid via horizScroll.
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(start = TIME_LABEL_WIDTH_DP.dp)
-                .horizontalScroll(horizScroll)
-        ) {
-            stages.forEach { stage ->
-                val stageColor = stageColor(stageId = stage.id)
-                Column {
-                    Box(
-                        modifier = Modifier.width(COLUMN_WIDTH_DP.dp).height(HEADER_HEIGHT_DP.dp).padding(horizontal = 4.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stage.name,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = stageColor,
-                            lineHeight = 11.sp,
-                        )
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        // Columns stretch evenly to fill the available width when there are few stages,
+        // but fall back to a fixed minimum (and let the row scroll) once that would
+        // squeeze columns narrower than is readable.
+        val availableGridWidth = maxWidth - TIME_LABEL_WIDTH_DP.dp
+        val columnWidth = if (stages.isEmpty()) {
+            MIN_COLUMN_WIDTH_DP.dp
+        } else {
+            maxOf(MIN_COLUMN_WIDTH_DP.dp, availableGridWidth / stages.size)
+        }
+        val totalGridWidth = columnWidth * stages.size
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header row: a static spacer reserves space for the sticky hour column below,
+            // stage names scroll horizontally in lockstep with the grid via horizScroll.
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(start = TIME_LABEL_WIDTH_DP.dp)
+                    .horizontalScroll(horizScroll)
+            ) {
+                stages.forEach { stage ->
+                    val stageColor = stageColor(stageId = stage.id)
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .size(width = columnWidth, height = HEADER_HEIGHT_DP.dp)
+                                .padding(horizontal = 2.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stage.name,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = stageColor,
+                                lineHeight = 11.sp,
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Row(modifier = Modifier.fillMaxSize()) {
-            StickyHourColumn(
-                totalGridHeight = totalGridHeight,
-                gridMinHour = gridMinHour,
-                gridMaxHour = gridMaxHour,
-                modifier = Modifier
-                    .width(TIME_LABEL_WIDTH_DP.dp)
-                    .fillMaxHeight()
-                    .verticalScroll(state = vertScroll)
-            )
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .verticalScroll(vertScroll)
-                    .horizontalScroll(horizScroll),
-            ) {
-
-                Row(modifier = Modifier.fillMaxSize()) {
-                    stages.forEach { stage ->
-                        Box(
-                            modifier = Modifier.width(COLUMN_WIDTH_DP.dp)
-                                .height(totalGridHeight)
-                                .background(color = stageColor(stageId = stage.id).copy(alpha = 0.05f))
-                        )
-                    }
-                }
+            Row(modifier = Modifier.fillMaxSize()) {
+                StickyHourColumn(
+                    totalGridHeight = totalGridHeight,
+                    gridMinHour = gridMinHour,
+                    gridMaxHour = gridMaxHour,
+                    modifier = Modifier
+                        .width(TIME_LABEL_WIDTH_DP.dp)
+                        .fillMaxHeight()
+                        .verticalScroll(state = vertScroll)
+                )
 
                 Box(
                     modifier = Modifier
-                        .size(totalGridWidth, totalGridHeight)
-                        .background(color = Color.Transparent)
+                        .fillMaxHeight()
+                        .verticalScroll(vertScroll)
+                        .horizontalScroll(horizScroll),
                 ) {
-                    // Hour gridlines span the full scrollable grid width
-                    for (hour in gridMinHour..gridMaxHour) {
-                        val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        Box(
-                            modifier = Modifier
-                                .offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(MaterialTheme.colorScheme.outlineVariant),
-                        )
+
+                    // Stage column color
+                    Row(modifier = Modifier.fillMaxHeight()) {
+                        stages.forEach { stage ->
+                            Box(
+                                modifier = Modifier.width(columnWidth)
+                                    .height(totalGridHeight)
+                                    .background(
+                                        color = stageColor(stageId = stage.id)
+                                            .copy(alpha = 0.2f)
+                                    )
+                            )
+                        }
                     }
 
-                    // Set time cards
-                    setTimes.forEach { setTime ->
-                        val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
-                        if (stageIndex < 0) return@forEach
-                        val startHourFraction = setTime.startHourFraction
-                        val endHourFraction = setTime.endHourFraction
-                        val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
-                        val topOffset = (2 + HOUR_LABEL_HEIGHT_DP / 2).dp
-                        val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
-                        val leftDp = (stageIndex * COLUMN_WIDTH_DP + 2).dp
+                    Box(
+                        modifier = Modifier
+                            .size(totalGridWidth, totalGridHeight)
+                            .background(color = Color.Transparent)
+                    ) {
+                        // Hour gridlines span the full scrollable grid width
+                        for (hour in gridMinHour..gridMaxHour) {
+                            val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            Box(
+                                modifier = Modifier
+                                    .offset(y = y + (HOUR_LABEL_HEIGHT_DP / 2).dp)
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(MaterialTheme.colorScheme.outlineVariant),
+                            )
+                        }
 
-                        SetTimeCard(
-                            setTime = setTime,
-                            modifier = Modifier
-                                .offset(x = leftDp, y = topDp + topOffset)
-                                .width((COLUMN_WIDTH_DP - 4).dp)
-                                .height(heightDp),
-                        )
+                        // Set time cards
+                        setTimes.forEach { setTime ->
+                            val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
+                            if (stageIndex < 0) return@forEach
+                            val startHourFraction = setTime.startHourFraction
+                            val endHourFraction = setTime.endHourFraction
+                            val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
+                            val topOffset = (2 + HOUR_LABEL_HEIGHT_DP / 2).dp
+                            val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
+                            val leftDp = columnWidth * stageIndex + 2.dp
+
+                            SetTimeCard(
+                                setTime = setTime,
+                                modifier = Modifier
+                                    .offset(x = leftDp, y = topDp + topOffset)
+                                    .width(columnWidth - 4.dp)
+                                    .height(heightDp),
+                            )
+                        }
                     }
                 }
             }

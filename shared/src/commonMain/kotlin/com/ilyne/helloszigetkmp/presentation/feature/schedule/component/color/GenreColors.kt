@@ -4,27 +4,26 @@ import androidx.compose.ui.graphics.Color
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.domain.model.genreGroupOf
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 // Named swatches so multiple genre groups can point at the same color by reusing a name
 // instead of repeating a hex value. Add/remove swatches as needed — this list has no
 // required size.
-private val RED = Color(0xFFE8354A)
-private val BLUE = Color(0xFF0EA5E9)
-private val PURPLE = Color(0xFF8B3CF7)
-private val ORANGE = Color(0xFFF59E0B)
-private val GREEN = Color(0xFF10B981)
-private val PINK = Color(0xFFEC4899)
-private val TEAL = Color(0xFF2BB8B8)
-private val YELLOW = Color(0xFFFFDC00)
-private val GRAY = Color(0xFFAAAAAA)
+private val BLUE = SzigetPalette.PrimaryBlue
+private val PURPLE = SzigetPalette.Magenta
+private val GREEN = SzigetPalette.TealGreen
+private val PINK = SzigetPalette.HotPink
+private val TEAL = SzigetPalette.DarkTeal
+private val YELLOW = SzigetPalette.SunshineYellow
+private val WARM_ORANGE = SzigetPalette.WarmOrange
 
 // Fill in the swatch for each genre group. Point multiple groups at the same swatch
 // to have them render as the same tile color.
 private val genreColors: Map<GenreGroup, Color> = mapOf(
-    GenreGroup.ROCK to RED,
+    GenreGroup.ROCK to PINK,
     GenreGroup.POP to PINK,
     GenreGroup.INDIE to PINK,
-    GenreGroup.JAZZ to ORANGE,
+    GenreGroup.JAZZ to PURPLE,
     GenreGroup.ELECTRONIC to BLUE,
     GenreGroup.TECHNO to BLUE,
     GenreGroup.HOUSE to BLUE,
@@ -37,13 +36,13 @@ private val genreColors: Map<GenreGroup, Color> = mapOf(
     GenreGroup.BASS to BLUE,
     GenreGroup.WORLD to GREEN,
     GenreGroup.DANCE to TEAL,
-    GenreGroup.PERFORMANCE to GRAY,
-    GenreGroup.COMEDY to GRAY,
-    GenreGroup.WORKSHOP to GRAY,
-    GenreGroup.VISUAL_ART to GRAY,
+    GenreGroup.PERFORMANCE to WARM_ORANGE,
+    GenreGroup.COMEDY to WARM_ORANGE,
+    GenreGroup.WORKSHOP to WARM_ORANGE,
+    GenreGroup.VISUAL_ART to WARM_ORANGE,
 )
 
-private val DEFAULT_COLOR = GRAY
+private val DEFAULT_COLOR = WARM_ORANGE
 
 fun genreColor(genreGroup: GenreGroup): Color = genreColors[genreGroup] ?: DEFAULT_COLOR
 

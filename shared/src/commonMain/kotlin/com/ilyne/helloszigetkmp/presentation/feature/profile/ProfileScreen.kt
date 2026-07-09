@@ -1,6 +1,8 @@
 package com.ilyne.helloszigetkmp.presentation.feature.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.room.util.TableInfo
 import com.ilyne.helloszigetkmp.auth.LogoutService
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
@@ -64,83 +67,88 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         modifier = modifier.fillMaxSize()
     ) {
         Column(
-            modifier = modifier.fillMaxWidth()
-                .padding(16.dp)
-                .verticalScroll(vertScroll),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
+                .verticalScroll(vertScroll)
+                .background(color = MaterialTheme.colorScheme.surface)
         ) {
             MainHeader(
                 text = "Profile",
-                modifier = Modifier.align(Alignment.Start)
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(32.dp))
-            ProfileAvatarAndName(
-                name = uiState.name.orEmpty(),
-                avatarText = "IH",
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            ProfileEngagementCountCard(
-                modifier = Modifier.fillMaxWidth(),
-                items = listOf(
-                    ProfileEngagementCountItemState(uiState.likedArtistCount, "Hearted"),
-                    ProfileEngagementCountItemState(uiState.friends.size, "Friends"),
-                    ProfileEngagementCountItemState(6, "Days"),
-                )
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = "Friends",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
 
-                FilledIconButton(
-                    onClick = {
-                        viewModel.onIntent(ProfileIntent.AddFriend)
-                    },
-                    shape = IconButtonDefaults.mediumSquareShape
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(32.dp))
+                ProfileAvatarAndName(
+                    name = uiState.name.orEmpty(),
+                    avatarText = "IH",
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                ProfileEngagementCountCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    items = listOf(
+                        ProfileEngagementCountItemState(uiState.likedArtistCount, "Hearted"),
+                        ProfileEngagementCountItemState(uiState.friends.size, "Friends"),
+                        ProfileEngagementCountItemState(6, "Days"),
+                    )
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_person_add),
-                        contentDescription = null
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "Friends",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+
+                    FilledIconButton(
+                        onClick = {
+                            viewModel.onIntent(ProfileIntent.AddFriend)
+                        },
+                        shape = IconButtonDefaults.mediumSquareShape
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_person_add),
+                            contentDescription = null
+                        )
+                    }
+                }
+
+                if (uiState.friends.isEmpty() && uiState.friendRequests.isEmpty()) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        text = "No friends",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.outline,
                     )
                 }
-            }
 
-            if (uiState.friends.isEmpty() && uiState.friendRequests.isEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                    text = "No friends",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.outline,
-                )
-            }
+                if (uiState.friendRequests.isNotEmpty()) {
+                    ProfileFriendRequestsSection(
+                        friendRequests = uiState.friendRequests,
+                        onAccept = {
+                            viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = it))
+                        },
+                        onDecline = {
+                            viewModel.onIntent(ProfileIntent.DeclineFriendRequest(friendId = it))
+                        },
+                    )
+                }
 
-            if (uiState.friendRequests.isNotEmpty()) {
-                ProfileFriendRequestsSection(
-                    friendRequests = uiState.friendRequests,
-                    onAccept = {
-                        viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = it))
-                    },
-                    onDecline = {
-                        viewModel.onIntent(ProfileIntent.DeclineFriendRequest(friendId = it))
-                    },
-                )
-            }
-
-            if (uiState.friends.isNotEmpty()) {
-                ProfileFriendsSection(
-                    friends = uiState.friends,
-                    onClick = {
-                        viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
-                        viewModel.onIntent(ProfileIntent.Logout)
-                    }
-                )
+                if (uiState.friends.isNotEmpty()) {
+                    ProfileFriendsSection(
+                        friends = uiState.friends,
+                        onClick = {
+                            viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
+                            viewModel.onIntent(ProfileIntent.Logout)
+                        }
+                    )
+                }
             }
         }
     }
