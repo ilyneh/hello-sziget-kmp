@@ -90,6 +90,7 @@ private fun ScheduleContent(
 
         ScheduleFilterBar(
             data = ScheduleFilterBarData(
+                filterCount = uiState.activeFilterCount,
                 setCount = uiState.setTimes.size
             ),
             onFilterButtonClicked = onFilterButtonClicked,
@@ -97,19 +98,24 @@ private fun ScheduleContent(
         )
 
         // Content
-        when {
-            uiState.isLoading -> {
+        when (val status = uiState.status) {
+            is ScheduleUiState.Status.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
 
-            uiState.error != null -> {
+            is ScheduleUiState.Status.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(uiState.error, color = MaterialTheme.colorScheme.error)
+                    Text(status.message, color = MaterialTheme.colorScheme.error)
                 }
             }
-            else -> {
+
+            else -> if (uiState.setTimes.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No Set Times")
+                }
+            } else {
                 when (uiState.viewMode) {
                     ViewMode.GRID -> {
                         TimelineGridView(
