@@ -82,11 +82,10 @@ class GetFilteredScheduleContentUseCase {
     private data class GridHourRange(val minHour: Int, val maxHour: Int)
 
     private fun getGridHourRange(setTimes: List<SetTime>): GridHourRange {
-        var minHour = 6
-        var maxHour = 6
+        if (setTimes.isEmpty()) return GridHourRange(minHour = 6, maxHour = 6)
 
-        if (setTimes.isEmpty()) return GridHourRange(minHour = minHour, maxHour = maxHour)
-
+        var minHour = Int.MAX_VALUE
+        var maxHour = Int.MIN_VALUE
         for (setTime in setTimes) {
             val startHour = setTime.startTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
             val endHour = setTime.endTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
