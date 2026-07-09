@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.lineup
+package com.ilyne.helloszigetkmp.presentation.feature.lineup
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
+import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

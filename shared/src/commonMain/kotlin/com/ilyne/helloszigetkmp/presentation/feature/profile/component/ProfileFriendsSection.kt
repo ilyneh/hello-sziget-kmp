@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.presentation.component.SectionHeader
 
 @Composable
 fun ProfileFriendsSection(
@@ -15,7 +16,7 @@ fun ProfileFriendsSection(
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ProfileSectionHeader(
+    SectionHeader(
         modifier = Modifier.padding(top = 8.dp),
         text = "Following - ${friends.size}"
     )

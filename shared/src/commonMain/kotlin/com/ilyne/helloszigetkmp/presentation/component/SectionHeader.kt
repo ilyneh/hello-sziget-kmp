@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.feature.profile.component
+package com.ilyne.helloszigetkmp.presentation.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,8 +11,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+
 @Composable
-fun ProfileSectionHeader(text: String, modifier: Modifier = Modifier) {
+fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     Text(
         modifier = modifier.fillMaxWidth()
             .padding(top = 8.dp, bottom = 8.dp),
@@ -21,6 +22,5 @@ fun ProfileSectionHeader(text: String, modifier: Modifier = Modifier) {
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurfaceVariant
-
     )
 }

@@ -34,9 +34,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverScreen
-import com.ilyne.helloszigetkmp.presentation.lineup.MyLineupScreen
+import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleScreen
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import hello_sziget_kmp.shared.generated.resources.ic_heart
@@ -54,7 +55,13 @@ import org.jetbrains.compose.resources.painterResource
 @Serializable object ProfileTab
 
 @Composable
-fun MainScaffold(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Unit) {
+fun MainScaffold(
+    openFilterScreen: (ScheduleFilter) -> Unit,
+    onNavigateToAddFriend: () -> Unit,
+    appliedFilter: ScheduleFilter?,
+    onAppliedFilterConsumed: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -96,7 +103,7 @@ fun MainScaffold(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Uni
     Scaffold(
         bottomBar = {
             Surface(
-                modifier = Modifier
+                modifier = modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
                     .navigationBarsPadding()
                     .fillMaxWidth()
@@ -148,7 +155,13 @@ fun MainScaffold(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Uni
             startDestination = ScheduleTab,
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding(), bottom = 0.dp),
         ) {
-            composable<ScheduleTab> { ScheduleScreen() }
+            composable<ScheduleTab> {
+                ScheduleScreen(
+                    openFilterScreen = openFilterScreen,
+                    appliedFilter = appliedFilter,
+                    onAppliedFilterConsumed = onAppliedFilterConsumed
+                )
+            }
             composable<DiscoverTab> { DiscoverScreen() }
             composable<LineupTab> { MyLineupScreen() }
             composable<ProfileTab> { ProfileScreen(onNavigateToAddFriend = onNavigateToAddFriend) }

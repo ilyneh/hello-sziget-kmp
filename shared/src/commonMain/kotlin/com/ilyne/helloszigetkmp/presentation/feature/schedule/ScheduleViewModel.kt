@@ -11,10 +11,13 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimesForDayUseCase
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -40,6 +43,7 @@ data class ScheduleUiState(
     val gridMaxHour: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null,
+    val filter: ScheduleFilter = ScheduleFilter(),
 ) {
     data class SetTime(
         val id: String,
@@ -72,6 +76,14 @@ sealed class ScheduleIntent {
         val artistId: String?,
         val current: Boolean,
     ) : ScheduleIntent()
+
+    data class ApplyFilter(
+        val filter: ScheduleFilter,
+    ) : ScheduleIntent()
+}
+
+sealed class ScheduleEffect {
+    data class NavigateToFilter(val filter: ScheduleFilter) : ScheduleEffect()
 }
 
 class ScheduleViewModel(
@@ -84,6 +96,9 @@ class ScheduleViewModel(
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _effects = MutableSharedFlow<ScheduleEffect>()
+    val effects = _effects.asSharedFlow()
 
     private val selectedDay = MutableStateFlow<SetTimeDay?>(null)
 
@@ -127,7 +142,13 @@ class ScheduleViewModel(
                 }
             }
             is ScheduleIntent.OpenFilter -> {
+                viewModelScope.launch {
+                    _effects.emit(ScheduleEffect.NavigateToFilter(_uiState.value.filter))
+                }
+            }
 
+            is ScheduleIntent.ApplyFilter -> {
+                _uiState.update { it.copy(filter = intent.filter) }
             }
         }
     }
