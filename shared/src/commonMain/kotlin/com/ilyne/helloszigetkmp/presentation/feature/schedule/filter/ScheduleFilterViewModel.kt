@@ -1,11 +1,13 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 data class ScheduleFilterUiState(
@@ -62,8 +64,10 @@ class ScheduleFilterViewModel : ViewModel() {
                 updateUiState()
             }
             FilterIntent.Save -> {
-                val effect = FilterEffect.UpdateFilter(filter)
-                _effects.tryEmit(effect)
+                viewModelScope.launch {
+                    val effect = FilterEffect.UpdateFilter(filter)
+                    _effects.emit(effect)
+                }
             }
         }
     }

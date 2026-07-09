@@ -142,7 +142,9 @@ class ScheduleViewModel(
                 }
             }
             is ScheduleIntent.OpenFilter -> {
-                _effects.tryEmit(ScheduleEffect.NavigateToFilter(_uiState.value.filter))
+                viewModelScope.launch {
+                    _effects.emit(ScheduleEffect.NavigateToFilter(_uiState.value.filter))
+                }
             }
 
             is ScheduleIntent.ApplyFilter -> {
