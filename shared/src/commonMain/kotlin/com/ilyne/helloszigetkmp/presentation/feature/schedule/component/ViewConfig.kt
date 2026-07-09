@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component
 
 const val HOUR_HEIGHT_DP = 120
-const val HEADER_HEIGHT_DP = 50
+const val HEADER_HEIGHT_DP = 40

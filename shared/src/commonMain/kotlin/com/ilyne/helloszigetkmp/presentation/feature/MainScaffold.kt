@@ -38,6 +38,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import hello_sziget_kmp.shared.generated.resources.ic_heart
@@ -101,29 +102,30 @@ fun MainScaffold(
     )
 
     Scaffold(
+        containerColor = SzigetPalette.Navy,
         bottomBar = {
             Surface(
                 modifier = modifier
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp)
                     .navigationBarsPadding()
                     .fillMaxWidth()
                     .graphicsLayer {
-                        shadowElevation = 8.dp.toPx() // The size/spread of the shadow
-                        shape = RoundedCornerShape(24.dp)
+                        shadowElevation = 16.dp.toPx() // The size/spread of the shadow
+                        shape = RoundedCornerShape(20.dp)
                         clip = false
 
                         // Lower the intensity by reducing the alpha (opacity) of the shadow colors
-                        ambientShadowColor = Color.Black.copy(alpha = 0.2f) // Ultra soft ambient glow
-                        spotShadowColor = Color.Black.copy(alpha = 0.4f) // Softer directional shadow
+                        ambientShadowColor = Color.White // Ultra soft ambient glow
+                        spotShadowColor = Color.White // Softer directional shadow
                     },
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(20.dp),
+                color = SzigetPalette.Navy,
                 tonalElevation = 0.25.dp,
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 6.dp, vertical = 6.dp),
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     tabs.forEach { tab ->
@@ -183,20 +185,20 @@ private fun BottomTabItem(
     modifier: Modifier = Modifier,
 ) {
     val contentColor = if (selected) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.onSecondary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        SzigetPalette.FaintText
     }
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .clip(shape = RoundedCornerShape(size = 18.dp))
+            .background(color = if (selected) MaterialTheme.colorScheme.secondary else Color.Transparent)
             .selectable(selected = selected, onClick = onClick, role = Role.Tab)
             .padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
+        CompositionLocalProvider(value = LocalContentColor provides contentColor) {
             icon()
             Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = contentColor)
         }
