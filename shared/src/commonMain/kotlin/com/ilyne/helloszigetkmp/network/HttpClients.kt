@@ -13,8 +13,14 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 val baseHttpClient =
@@ -48,13 +54,14 @@ fun createApiHttpClient(
                 }
                 refreshTokens {
                     val refreshTokenInfo: TokenDto =  try {
-                        client.submitForm(
-                            url = "$baseUrl/auth/refresh",
-                            formParameters = parameters {
-                                append("refresh_token", oldTokens?.refreshToken ?: "")
-                            }
-                        ) {
+                        val refreshToken = oldTokens?.refreshToken
+                            ?: throw IllegalStateException("Attempting to refresh token without a refresh token.")
+
+                        client.post(urlString = "$baseUrl/auth/refresh") {
+                            contentType(ContentType.Application.Json)
                             markAsRefreshTokenRequest()
+                            val refreshTokenRequestData = RefreshTokenRequest(refreshToken = refreshToken)
+                            setBody(Json.encodeToString(value = refreshTokenRequestData))
                         }.body()
                     } catch (e: Exception) {
                         onSessionInvalidated()
@@ -66,3 +73,8 @@ fun createApiHttpClient(
             }
         }
     }
+
+@Serializable
+private data class RefreshTokenRequest(
+    @SerialName("refresh_token") val refreshToken: String
+)
