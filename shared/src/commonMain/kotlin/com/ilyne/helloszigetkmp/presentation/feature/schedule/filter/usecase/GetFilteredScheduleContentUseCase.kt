@@ -12,7 +12,7 @@ import kotlin.collections.filter
 import kotlin.time.Clock
 
 
-class MapAndFilterSetTimesUseCase {
+class GetFilteredScheduleContentUseCase {
 
     data class Response(
         val setTimes: List<ScheduleUiState.SetTime>,

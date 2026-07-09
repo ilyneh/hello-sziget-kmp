@@ -12,7 +12,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.MapAndFilterSetTimesUseCase
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -95,7 +95,7 @@ class ScheduleViewModel(
     private val artistRepository: ArtistRepository,
     private val friendRepository: FriendRepository,
     private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase,
-    private val mapAndFilterSetTimesUseCase: MapAndFilterSetTimesUseCase,
+    private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -190,7 +190,7 @@ class ScheduleViewModel(
                 ) { filter, setTimesForDay, favoritedByArtistId ->
                     CombinedData(filter, setTimesForDay, favoritedByArtistId)
                 }.collect { data ->
-                    val filteredData = mapAndFilterSetTimesUseCase(
+                    val filteredData = getFilteredScheduleContentUseCase(
                         data.filter,
                         data.setTimesForDay.setTimes,
                         data.favoritedByArtistId,

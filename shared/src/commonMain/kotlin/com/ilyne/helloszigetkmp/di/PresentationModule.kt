@@ -11,7 +11,7 @@ import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterViewModel
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.MapAndFilterSetTimesUseCase
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetFilteredScheduleContentUseCase
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -24,7 +24,7 @@ val presentationModule = module {
     // UseCases
     single { GetSetTimeDaysUseCase(scheduleRepository = get()) }
     single { GetLikedArtistCountUseCase(artistRepository = get()) }
-    single { MapAndFilterSetTimesUseCase() }
+    single { GetFilteredScheduleContentUseCase() }
 
     // ViewModels
     viewModel {
@@ -33,7 +33,7 @@ val presentationModule = module {
             artistRepository = get(),
             friendRepository = get(),
             getSetTimeDaysUseCase = get(),
-            mapAndFilterSetTimesUseCase = get()
+            getFilteredScheduleContentUseCase = get()
         )
     }
     viewModel { ScheduleFilterViewModel() }
