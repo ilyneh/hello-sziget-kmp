@@ -111,7 +111,11 @@ private fun ScheduleContent(
                 }
             }
 
-            else -> {
+            else -> if (uiState.setTimes.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No Set Times")
+                }
+            } else {
                 when (uiState.viewMode) {
                     ViewMode.GRID -> {
                         TimelineGridView(

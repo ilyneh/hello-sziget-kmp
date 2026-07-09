@@ -28,9 +28,8 @@ class MapAndFilterSetTimesUseCase {
         allStages: List<Stage>,
     ): Response {
         val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
-        val setTimesFiltered = setTimes
-            .filter { it.startTime != it.endTime }
-            .filter(filter, favoritedByArtistId)
+        val validSetTimes = setTimes.filter { it.startTime != it.endTime }
+        val setTimesFiltered = validSetTimes.filter(filter, favoritedByArtistId)
 
         val stages = if (filter.hideEmptyStages) {
             setTimesFiltered.mapNotNull { it.stage }.distinctBy { it.id }

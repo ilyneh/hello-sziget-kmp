@@ -117,7 +117,9 @@ class ScheduleViewModel(
                 artistRepository.refresh()
                 friendRepository.refresh()
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(e.message.orEmpty())) }
+                e.message?.let { message ->
+                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
+                }
             }
         }
         observeSetTimeDays()
@@ -145,13 +147,15 @@ class ScheduleViewModel(
                     try {
                         artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
-                        _uiState.update { it.copy(status = ScheduleUiState.Status.Error(e.message.orEmpty())) }
+                        e.message?.let { message ->
+                            _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
+                        }
                     }
                 }
             }
             is ScheduleIntent.OpenFilter -> {
                 viewModelScope.launch {
-                    _effects.emit(ScheduleEffect.NavigateToFilter(filter.value))
+                    _effects.emit(value = ScheduleEffect.NavigateToFilter(filter.value))
                 }
             }
 
