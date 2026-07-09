@@ -31,3 +31,23 @@ fun MainHeader(
         trailingContent?.invoke()
     }
 }
+
+@Composable
+fun SubHeader(
+    text: String,
+    modifier: Modifier = Modifier,
+    trailingContent: (@Composable () -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.weight(1f),
+        )
+        trailingContent?.invoke()
+    }
+}

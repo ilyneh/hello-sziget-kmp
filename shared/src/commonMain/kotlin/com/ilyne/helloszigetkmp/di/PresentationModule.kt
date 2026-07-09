@@ -11,6 +11,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -35,6 +36,7 @@ val presentationModule = module {
             getSetTimesForDayUseCase = get(),
         )
     }
+    viewModel { ScheduleFilterViewModel() }
     viewModel { DiscoverViewModel(artistRepository = get()) }
     viewModel { LineupViewModel(artistRepository = get()) }
     viewModel { ProfileViewModel(
@@ -45,4 +47,5 @@ val presentationModule = module {
         getLikedArtistCountUseCase = get()
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get()) }
+
 }

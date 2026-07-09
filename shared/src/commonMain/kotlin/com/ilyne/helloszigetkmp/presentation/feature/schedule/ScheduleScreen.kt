@@ -8,6 +8,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.presentation.component.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.DaySelector
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.ViewModeToggle
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBar
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBarData
 import com.ilyne.helloszigetkmp.presentation.schedule.components.list.SetTimeListView
@@ -27,9 +29,29 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ScheduleScreen(modifier: Modifier = Modifier) {
+fun ScheduleScreen(
+    openFilterScreen: (ScheduleFilter) -> Unit,
+    appliedFilter: ScheduleFilter?,
+    onAppliedFilterConsumed: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel = koinViewModel<ScheduleViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is ScheduleEffect.NavigateToFilter -> openFilterScreen(effect.filter)
+            }
+        }
+    }
+
+    LaunchedEffect(appliedFilter) {
+        appliedFilter?.let {
+            viewModel.onIntent(ScheduleIntent.ApplyFilter(it))
+            onAppliedFilterConsumed()
+        }
+    }
 
     ScheduleContent(
         uiState = uiState,
