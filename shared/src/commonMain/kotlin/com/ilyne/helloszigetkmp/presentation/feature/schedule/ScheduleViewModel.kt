@@ -7,12 +7,11 @@ import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
-import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetFilteredScheduleContentUseCase
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,6 +40,7 @@ data class ScheduleUiState(
     val gridMinHour: Int = 0,
     val gridMaxHour: Int = 0,
     val activeFilterCount: Int = 0,
+    val activeFilterItemsText: List<String> = emptyList(),
     val status: Status = Status.Success,
 ) {
     data class SetTime(
@@ -218,7 +218,10 @@ class ScheduleViewModel(
         viewModelScope.launch {
             filter.collect { filter ->
                 _uiState.update {
-                    it.copy(activeFilterCount = filter.activeCount())
+                    it.copy(
+                        activeFilterCount = filter.activeCount(),
+                        activeFilterItemsText =
+                    )
                 }
             }
         }

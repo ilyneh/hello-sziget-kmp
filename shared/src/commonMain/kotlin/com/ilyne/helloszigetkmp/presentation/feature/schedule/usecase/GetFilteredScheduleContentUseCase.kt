@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase
 
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.SetTime
@@ -8,9 +8,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHour
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
 import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
-import kotlin.collections.filter
 import kotlin.time.Clock
-
 
 class GetFilteredScheduleContentUseCase {
 
@@ -73,10 +71,10 @@ class GetFilteredScheduleContentUseCase {
         filter: ScheduleFilter,
         favoritedByArtistId: Map<String, ArtistFriendsFavorited>
     ) = filter { setTime ->
-        val matchesFavorites = !filter.showFavoritesOnly || setTime.artist?.isFavorited == true
+        val matchesFavorites = !filter.showFavorites || setTime.artist?.isFavorited == true
         val matchesFriendsGoing = !filter.showFriendsGoing
             || favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
-        return@filter matchesFavorites && matchesFriendsGoing
+        return@filter matchesFavorites || matchesFriendsGoing
     }
 
     private data class GridHourRange(val minHour: Int, val maxHour: Int)

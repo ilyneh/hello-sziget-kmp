@@ -1,6 +1,5 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +22,8 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
 data class ScheduleFilterBarData (
-    val filterCount: Int = 2,
-    val setCount: Int = 12,
+    val filterCount: Int = 0,
+    val setCount: Int = 0,
     val filterItems: List<FilterItem> = emptyList()
 ) {
     data class FilterItem(
@@ -65,13 +64,13 @@ fun ScheduleFilterBar(
                 Box(
                     modifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(100)
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(size = 6.dp)
                         )
-
                 ) {
                     Text(
                         text = filterItem.name,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -89,6 +88,8 @@ private fun ScheduleFilterBarPreview() {
     AppTheme {
         ScheduleFilterBar(
             data = ScheduleFilterBarData(
+                filterCount = 100,
+                setCount = 1000,
                 filterItems = listOf(
                     ScheduleFilterBarData.FilterItem("Electronic"),
                     ScheduleFilterBarData.FilterItem("Techno"),
