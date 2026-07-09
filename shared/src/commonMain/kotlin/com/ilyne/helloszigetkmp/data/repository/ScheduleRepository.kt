@@ -12,7 +12,6 @@ import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 
 class ScheduleRepository(
     private val api: SzigetApiService,
@@ -25,40 +24,41 @@ class ScheduleRepository(
         private const val TAG = "ScheduleRepository"
     }
 
+    data class SetTimesForDay(
+        val setTimes: List<SetTime>,
+        val stages: List<Stage>,
+    )
+
     fun observeSetTimesForDay(
         dayStartMillis: Long,
         dayEndMillis: Long,
-    ): Flow<List<SetTime>> =
+    ): Flow<SetTimesForDay> =
         combine(
             setTimeDao.observeByDay(dayStartMillis, dayEndMillis),
             stageDao.observeAll(),
             artistDao.observeAll(),
-        ) { setTimes, stages, artists ->
+        ) { setTimes, stageEntities, artists ->
+            val stages = stageEntities.map { Stage(it.id, it.name, it.description) }
             val stageMap = stages.associateBy { it.id }
             val artistMap = artists.associateBy { it.id }
-            setTimes.map { st ->
-                SetTime(
-                    id = st.id,
-                    artistId = st.artistId,
-                    stageId = st.stageId,
-                    startTime = st.startTime,
-                    endTime = st.endTime,
-                    hideEndTime = st.hideEndTime,
-                    artist = artistMap[st.artistId]?.let {
-                        Artist(it.id, it.name, it.bio, it.isFavorited, it.tags)
-                    },
-                    stage = stageMap[st.stageId]?.let {
-                        Stage(it.id, it.name, it.description)
-                    },
-                )
-            }
+            SetTimesForDay(
+                setTimes = setTimes.map { st ->
+                    SetTime(
+                        id = st.id,
+                        artistId = st.artistId,
+                        stageId = st.stageId,
+                        startTime = st.startTime,
+                        endTime = st.endTime,
+                        hideEndTime = st.hideEndTime,
+                        artist = artistMap[st.artistId]?.let {
+                            Artist(it.id, it.name, it.bio, it.isFavorited, it.tags)
+                        },
+                        stage = stageMap[st.stageId],
+                    )
+                },
+                stages = stages,
+            )
         }
-
-    fun observeStages(): Flow<List<Stage>> =
-        stageDao.observeAll().map { entities ->
-            entities.map { Stage(it.id, it.name, it.description) }
-        }
-
 
     fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> =
         setTimeDao.observeSetTimeRange()

@@ -59,11 +59,13 @@ class MapAndFilterSetTimesUseCase {
                 )
             }
 
+        val gridHourRange = getGridHourRange(setTimesFiltered)
+
         return Response(
             setTimes = setTimesUiModel,
             stages = stages,
-            gridMinHour = getGridMinHour(setTimesFiltered),
-            gridMaxHour = getGridMaxHour(setTimesFiltered)
+            gridMinHour = gridHourRange.minHour,
+            gridMaxHour = gridHourRange.maxHour
         )
     }
 
@@ -77,20 +79,20 @@ class MapAndFilterSetTimesUseCase {
         return@filter matchesFavorites && matchesFriendsGoing
     }
 
+    private data class GridHourRange(val minHour: Int, val maxHour: Int)
 
-    private fun getGridMinHour(setTimes: List<SetTime>) =
-        setTimes.minOfOrNull {
-            it.startTime
-                .toLocalDateTime()
-                .hour
-                .let(::normalizedFestivalHour)
-        } ?: 0
+    private fun getGridHourRange(setTimes: List<SetTime>): GridHourRange {
+        var minHour = 6
+        var maxHour = 6
 
-    private fun getGridMaxHour(setTimes: List<SetTime>) =
-        setTimes.maxOfOrNull {
-            it.endTime
-                .toLocalDateTime()
-                .hour
-                .let(::normalizedFestivalHour)
-        }?.plus(1) ?: 0
+        if (setTimes.isEmpty()) return GridHourRange(minHour = minHour, maxHour = maxHour)
+
+        for (setTime in setTimes) {
+            val startHour = setTime.startTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
+            val endHour = setTime.endTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
+            if (startHour < minHour) minHour = startHour
+            if (endHour > maxHour) maxHour = endHour
+        }
+        return GridHourRange(minHour = minHour, maxHour = maxHour + 1)
+    }
 }

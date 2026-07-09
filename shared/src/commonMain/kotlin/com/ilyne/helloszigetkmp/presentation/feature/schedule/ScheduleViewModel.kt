@@ -2,7 +2,6 @@ package com.ilyne.helloszigetkmp.presentation.feature.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.config.BASE_URL_PROD
 import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.data.repository.FriendRepository
 import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.isActive
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -168,45 +166,49 @@ class ScheduleViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSelectedDay() {
         viewModelScope.launch {
-            val setTimesForDay = selectedDay.filterNotNull()
-                .flatMapLatest { day ->
-                    scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis)
-                }
+            try {
+                val setTimesForDay = selectedDay.filterNotNull()
+                    .flatMapLatest { day ->
+                        scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis)
+                    }
 
-            val artistsFriendsFavorited = friendRepository.observeArtistsFriendsFavorited()
-                .map { favorited ->
-                    favorited.associateBy { it.artist.id }
-                }
+                val artistsFriendsFavorited = friendRepository.observeArtistsFriendsFavorited()
+                    .map { favorited ->
+                        favorited.associateBy { it.artist.id }
+                    }
 
-            data class CombinedData(
-                val filter: ScheduleFilter,
-                val setTimes: List<SetTime>,
-                val favoritedByArtistId: Map<String, ArtistFriendsFavorited>,
-                val allStages: List<Stage>
-            )
-
-            combine(
-                flow = filter,
-                flow2 = setTimesForDay,
-                flow3 = artistsFriendsFavorited,
-                flow4 = scheduleRepository.observeStages(),
-            ) { filter, setTimes, favoritedByArtistId, allStages ->
-                CombinedData(filter, setTimes, favoritedByArtistId, allStages)
-            }.collect { data ->
-                val filteredData = mapAndFilterSetTimesUseCase(
-                    data.filter,
-                    data.setTimes,
-                    data.favoritedByArtistId,
-                    data.allStages,
+                data class CombinedData(
+                    val filter: ScheduleFilter,
+                    val setTimesForDay: ScheduleRepository.SetTimesForDay,
+                    val favoritedByArtistId: Map<String, ArtistFriendsFavorited>,
                 )
-                _uiState.update {
-                    it.copy(
-                        setTimes = filteredData.setTimes,
-                        stages = filteredData.stages,
-                        gridMinHour = filteredData.gridMinHour,
-                        gridMaxHour = filteredData.gridMaxHour,
-                        status = ScheduleUiState.Status.Success
+
+                combine(
+                    flow = filter,
+                    flow2 = setTimesForDay,
+                    flow3 = artistsFriendsFavorited,
+                ) { filter, setTimesForDay, favoritedByArtistId ->
+                    CombinedData(filter, setTimesForDay, favoritedByArtistId)
+                }.collect { data ->
+                    val filteredData = mapAndFilterSetTimesUseCase(
+                        data.filter,
+                        data.setTimesForDay.setTimes,
+                        data.favoritedByArtistId,
+                        data.setTimesForDay.stages,
                     )
+                    _uiState.update {
+                        it.copy(
+                            setTimes = filteredData.setTimes,
+                            stages = filteredData.stages,
+                            gridMinHour = filteredData.gridMinHour,
+                            gridMaxHour = filteredData.gridMaxHour,
+                            status = ScheduleUiState.Status.Success
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.message?.let { message ->
+                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
                 }
             }
         }
@@ -224,8 +226,14 @@ class ScheduleViewModel(
 
     private fun observeSetTimeDays() {
         viewModelScope.launch {
-            getSetTimeDaysUseCase().collect { setTimeDays ->
-                _uiState.update { it.copy(days = setTimeDays.days) }
+            try {
+                getSetTimeDaysUseCase().collect { setTimeDays ->
+                    _uiState.update { it.copy(days = setTimeDays.days) }
+                }
+            } catch (e: Exception) {
+                e.message?.let { message ->
+                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
+                }
             }
         }
     }
