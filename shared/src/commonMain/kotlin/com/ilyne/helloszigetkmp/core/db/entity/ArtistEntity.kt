@@ -8,6 +8,7 @@ data class ArtistEntity(
     @PrimaryKey val id: String,
     val name: String,
     val bio: String?,
+    val imageUrl: String?,
     val isFavorited: Boolean,
     val tags: List<String>?,
 )

@@ -8,6 +8,7 @@ data class ArtistDto(
     val id: String,
     val name: String,
     val bio: String? = null,
+    @SerialName("image_url")val imageUrl: String? = null,
     @SerialName("favorite_count") val favoriteCount: Int,
     @SerialName("is_favorited") val isFavorited: Boolean = false,
     val tags: List<String>?,

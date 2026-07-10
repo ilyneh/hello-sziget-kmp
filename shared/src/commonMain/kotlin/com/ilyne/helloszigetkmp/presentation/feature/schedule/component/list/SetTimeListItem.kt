@@ -168,6 +168,7 @@ fun SetTimeListItemPreview() {
                     id = "2",
                     name = "Skrillex Skrillex Skrillex Skrillex Skrillex",
                     bio = null,
+                    imageUrl = null,
                     isFavorited = true,
                     tags = null
                 )
