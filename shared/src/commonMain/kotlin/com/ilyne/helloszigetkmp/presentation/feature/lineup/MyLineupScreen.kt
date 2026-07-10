@@ -75,8 +75,8 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                                         .fillMaxWidth()
                                         .background(color = SzigetPalette.WarmOrange, shape = itemShape)
                                         .clickable { onArtistClick(setTime.artistId) }
-                                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                                        .padding(top = 4.dp)
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Column(
                                         modifier = Modifier.weight(1f)
