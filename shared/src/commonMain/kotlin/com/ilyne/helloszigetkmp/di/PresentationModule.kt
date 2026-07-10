@@ -37,6 +37,7 @@ val presentationModule = module {
             getSetTimeDaysUseCase = get(),
             getFilteredScheduleContentUseCase = get(),
             getActiveFiltersTextUseCase = get(),
+            scheduleFilterStorage = get(),
         )
     }
     viewModel { ScheduleFilterViewModel() }

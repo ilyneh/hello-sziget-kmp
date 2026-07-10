@@ -11,6 +11,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
@@ -98,6 +99,7 @@ class ScheduleViewModel(
     private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase,
     private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
     private val getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase,
+    private val scheduleFilterStorage: ScheduleFilterStorage,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -108,7 +110,7 @@ class ScheduleViewModel(
 
     private val selectedDay = MutableStateFlow<SetTimeDay?>(null)
 
-    private val filter = MutableStateFlow(ScheduleFilter())
+    private val filter = MutableStateFlow(scheduleFilterStorage.read() ?: ScheduleFilter())
 
     init {
         viewModelScope.launch {
@@ -161,6 +163,7 @@ class ScheduleViewModel(
 
             is ScheduleIntent.ApplyFilter -> {
                 filter.update { intent.filter }
+                scheduleFilterStorage.save(intent.filter)
             }
         }
     }
