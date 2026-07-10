@@ -13,6 +13,7 @@ data class DiscoverUiState(
     val artists: List<Artist> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
+    val showFilterDialog: Boolean = false,
 )
 
 class DiscoverViewModel(
@@ -47,5 +48,13 @@ class DiscoverViewModel(
                 _uiState.update { it.copy(error = e.message) }
             }
         }
+    }
+
+    fun openFilterDialog() {
+        _uiState.update { it.copy(showFilterDialog = true) }
+    }
+
+    fun dismissFilterDialog() {
+        _uiState.update { it.copy(showFilterDialog = false) }
     }
 }
