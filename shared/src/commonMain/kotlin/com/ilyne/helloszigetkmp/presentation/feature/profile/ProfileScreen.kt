@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
+import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
@@ -106,11 +105,10 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                         fontWeight = FontWeight.ExtraBold
                     )
 
-                    FilledIconButton(
+                    ActionButton(
                         onClick = {
                             viewModel.onIntent(ProfileIntent.AddFriend)
                         },
-                        shape = IconButtonDefaults.mediumSquareShape
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_person_add),
