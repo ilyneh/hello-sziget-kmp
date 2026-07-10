@@ -52,6 +52,7 @@ fun ArtistEntity.toDomain() =
         id = id,
         name = name,
         bio = bio,
+        imageUrl = imageUrl,
         isFavorited = isFavorited,
         tags = tags,
     )

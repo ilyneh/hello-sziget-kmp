@@ -42,6 +42,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.coil.ktor.client.android)
             implementation(libs.koin.android)
             implementation(libs.credentials)
             implementation(libs.credentials.play.services)
@@ -58,6 +59,9 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             // Navigation
             implementation(libs.navigation.compose)
+            // Coil
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
             // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.compose)

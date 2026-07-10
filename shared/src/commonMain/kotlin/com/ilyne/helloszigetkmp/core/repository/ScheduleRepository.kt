@@ -51,7 +51,7 @@ class ScheduleRepository(
                         endTime = st.endTime,
                         hideEndTime = st.hideEndTime,
                         artist = artistMap[st.artistId]?.let {
-                            Artist(it.id, it.name, it.bio, it.isFavorited, it.tags)
+                            Artist(it.id, it.name, it.bio, imageUrl = it.imageUrl, it.isFavorited, it.tags)
                         },
                         stage = stageMap[st.stageId],
                     )
