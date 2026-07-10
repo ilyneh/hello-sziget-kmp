@@ -42,6 +42,7 @@ private fun ArtistDto.toEntity() =
         id = id,
         name = name,
         bio = bio,
+        imageUrl = imageUrl,
         isFavorited = isFavorited,
         tags = tags,
     )
