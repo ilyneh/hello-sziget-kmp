@@ -1,9 +1,10 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components.list
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,9 +24,12 @@ import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStack
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
+import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
+import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
@@ -41,7 +45,7 @@ fun SetTimeListItem(
     val stageColor = stageColor(stageId = setTime.stageId)
     Row(
         modifier = modifier
-            .background(color = MaterialTheme.colorScheme.surface)
+            .background(color = SzigetPalette.LightBlue)
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -60,6 +64,7 @@ fun SetTimeListItem(
 
             Text(
                 text = setTime.artist?.name.orEmpty(),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 1.2.sp,
@@ -122,7 +127,7 @@ private fun SubtitleText(
     Text(
         text = text,
         fontSize = 12.sp,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.primary,
         lineHeight = 1.2.sp,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -136,14 +141,13 @@ fun SetTimeListHeader(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
+    TextPill(
         text = text,
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),
-        fontWeight = FontWeight.SemiBold,
-        lineHeight = 1.2.sp,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        modifier = modifier,
+        style = TextPillDefaults.style.copy(
+            fontSize = 16.sp,
+        ),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
     )
 }
 
