@@ -21,7 +21,8 @@ import org.jetbrains.compose.resources.painterResource
 
 data class ProfileFriendItemState(
     val name: String,
-    val avatarText: String
+    val avatarText: String,
+    val imageUrl: String? = null,
 )
 
 @Composable
@@ -36,6 +37,7 @@ fun ProfileFriendItem(
     ) {
         ProfileAvatar(
             avatarText = item.avatarText,
+            imageUrl = item.imageUrl,
             modifier = Modifier.width(48.dp).height(48.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))

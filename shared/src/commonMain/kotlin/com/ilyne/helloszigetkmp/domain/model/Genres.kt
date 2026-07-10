@@ -1,7 +1,5 @@
 package com.ilyne.helloszigetkmp.domain.model
 
-import com.ilyne.helloszigetkmp.domain.model.GenreGroup.INDIE
-
 enum class PerformanceType {
     MUSIC,
     DANCE,
@@ -12,7 +10,7 @@ private val performanceTypeMapping = mapOf(
     PerformanceType.MUSIC to listOf(
         GenreGroup.ROCK,
         GenreGroup.POP,
-        INDIE,
+        GenreGroup.INDIE,
         GenreGroup.JAZZ,
         GenreGroup.ELECTRONIC,
         GenreGroup.TECHNO,
@@ -32,6 +30,7 @@ private val performanceTypeMapping = mapOf(
         GenreGroup.COMEDY,
         GenreGroup.WORKSHOP,
         GenreGroup.VISUAL_ART,
+        GenreGroup.UNKNOWN,
     ),
 )
 
@@ -61,6 +60,9 @@ enum class GenreGroup {
     COMEDY,
     WORKSHOP,
     VISUAL_ART,
+    // Fallback for artists whose tags don't match any known genre group — not driven by any
+    // tag itself, so it has no entry in `genreMapping`.
+    UNKNOWN,
 }
 
 private val genreMapping = mapOf(
@@ -89,7 +91,7 @@ private val genreMapping = mapOf(
         "genre-ballads",
         "genre-avant-garde-pop",
     ),
-    INDIE to listOf(
+    GenreGroup.INDIE to listOf(
         "genre-indie",
         "genre-indie-rock",
         "genre-indie-pop",
@@ -242,3 +244,35 @@ private val tagToGenreGroup: Map<String, GenreGroup> = genreMapping.flatMap { (g
 fun genreGroupOf(tag: String): GenreGroup? = tagToGenreGroup[tag]
 
 fun performanceTypeOf(genreGroup: GenreGroup): PerformanceType? = genreToPerformanceType[genreGroup]
+
+fun genreGroupsFor(performanceType: PerformanceType): List<GenreGroup> = performanceTypeMapping[performanceType].orEmpty()
+
+fun PerformanceType.displayName(): String = when (this) {
+    PerformanceType.MUSIC -> "Music"
+    PerformanceType.DANCE -> "Dance"
+    PerformanceType.ARTS_CULTURE -> "Arts & Culture"
+}
+
+fun GenreGroup.displayName(): String = when (this) {
+    GenreGroup.ROCK -> "Rock"
+    GenreGroup.POP -> "Pop"
+    GenreGroup.INDIE -> "Indie"
+    GenreGroup.JAZZ -> "Jazz"
+    GenreGroup.ELECTRONIC -> "Electronic"
+    GenreGroup.TECHNO -> "Techno"
+    GenreGroup.HOUSE -> "House"
+    GenreGroup.RAP -> "Rap"
+    GenreGroup.HIP_HOP -> "Hip-Hop"
+    GenreGroup.EXPERIMENTAL -> "Experimental"
+    GenreGroup.FOLK -> "Folk"
+    GenreGroup.DISCO -> "Disco"
+    GenreGroup.TRANCE -> "Trance"
+    GenreGroup.BASS -> "Bass"
+    GenreGroup.WORLD -> "World"
+    GenreGroup.DANCE -> "Dance"
+    GenreGroup.PERFORMANCE -> "Performance"
+    GenreGroup.COMEDY -> "Comedy"
+    GenreGroup.WORKSHOP -> "Workshop"
+    GenreGroup.VISUAL_ART -> "Visual Art"
+    GenreGroup.UNKNOWN -> "Unknown"
+}

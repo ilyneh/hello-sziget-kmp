@@ -1,8 +1,11 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase
 
+import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
+import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.Stage
+import com.ilyne.helloszigetkmp.domain.model.genreGroupOf
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHour
@@ -72,13 +75,22 @@ class GetFilteredScheduleContentUseCase {
         favoritedByArtistId: Map<String, ArtistFriendsFavorited>
     ) = filter { setTime ->
         val hasFriendsFavorited = favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
-        return@filter when {
+        val passesFavoritesFilter = when {
             !filter.showFavorites && !filter.showFriendsGoing -> true
             else -> {
                 (filter.showFavorites && setTime.artist?.isFavorited == true) ||
                     (filter.showFriendsGoing && hasFriendsFavorited)
             }
         }
+
+        passesFavoritesFilter && passesPerformanceTypeFilter(setTime.artist, filter)
+    }
+
+    private fun passesPerformanceTypeFilter(artist: Artist?, filter: ScheduleFilter): Boolean {
+        val genreGroups = artist?.tags?.mapNotNull { genreGroupOf(it) }.orEmpty()
+        val effectiveGroups = genreGroups.ifEmpty { listOf(GenreGroup.UNKNOWN) }
+
+        return effectiveGroups.any { it in filter.selectedGenreGroups }
     }
 
     private data class GridHourRange(val minHour: Int, val maxHour: Int)

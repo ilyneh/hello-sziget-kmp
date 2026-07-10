@@ -31,7 +31,8 @@ fun ProfileFriendRequestsSection(
                     name = friend.name,
                     avatarText = friend.name
                         .split(" ")
-                        .joinToString(separator = "") { it.first().uppercase() }
+                        .joinToString(separator = "") { it.first().uppercase() },
+                    imageUrl = friend.picture,
                 ),
                 onAccept = { onAccept(friend.id) },
                 onDecline = { onDecline(friend.id) }

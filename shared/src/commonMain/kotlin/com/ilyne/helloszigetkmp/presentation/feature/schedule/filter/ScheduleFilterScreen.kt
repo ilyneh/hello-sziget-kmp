@@ -1,27 +1,41 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ilyne.helloszigetkmp.domain.model.GenreGroup
+import com.ilyne.helloszigetkmp.domain.model.PerformanceType
+import com.ilyne.helloszigetkmp.domain.model.displayName
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.ic_carat_right
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 
@@ -58,6 +72,9 @@ fun ScheduleFilterScreen(
             toggleFriendsGoing = { viewModel.onIntent(FilterIntent.ToggleFriendsGoing(it)) },
             toggleHideEmptyStages = { viewModel.onIntent(FilterIntent.ToggleHideEmptyStages(it)) },
             toggleShowExtraDays = { viewModel.onIntent(FilterIntent.ToggleShowExtraDays(it)) },
+            togglePerformanceType = { type -> viewModel.onIntent(FilterIntent.TogglePerformanceType(type)) },
+            toggleGenreGroup = { group, checked -> viewModel.onIntent(FilterIntent.ToggleGenreGroup(group, checked)) },
+            toggleGenreDropdown = { type -> viewModel.onIntent(FilterIntent.ToggleGenreDropdown(type)) },
             saveFilter = { viewModel.onIntent(FilterIntent.Save) },
         )
     }
@@ -70,12 +87,16 @@ private fun ScheduleFilterContent(
     toggleFriendsGoing: (Boolean) -> Unit,
     toggleHideEmptyStages: (Boolean) -> Unit,
     toggleShowExtraDays: (Boolean) -> Unit,
+    togglePerformanceType: (PerformanceType) -> Unit,
+    toggleGenreGroup: (GenreGroup, Boolean) -> Unit,
+    toggleGenreDropdown: (PerformanceType) -> Unit,
     saveFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         SubHeader(text = "Filters")
 
@@ -131,14 +152,71 @@ private fun ScheduleFilterContent(
             )
         }
 
+        SubHeader(text = "Performance Types")
+
+        uiState.performanceTypes.forEach { performanceType ->
+            PerformanceTypeSection(
+                uiState = performanceType,
+                onToggleType = { togglePerformanceType(performanceType.type) },
+                onToggleDropdown = { toggleGenreDropdown(performanceType.type) },
+                onToggleGenre = { group, checked -> toggleGenreGroup(group, checked) },
+            )
+        }
+
         ActionButton(
             onClick = { saveFilter() },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
         ) {
             Text(
                 text = "Save",
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+@Composable
+private fun PerformanceTypeSection(
+    uiState: PerformanceTypeUiState,
+    onToggleType: () -> Unit,
+    onToggleDropdown: () -> Unit,
+    onToggleGenre: (GenreGroup, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TriStateCheckbox(
+                state = uiState.checkState,
+                onClick = onToggleType,
+            )
+            Text(
+                text = uiState.type.displayName(),
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onToggleDropdown) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_carat_right),
+                    contentDescription = if (uiState.isExpanded) "Collapse genres" else "Expand genres",
+                    modifier = Modifier.graphicsLayer { rotationZ = if (uiState.isExpanded) 90f else 0f },
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = uiState.isExpanded) {
+            Column(
+                modifier = Modifier
+                    .padding(start = 32.dp)
+            ) {
+                uiState.genres.forEach { genre ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = genre.isChecked,
+                            onCheckedChange = { checked -> onToggleGenre(genre.group, checked) },
+                        )
+                        Text(text = genre.group.displayName())
+                    }
+                }
+            }
         }
     }
 }
@@ -154,6 +232,9 @@ fun ScheduleFilterContentPreview() {
             toggleFriendsGoing = {},
             toggleHideEmptyStages = {},
             toggleShowExtraDays = {},
+            togglePerformanceType = {},
+            toggleGenreGroup = { _, _ -> },
+            toggleGenreDropdown = {},
             saveFilter = {},
         )
     }
