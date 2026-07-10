@@ -143,7 +143,8 @@ private fun ScheduleContent(
                     ViewMode.LIST -> {
                         SetTimeListView(
                             uiState.setTimes,
-                            onToggleFavorite = onToggleFavorite
+                            onToggleFavorite = onToggleFavorite,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }

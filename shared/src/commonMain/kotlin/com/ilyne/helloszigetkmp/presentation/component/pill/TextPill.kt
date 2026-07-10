@@ -19,7 +19,7 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 object TextPillDefaults {
     val style: TextStyle
-        @Composable get() = MaterialTheme.typography.labelSmall.copy(
+        @Composable get() = MaterialTheme.typography.labelMedium.copy(
             color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold

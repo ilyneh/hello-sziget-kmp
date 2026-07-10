@@ -1,11 +1,15 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -32,16 +36,15 @@ fun SetTimeListView(
         formatTimeForHeader(epochMillis = setTime.startTime)
     }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier
+        .background(color = SzigetPalette.LightBlue)
+    ) {
         HorizontalDivider(
             thickness = 4.dp,
             color = SzigetPalette.Magenta
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .background(color = SzigetPalette.LightBlue)
-        ) {
+        LazyColumn {
             grouped.forEach { (header, setTimes) ->
                 stickyHeader {
                     Box(
@@ -55,14 +58,15 @@ fun SetTimeListView(
                     }
                 }
 
-                val lastIndex = setTimes.lastIndex
-                itemsIndexed(setTimes) { index, setTime ->
+                items(
+                    items = setTimes,
+                    key = { it.id }
+                ) { setTime ->
                     SetTimeListItem(
                         setTime = setTime,
                         onToggleFavorite = onToggleFavorite,
                         modifier = Modifier.fillMaxWidth()
                     )
-
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         thickness = 4.dp,
