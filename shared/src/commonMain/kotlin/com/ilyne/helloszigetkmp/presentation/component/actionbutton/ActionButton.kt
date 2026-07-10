@@ -36,8 +36,8 @@ object ActionButtonDefaults {
     val ContainerColor: Color = SzigetPalette.SunshineYellow
     val BorderColor: Color = SzigetPalette.Navy
     val ContentColor: Color = SzigetPalette.Navy
-    val disabledContainerColor = SzigetPalette.CreamCanvas
-    val disabledContentColor = SzigetPalette.Hairline
+    val DisabledContainerColor = SzigetPalette.CreamCanvas
+    val DisabledContentColor = SzigetPalette.Hairline
 }
 
 /**
@@ -67,8 +67,8 @@ fun ActionButton(
         colors = ButtonColors(
             containerColor = containerColor,
             contentColor = contentColor,
-            disabledContainerColor = ActionButtonDefaults.disabledContainerColor,
-            disabledContentColor = ActionButtonDefaults.disabledContentColor,
+            disabledContainerColor = ActionButtonDefaults.DisabledContainerColor,
+            disabledContentColor = ActionButtonDefaults.DisabledContentColor,
         ),
         border = BorderStroke(borderWidth, borderColor),
         contentPadding = contentPadding,
