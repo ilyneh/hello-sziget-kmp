@@ -127,9 +127,11 @@ class ScheduleViewModel(
     private fun refreshData(force: Boolean) {
         viewModelScope.launch {
             try {
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Loading) }
                 scheduleRepository.refresh(force = force)
                 artistRepository.refresh(force = force)
                 friendRepository.refresh(force = force)
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
             } catch (e: Exception) {
                 e.message?.let { message ->
                     _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }

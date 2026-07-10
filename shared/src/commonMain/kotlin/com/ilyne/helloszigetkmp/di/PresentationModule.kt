@@ -8,6 +8,8 @@ import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.artistdetail.ArtistDetailViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
@@ -28,6 +30,7 @@ val presentationModule = module {
     single { GetLikedArtistCountUseCase(artistRepository = get()) }
     single { GetFilteredScheduleContentUseCase() }
     single { GetActiveFiltersTextUseCase() }
+    single { GetActiveDiscoverFiltersTextUseCase() }
 
     // ViewModels
     viewModel {
@@ -42,7 +45,8 @@ val presentationModule = module {
         )
     }
     viewModel { ScheduleFilterViewModel() }
-    viewModel { DiscoverViewModel(artistRepository = get()) }
+    viewModel { DiscoverViewModel(artistRepository = get(), getActiveDiscoverFiltersTextUseCase = get()) }
+    viewModel { DiscoverFilterViewModel() }
     viewModel {
         MyLineupViewModel(
             artistRepository = get(),
