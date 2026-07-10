@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -143,12 +145,37 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
                         friends = uiState.friends,
                         onClick = {
                             viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
-                            viewModel.onIntent(ProfileIntent.Logout)
                         }
                     )
                 }
             }
         }
+    }
+
+    uiState.removeFriendAlert?.let { friend ->
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) },
+            title = { Text(text = friend.name) },
+            text = { Text(text = "Remove ${friend.name} as a friend?") },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(ProfileIntent.RemoveFriendClicked) }
+                ) {
+                    Text(
+                        text = "Remove friend",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) }
+                ) {
+                    Text(text = "Cancel")
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 }
 

@@ -23,7 +23,8 @@ data class ProfileUiState(
     val friendRequests: List<User> = emptyList(),
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val removeFriendAlert: User? = null,
 )
 
 sealed class ProfileEffect {
@@ -46,6 +47,10 @@ sealed class ProfileIntent {
     data class ViewFriend(
         val friendId: String
     ) : ProfileIntent()
+
+    object DismissRemoveFriendAlert : ProfileIntent()
+
+    object RemoveFriendClicked : ProfileIntent()
 }
 
 class ProfileViewModel(
@@ -122,10 +127,25 @@ class ProfileViewModel(
                 friendRepository.declineFriendRequest(currentUser.id, intent.friendId)
             }
             is ProfileIntent.ViewFriend -> {
-
+                val friend = _uiState.value.friends.find { it.id == intent.friendId }
+                _uiState.update { it.copy(removeFriendAlert = friend) }
             }
             is ProfileIntent.Logout -> viewModelScope.launch {
                 _effects.emit(ProfileEffect.Logout)
+            }
+            ProfileIntent.DismissRemoveFriendAlert -> {
+                _uiState.update { it.copy(removeFriendAlert = null) }
+            }
+            ProfileIntent.RemoveFriendClicked -> {
+                val friend = _uiState.value.removeFriendAlert ?: return
+                _uiState.update { it.copy(removeFriendAlert = null) }
+                viewModelScope.launch {
+                    try {
+                        friendRepository.removeFriend(currentUser.id, friend.id)
+                    } catch (e: Exception) {
+                        _uiState.update { it.copy(error = "Failed to remove friend") }
+                    }
+                }
             }
         }
     }
