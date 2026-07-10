@@ -253,6 +253,15 @@ fun PerformanceType.displayName(): String = when (this) {
     PerformanceType.ARTS_CULTURE -> "Arts & Culture"
 }
 
+// Shared by Schedule and Discover filtering: an artist passes if any of its tags map to a
+// selected genre group, falling back to UNKNOWN when the artist has no recognized tags at all.
+fun passesGenreFilter(tags: List<String>?, selectedGenreGroups: Set<GenreGroup>): Boolean {
+    val genreGroups = tags?.mapNotNull { genreGroupOf(it) }.orEmpty()
+    val effectiveGroups = genreGroups.ifEmpty { listOf(GenreGroup.UNKNOWN) }
+
+    return effectiveGroups.any { it in selectedGenreGroups }
+}
+
 fun GenreGroup.displayName(): String = when (this) {
     GenreGroup.ROCK -> "Rock"
     GenreGroup.POP -> "Pop"
