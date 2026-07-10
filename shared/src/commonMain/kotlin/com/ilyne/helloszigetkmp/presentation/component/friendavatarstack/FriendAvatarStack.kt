@@ -99,7 +99,7 @@ private fun Avatar(
         modifier = modifier
             .size(28.dp)
             .background(color = avatarColor, shape = CircleShape)
-            .border(width = 1.dp, color = MaterialTheme.colorScheme.surface, shape = CircleShape),
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -107,7 +107,6 @@ private fun Avatar(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = textColor,
-
         )
     }
 }
