@@ -2,9 +2,9 @@ package com.ilyne.helloszigetkmp.presentation.feature.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
-import com.ilyne.helloszigetkmp.data.repository.FriendRepository
-import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
+import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay

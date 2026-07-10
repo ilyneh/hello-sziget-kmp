@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.domain.usecase
 
-import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDays
 import com.ilyne.helloszigetkmp.util.datetime.DateTimeUtils

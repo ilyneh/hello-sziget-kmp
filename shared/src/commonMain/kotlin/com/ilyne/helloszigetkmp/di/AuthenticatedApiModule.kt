@@ -1,8 +1,8 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.auth.TokenStorage
-import com.ilyne.helloszigetkmp.data.api.SzigetApiService
-import com.ilyne.helloszigetkmp.network.createApiHttpClient
+import com.ilyne.helloszigetkmp.core.auth.TokenStorage
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.network.createApiHttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

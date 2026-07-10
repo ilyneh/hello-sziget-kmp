@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.domain.usecase
 
-import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

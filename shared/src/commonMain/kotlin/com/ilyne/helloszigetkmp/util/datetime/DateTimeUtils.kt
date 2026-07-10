@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.util.datetime
 
-import com.ilyne.helloszigetkmp.config.FESTIVAL_TIME_ZONE_ID
+import com.ilyne.helloszigetkmp.core.config.FESTIVAL_TIME_ZONE_ID
 import com.ilyne.helloszigetkmp.util.datetime.DateTimeUtils.FESTIVAL_TIME_ZONE
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

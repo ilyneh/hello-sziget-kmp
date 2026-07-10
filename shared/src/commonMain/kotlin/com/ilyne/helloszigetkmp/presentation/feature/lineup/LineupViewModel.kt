@@ -2,7 +2,7 @@ package com.ilyne.helloszigetkmp.presentation.lineup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

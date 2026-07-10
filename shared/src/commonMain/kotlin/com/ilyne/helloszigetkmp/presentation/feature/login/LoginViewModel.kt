@@ -2,11 +2,11 @@ package com.ilyne.helloszigetkmp.presentation.feature.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.config.SKIP_GOOGLE_SIGN_IN
-import com.ilyne.helloszigetkmp.auth.SzigetAuthService
-import com.ilyne.helloszigetkmp.data.api.SzigetApiService
-import com.ilyne.helloszigetkmp.data.repository.UserRepository
-import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
+import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
+import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow

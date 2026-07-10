@@ -2,8 +2,8 @@ package com.ilyne.helloszigetkmp.presentation.feature.addfriend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.data.repository.FriendRepository
-import com.ilyne.helloszigetkmp.data.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
