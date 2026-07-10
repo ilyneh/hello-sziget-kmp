@@ -3,7 +3,6 @@ package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color
 import androidx.compose.ui.graphics.Color
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import com.russhwolf.settings.Settings
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 private val stagePalette = listOf(
@@ -14,9 +13,6 @@ private val stagePalette = listOf(
     SzigetPalette.Red,
     SzigetPalette.RedOrange,
     SzigetPalette.DarkTeal,
-    SzigetPalette.Navy,
-    SzigetPalette.WarmOrange,
-    SzigetPalette.SunshineYellow,
 )
 
 private const val STAGE_COLOR_ASSIGNMENTS_KEY = "StageColorAssignments"

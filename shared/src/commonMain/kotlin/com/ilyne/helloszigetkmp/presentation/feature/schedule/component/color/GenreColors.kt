@@ -40,6 +40,7 @@ private val genreColors: Map<GenreGroup, Color> = mapOf(
     GenreGroup.COMEDY to WARM_ORANGE,
     GenreGroup.WORKSHOP to WARM_ORANGE,
     GenreGroup.VISUAL_ART to WARM_ORANGE,
+    GenreGroup.UNKNOWN to WARM_ORANGE,
 )
 
 private val DEFAULT_COLOR = WARM_ORANGE

@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,7 +72,7 @@ fun ScheduleFilterScreen(
             toggleFriendsGoing = { viewModel.onIntent(FilterIntent.ToggleFriendsGoing(it)) },
             toggleHideEmptyStages = { viewModel.onIntent(FilterIntent.ToggleHideEmptyStages(it)) },
             toggleShowExtraDays = { viewModel.onIntent(FilterIntent.ToggleShowExtraDays(it)) },
-            togglePerformanceType = { type, checked -> viewModel.onIntent(FilterIntent.TogglePerformanceType(type, checked)) },
+            togglePerformanceType = { type -> viewModel.onIntent(FilterIntent.TogglePerformanceType(type)) },
             toggleGenreGroup = { group, checked -> viewModel.onIntent(FilterIntent.ToggleGenreGroup(group, checked)) },
             toggleGenreDropdown = { type -> viewModel.onIntent(FilterIntent.ToggleGenreDropdown(type)) },
             saveFilter = { viewModel.onIntent(FilterIntent.Save) },
@@ -86,7 +87,7 @@ private fun ScheduleFilterContent(
     toggleFriendsGoing: (Boolean) -> Unit,
     toggleHideEmptyStages: (Boolean) -> Unit,
     toggleShowExtraDays: (Boolean) -> Unit,
-    togglePerformanceType: (PerformanceType, Boolean) -> Unit,
+    togglePerformanceType: (PerformanceType) -> Unit,
     toggleGenreGroup: (GenreGroup, Boolean) -> Unit,
     toggleGenreDropdown: (PerformanceType) -> Unit,
     saveFilter: () -> Unit,
@@ -156,7 +157,7 @@ private fun ScheduleFilterContent(
         uiState.performanceTypes.forEach { performanceType ->
             PerformanceTypeSection(
                 uiState = performanceType,
-                onToggleType = { checked -> togglePerformanceType(performanceType.type, checked) },
+                onToggleType = { togglePerformanceType(performanceType.type) },
                 onToggleDropdown = { toggleGenreDropdown(performanceType.type) },
                 onToggleGenre = { group, checked -> toggleGenreGroup(group, checked) },
             )
@@ -177,16 +178,16 @@ private fun ScheduleFilterContent(
 @Composable
 private fun PerformanceTypeSection(
     uiState: PerformanceTypeUiState,
-    onToggleType: (Boolean) -> Unit,
+    onToggleType: () -> Unit,
     onToggleDropdown: () -> Unit,
     onToggleGenre: (GenreGroup, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = uiState.isChecked,
-                onCheckedChange = onToggleType,
+            TriStateCheckbox(
+                state = uiState.checkState,
+                onClick = onToggleType,
             )
             Text(
                 text = uiState.type.displayName(),
@@ -231,7 +232,7 @@ fun ScheduleFilterContentPreview() {
             toggleFriendsGoing = {},
             toggleHideEmptyStages = {},
             toggleShowExtraDays = {},
-            togglePerformanceType = { _, _ -> },
+            togglePerformanceType = {},
             toggleGenreGroup = { _, _ -> },
             toggleGenreDropdown = {},
             saveFilter = {},

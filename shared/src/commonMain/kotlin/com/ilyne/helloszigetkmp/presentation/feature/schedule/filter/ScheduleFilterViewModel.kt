@@ -1,5 +1,6 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter
 
+import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.domain.model.GenreGroup
@@ -23,7 +24,7 @@ data class ScheduleFilterUiState(
 
 data class PerformanceTypeUiState(
     val type: PerformanceType,
-    val isChecked: Boolean,
+    val checkState: ToggleableState,
     val isExpanded: Boolean,
     val genres: List<GenreUiState>,
 )
@@ -45,7 +46,7 @@ sealed class FilterIntent {
     data class ToggleFriendsGoing(val value: Boolean) : FilterIntent()
     data class ToggleHideEmptyStages(val value: Boolean) : FilterIntent()
     data class ToggleShowExtraDays(val value: Boolean) : FilterIntent()
-    data class TogglePerformanceType(val type: PerformanceType, val value: Boolean) : FilterIntent()
+    data class TogglePerformanceType(val type: PerformanceType) : FilterIntent()
     data class ToggleGenreGroup(val group: GenreGroup, val value: Boolean) : FilterIntent()
     data class ToggleGenreDropdown(val type: PerformanceType) : FilterIntent()
     object Save : FilterIntent()
@@ -90,11 +91,15 @@ class ScheduleFilterViewModel : ViewModel() {
                 updateUiState()
             }
             is FilterIntent.TogglePerformanceType -> {
+                val typeGenres = genreGroupsFor(intent.type).toSet()
+                val allSelected = typeGenres.isNotEmpty() && filter.selectedGenreGroups.containsAll(typeGenres)
                 filter = filter.copy(
-                    selectedPerformanceTypes = if (intent.value) {
-                        filter.selectedPerformanceTypes + intent.type
+                    selectedGenreGroups = if (allSelected) {
+                        // Fully checked -> turn the whole type off, taking its genres with it.
+                        filter.selectedGenreGroups - typeGenres
                     } else {
-                        filter.selectedPerformanceTypes - intent.type
+                        // Off or partially checked -> select all of the type's genres.
+                        filter.selectedGenreGroups + typeGenres
                     }
                 )
                 updateUiState()
@@ -134,11 +139,18 @@ class ScheduleFilterViewModel : ViewModel() {
                 hideEmptyStages = filter.hideEmptyStages,
                 showExtraDays = filter.showExtraDays,
                 performanceTypes = PerformanceType.entries.map { type ->
+                    val typeGenres = genreGroupsFor(type)
+                    val selectedCount = typeGenres.count { it in filter.selectedGenreGroups }
+                    val checkState = when {
+                        selectedCount == 0 -> ToggleableState.Off
+                        selectedCount == typeGenres.size -> ToggleableState.On
+                        else -> ToggleableState.Indeterminate
+                    }
                     PerformanceTypeUiState(
                         type = type,
-                        isChecked = type in filter.selectedPerformanceTypes,
+                        checkState = checkState,
                         isExpanded = type in expandedTypes,
-                        genres = genreGroupsFor(type).map { group ->
+                        genres = typeGenres.map { group ->
                             GenreUiState(
                                 group = group,
                                 isChecked = group in filter.selectedGenreGroups,

@@ -30,6 +30,7 @@ private val performanceTypeMapping = mapOf(
         GenreGroup.COMEDY,
         GenreGroup.WORKSHOP,
         GenreGroup.VISUAL_ART,
+        GenreGroup.UNKNOWN,
     ),
 )
 
@@ -59,6 +60,9 @@ enum class GenreGroup {
     COMEDY,
     WORKSHOP,
     VISUAL_ART,
+    // Fallback for artists whose tags don't match any known genre group — not driven by any
+    // tag itself, so it has no entry in `genreMapping`.
+    UNKNOWN,
 }
 
 private val genreMapping = mapOf(
@@ -270,4 +274,5 @@ fun GenreGroup.displayName(): String = when (this) {
     GenreGroup.COMEDY -> "Comedy"
     GenreGroup.WORKSHOP -> "Workshop"
     GenreGroup.VISUAL_ART -> "Visual Art"
+    GenreGroup.UNKNOWN -> "Unknown"
 }
