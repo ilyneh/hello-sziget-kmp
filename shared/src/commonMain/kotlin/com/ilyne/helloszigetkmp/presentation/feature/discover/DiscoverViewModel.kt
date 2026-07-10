@@ -16,6 +16,7 @@ data class DiscoverUiState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
+    val showFilterDialog: Boolean = false,
 )
 
 sealed class DiscoverIntent {
@@ -63,6 +64,14 @@ class DiscoverViewModel(
                 _uiState.update { it.copy(error = e.message) }
             }
         }
+    }
+
+    fun openFilterDialog() {
+        _uiState.update { it.copy(showFilterDialog = true) }
+    }
+
+    fun dismissFilterDialog() {
+        _uiState.update { it.copy(showFilterDialog = false) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

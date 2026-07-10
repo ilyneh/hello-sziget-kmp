@@ -38,6 +38,9 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBar
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBarData
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -57,6 +60,12 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .padding(vertical = 8.dp)
+        )
+
+        DiscoverFilterBar(
+            data = DiscoverFilterBarData(),
+            onFilterButtonClicked = { viewModel.openFilterDialog() },
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         when {
@@ -82,6 +91,12 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+
+    if (uiState.showFilterDialog) {
+        DiscoverFilterScreen(
+            onDismiss = { viewModel.dismissFilterDialog() }
+        )
     }
 }
 
