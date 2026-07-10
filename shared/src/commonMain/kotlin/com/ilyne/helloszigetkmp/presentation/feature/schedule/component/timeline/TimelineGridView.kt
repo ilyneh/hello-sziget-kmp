@@ -31,8 +31,6 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HEADER_H
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
-import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.HOUR_LABEL_HEIGHT_DP
-import com.ilyne.helloszigetkmp.presentation.schedule.components.timeline.StickyHourColumn
 
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────

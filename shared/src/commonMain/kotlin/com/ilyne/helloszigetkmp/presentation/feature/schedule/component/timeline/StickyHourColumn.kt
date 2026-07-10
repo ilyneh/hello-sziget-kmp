@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components.timeline
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -24,7 +24,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBar
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBarData
 import com.ilyne.helloszigetkmp.presentation.schedule.components.list.SetTimeListView
-import com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane.SwimLaneView
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline.TimelineGridView
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
