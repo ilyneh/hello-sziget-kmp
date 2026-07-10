@@ -18,6 +18,7 @@ import androidx.savedstate.read
 import androidx.savedstate.write
 import com.ilyne.helloszigetkmp.presentation.feature.MainScaffold
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendScreen
+import com.ilyne.helloszigetkmp.presentation.feature.artistdetail.ArtistDetailScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterScreen
 import com.ilyne.helloszigetkmp.presentation.login.LoginScreen
@@ -34,6 +35,8 @@ import kotlinx.serialization.json.Json
 @Serializable object AddFriend
 
 @Serializable data class ScheduleFilterRoute(val filter: ScheduleFilter)
+
+@Serializable data class ArtistDetailRoute(val artistId: String)
 
 private const val SCHEDULE_FILTER_RESULT_KEY = "scheduleFilterResult"
 
@@ -76,6 +79,7 @@ fun AppNavGraph(
             MainScaffold(
                 openFilterScreen = { filter -> navController.navigate(ScheduleFilterRoute(filter)) },
                 onNavigateToAddFriend = { navController.navigate(AddFriend) },
+                onArtistClick = { artistId -> navController.navigate(ArtistDetailRoute(artistId)) },
                 appliedFilter = appliedFilterJson?.let { Json.decodeFromString(it) },
                 onAppliedFilterConsumed = {
                     backStackEntry.savedStateHandle[SCHEDULE_FILTER_RESULT_KEY] = null
@@ -101,6 +105,16 @@ fun AppNavGraph(
                         ?.set(SCHEDULE_FILTER_RESULT_KEY, Json.encodeToString(filter))
                     navController.popBackStack()
                 },
+                onDismiss = { navController.popBackStack() }
+            )
+        }
+
+        dialog<ArtistDetailRoute>(
+            dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
+        ) { entry ->
+            val route = entry.toRoute<ArtistDetailRoute>()
+            ArtistDetailScreen(
+                artistId = route.artistId,
                 onDismiss = { navController.popBackStack() }
             )
         }

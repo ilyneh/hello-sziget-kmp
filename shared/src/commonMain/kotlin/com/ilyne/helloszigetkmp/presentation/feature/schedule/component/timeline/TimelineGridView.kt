@@ -44,6 +44,7 @@ fun TimelineGridView(
     stages: List<Stage>,
     gridMinHour: Int,
     gridMaxHour: Int,
+    onArtistClick: (String) -> Unit = {},
 ) {
     val vertScroll = rememberScrollState()
     val horizScroll = rememberScrollState()
@@ -164,6 +165,7 @@ fun TimelineGridView(
                                     .offset(x = leftDp, y = topDp + topOffset)
                                     .width(columnWidth - 4.dp)
                                     .height(heightDp),
+                                onClick = { setTime.artistId?.let(onArtistClick) },
                             )
                         }
                     }

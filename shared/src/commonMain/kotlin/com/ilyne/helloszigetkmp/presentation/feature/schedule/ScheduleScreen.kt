@@ -34,6 +34,7 @@ fun ScheduleScreen(
     openFilterScreen: (ScheduleFilter) -> Unit,
     appliedFilter: ScheduleFilter?,
     onAppliedFilterConsumed: () -> Unit,
+    onArtistClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<ScheduleViewModel>()
@@ -62,6 +63,7 @@ fun ScheduleScreen(
         onToggleFavorite = { artistId, current ->
             viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId, current))
         },
+        onArtistClick = onArtistClick,
         modifier = modifier
     )
 }
@@ -73,6 +75,7 @@ private fun ScheduleContent(
     onDaySelected: (SetTimeDay) -> Unit,
     onFilterButtonClicked: () -> Unit,
     onToggleFavorite: (String?, Boolean) -> Unit,
+    onArtistClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -128,6 +131,7 @@ private fun ScheduleContent(
                             stages = uiState.stages,
                             gridMinHour = uiState.gridMinHour,
                             gridMaxHour = uiState.gridMaxHour,
+                            onArtistClick = onArtistClick,
                         )
                     }
 
@@ -137,6 +141,7 @@ private fun ScheduleContent(
                             stages = uiState.stages,
                             gridMinHour = uiState.gridMinHour,
                             gridMaxHour = uiState.gridMaxHour,
+                            onArtistClick = onArtistClick,
                         )
                     }
 
@@ -144,6 +149,7 @@ private fun ScheduleContent(
                         SetTimeListView(
                             uiState.setTimes,
                             onToggleFavorite = onToggleFavorite,
+                            onArtistClick = onArtistClick,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
