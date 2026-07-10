@@ -71,6 +71,22 @@ class FriendRepository(
         }
     }
 
+    suspend fun removeFriend(currentUserId: String, friendId: String) {
+        friendDao.deleteFriendship(currentUserId, friendId)
+        try {
+            api.removeFriend(friendId)
+        } catch (e: Exception) {
+            friendDao.upsertFriendship(
+                UserFriendEntity(
+                    userId = currentUserId,
+                    friendId = friendId,
+                    status = Status.ACCEPTED
+                )
+            )
+            throw e
+        }
+    }
+
     fun observeFriends(): Flow<List<User>> =
         friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
 
