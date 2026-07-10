@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.domain.model.User
-import com.ilyne.helloszigetkmp.presentation.component.SectionHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.SectionHeader
 
 @Composable
 fun ProfileFriendsSection(

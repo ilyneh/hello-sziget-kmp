@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ilyne.helloszigetkmp.presentation.component.FriendListItem
+import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendListItem
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.FriendshipStatus
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme

@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.component
+package com.ilyne.helloszigetkmp.presentation.component.friendavatarstack
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.User
-import com.ilyne.helloszigetkmp.presentation.component.FriendAvatarStack
-import com.ilyne.helloszigetkmp.presentation.component.FriendAvatarStackData
+import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStack
+import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.artistColor
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
