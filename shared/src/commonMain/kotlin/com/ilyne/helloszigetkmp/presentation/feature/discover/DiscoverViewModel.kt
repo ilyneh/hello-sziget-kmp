@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
@@ -16,13 +18,18 @@ data class DiscoverUiState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
-    val showFilterDialog: Boolean = false,
 )
 
 sealed class DiscoverIntent {
     data class SearchQueryChanged(
         val query: String,
     ) : DiscoverIntent()
+
+    data object OpenFilterDialog : DiscoverIntent()
+}
+
+sealed class DiscoverEffect {
+    data object LaunchFilterDialog : DiscoverEffect()
 }
 
 class DiscoverViewModel(
@@ -30,6 +37,9 @@ class DiscoverViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState(isLoading = true))
     val uiState = _uiState.asStateFlow()
+
+    private val _effects = MutableSharedFlow<DiscoverEffect>()
+    val effects = _effects.asSharedFlow()
 
     private val searchQuery = MutableStateFlow("")
 
@@ -50,6 +60,12 @@ class DiscoverViewModel(
                 searchQuery.update { intent.query }
                 _uiState.update { it.copy(searchQuery = intent.query) }
             }
+
+            is DiscoverIntent.OpenFilterDialog -> {
+                viewModelScope.launch {
+                    _effects.emit(value = DiscoverEffect.LaunchFilterDialog)
+                }
+            }
         }
     }
 
@@ -64,14 +80,6 @@ class DiscoverViewModel(
                 _uiState.update { it.copy(error = e.message) }
             }
         }
-    }
-
-    fun openFilterDialog() {
-        _uiState.update { it.copy(showFilterDialog = true) }
-    }
-
-    fun dismissFilterDialog() {
-        _uiState.update { it.copy(showFilterDialog = false) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
