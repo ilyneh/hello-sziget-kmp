@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
 import org.jetbrains.compose.resources.painterResource
@@ -46,9 +48,13 @@ fun AddFriendScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                             painter = painterResource(Res.drawable.ic_carat_right),
                             contentDescription = "Back",
                             modifier = Modifier.graphicsLayer { rotationZ = 180f },
+                            tint = SzigetPalette.SunshineYellow
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = SzigetPalette.Navy
+                )
             )
         },
     ) { innerPadding ->
