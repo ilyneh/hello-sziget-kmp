@@ -1,23 +1,22 @@
 package com.ilyne.helloszigetkmp.presentation.feature.addfriend
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,78 +25,91 @@ import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.ic_carat_right
+import hello_sziget_kmp.shared.generated.resources.ic_cancel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFriendScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun AddFriendScreen(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<AddFriendViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { MainHeader(text = "Add Friends") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_carat_right),
-                            contentDescription = "Back",
-                            modifier = Modifier.graphicsLayer { rotationZ = 180f },
-                            tint = SzigetPalette.SunshineYellow
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SzigetPalette.Navy
-                )
-            )
-        },
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        AddFriendContent(
+            uiState = uiState,
+            onDismiss = onDismiss,
+            onSearchQueryChanged = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
+            onAdd = { viewModel.onIntent(AddFriendIntent.SendFriendRequest(it)) },
+            onAccept = { viewModel.onIntent(AddFriendIntent.AcceptFriendRequest(it)) },
+        )
+    }
+}
+
+@Composable
+private fun AddFriendContent(
+    uiState: AddFriendUiState,
+    onDismiss: () -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onAdd: (String) -> Unit,
+    onAccept: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth().height(500.dp)) {
+        MainHeader(
+            text = "Add Friends",
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_cancel),
+                    contentDescription = "Close",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                SearchTextField(
+                    value = uiState.searchQuery,
+                    placeHolderText = "Search users...",
+                    onValueChange = onSearchQueryChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                )
+            }
+
+            if (uiState.results.isEmpty()) {
                 item {
-                    SearchTextField(
-                        value = uiState.searchQuery,
-                        placeHolderText = "Search users...",
-                        onValueChange = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        text = "No users found",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.outline,
                     )
                 }
-
-                if (uiState.results.isEmpty()) {
-                    item {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                            text = "No users found",
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
-                    }
-                } else {
-                    items(uiState.results, key = { it.user.id }) { result ->
-                        AddFriendUserItem(
-                            name = result.user.name,
-                            status = result.status,
-                            onAdd = { viewModel.onIntent(AddFriendIntent.SendFriendRequest(result.user.id)) },
-                            onAccept = { viewModel.onIntent(AddFriendIntent.AcceptFriendRequest(result.user.id)) },
-                        )
-                    }
+            } else {
+                items(uiState.results, key = { it.user.id }) { result ->
+                    AddFriendUserItem(
+                        name = result.user.name,
+                        status = result.status,
+                        onAdd = { onAdd(result.user.id) },
+                        onAccept = { onAccept(result.user.id) },
+                    )
                 }
             }
         }
@@ -108,6 +120,12 @@ fun AddFriendScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun AddFriendScreenPreview() {
     AppTheme {
-        AddFriendScreen(onBack = {})
+        AddFriendContent(
+            uiState = AddFriendUiState(),
+            onDismiss = {},
+            onSearchQueryChanged = {},
+            onAdd = {},
+            onAccept = {},
+        )
     }
 }

@@ -103,7 +103,11 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 ProfileAvatarAndName(
                     name = uiState.name.orEmpty(),
-                    avatarText = "IH",
+                    avatarText = uiState.name.orEmpty()
+                        .split(" ")
+                        .mapNotNull { it.firstOrNull()?.uppercase() }
+                        .joinToString(separator = ""),
+                    imageUrl = uiState.picture,
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 ProfileEngagementCountCard(
@@ -228,6 +232,7 @@ fun ProfileScreen(
 fun ProfileAvatarAndName(
     name: String,
     avatarText: String,
+    imageUrl: String? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -238,6 +243,7 @@ fun ProfileAvatarAndName(
         ProfileAvatar(
             elevated = true,
             avatarText = avatarText,
+            imageUrl = imageUrl,
             modifier = Modifier.width(72.dp).height(72.dp)
         )
         Text(

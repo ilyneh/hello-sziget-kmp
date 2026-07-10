@@ -14,15 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 
 
 @Composable
 fun ProfileAvatar(
     avatarText: String,
+    imageUrl: String? = null,
     elevated: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -33,20 +36,29 @@ fun ProfileAvatar(
             .clip(RoundedCornerShape(percent = 32))
             .background(MaterialTheme.colorScheme.primary)
     ) {
-        Text(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(4.dp),
-            text = avatarText,
-            color = Color.White,
-            maxLines = 1,
-            textAlign = TextAlign.Center,
-            autoSize = TextAutoSize.StepBased(
-                minFontSize = 16.sp,        // Minimum allowable size
-                maxFontSize = 80.sp,        // Maximum allowable size
-                stepSize = 1.sp             // Granularity of adjustment
-            ),
-            fontWeight = FontWeight.ExtraBold
-        )
+        if (imageUrl != null) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(4.dp),
+                text = avatarText,
+                color = Color.White,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 16.sp,        // Minimum allowable size
+                    maxFontSize = 80.sp,        // Maximum allowable size
+                    stepSize = 1.sp             // Granularity of adjustment
+                ),
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
     }
 }

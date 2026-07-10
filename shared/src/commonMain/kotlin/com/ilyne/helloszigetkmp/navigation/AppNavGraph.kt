@@ -1,6 +1,5 @@
 package com.ilyne.helloszigetkmp.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.DialogProperties
@@ -119,11 +118,10 @@ fun AppNavGraph(
             )
         }
 
-        composable<AddFriend>(
-            enterTransition = { slideIntoContainer(towards = AnimatedContentTransitionScope.SlideDirection.Right) },
-            exitTransition = { slideOutOfContainer(towards = AnimatedContentTransitionScope.SlideDirection.Left) }
+        dialog<AddFriend>(
+            dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            AddFriendScreen(onBack = { navController.popBackStack() })
+            AddFriendScreen(onDismiss = { navController.popBackStack() })
         }
     }
 }

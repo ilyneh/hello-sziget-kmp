@@ -1,8 +1,11 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase
 
+import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.Stage
+import com.ilyne.helloszigetkmp.domain.model.genreGroupOf
+import com.ilyne.helloszigetkmp.domain.model.performanceTypeOf
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHour
@@ -72,12 +75,26 @@ class GetFilteredScheduleContentUseCase {
         favoritedByArtistId: Map<String, ArtistFriendsFavorited>
     ) = filter { setTime ->
         val hasFriendsFavorited = favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
-        return@filter when {
+        val passesFavoritesFilter = when {
             !filter.showFavorites && !filter.showFriendsGoing -> true
             else -> {
                 (filter.showFavorites && setTime.artist?.isFavorited == true) ||
                     (filter.showFriendsGoing && hasFriendsFavorited)
             }
+        }
+
+        passesFavoritesFilter && passesPerformanceTypeFilter(setTime.artist, filter)
+    }
+
+    // Genre selections are only meaningful for currently-checked performance types — a
+    // genre group can stay checked in `filter.selectedGenreGroups` while its parent type
+    // is unchecked, so re-checking the type restores the prior genre picks.
+    private fun passesPerformanceTypeFilter(artist: Artist?, filter: ScheduleFilter): Boolean {
+        val genreGroups = artist?.tags?.mapNotNull { genreGroupOf(it) }.orEmpty()
+        if (genreGroups.isEmpty()) return true
+
+        return genreGroups.any { group ->
+            group in filter.selectedGenreGroups && performanceTypeOf(group) in filter.selectedPerformanceTypes
         }
     }
 

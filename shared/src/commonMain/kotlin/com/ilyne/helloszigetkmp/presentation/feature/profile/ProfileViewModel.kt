@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 
 data class ProfileUiState(
     val name: String? = null,
+    val picture: String? = null,
     val friends: List<User> = emptyList(),
     val friendRequests: List<User> = emptyList(),
     val likedArtistCount: Int = 0,
@@ -82,7 +83,7 @@ class ProfileViewModel(
                 }
 
                 _uiState.update {
-                    it.copy(name = currentUser.name)
+                    it.copy(name = currentUser.name, picture = currentUser.picture)
                 }
 
                 if (usersSyncService.awaitSuccessfulSync()) {
