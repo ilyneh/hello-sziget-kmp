@@ -1,24 +1,23 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.auth.GoogleAuthProvider
-import com.ilyne.helloszigetkmp.auth.LogoutService
-import com.ilyne.helloszigetkmp.auth.SzigetAuthService
-import com.ilyne.helloszigetkmp.auth.TokenStorage
-import com.ilyne.helloszigetkmp.config.AppConfig
-import com.ilyne.helloszigetkmp.data.api.auth.SzigetAuthApiService
-import com.ilyne.helloszigetkmp.data.db.SzigetDatabase
-import com.ilyne.helloszigetkmp.data.db.createDatabase
-import com.ilyne.helloszigetkmp.data.db.getDatabaseBuilder
-import com.ilyne.helloszigetkmp.data.repository.UserRepository
-import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
-import com.ilyne.helloszigetkmp.network.baseHttpClient
+import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProvider
+import com.ilyne.helloszigetkmp.core.auth.LogoutService
+import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
+import com.ilyne.helloszigetkmp.core.auth.TokenStorage
+import com.ilyne.helloszigetkmp.core.config.AppConfig
+import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
+import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
+import com.ilyne.helloszigetkmp.core.db.createDatabase
+import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
+import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
+import com.ilyne.helloszigetkmp.core.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
 import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import kotlin.math.sin
 
 fun initKoin(platformModules: List<Module> = emptyList()) {
     startKoin {

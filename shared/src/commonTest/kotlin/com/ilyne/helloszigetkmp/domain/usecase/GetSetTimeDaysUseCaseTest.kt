@@ -1,13 +1,13 @@
 package com.ilyne.helloszigetkmp.domain.usecase
 
-import com.ilyne.helloszigetkmp.data.api.SzigetApiService
-import com.ilyne.helloszigetkmp.data.db.dao.ArtistDao
-import com.ilyne.helloszigetkmp.data.db.entity.ArtistEntity
-import com.ilyne.helloszigetkmp.data.db.dao.SetTimeDao
-import com.ilyne.helloszigetkmp.data.db.entity.SetTimeEntity
-import com.ilyne.helloszigetkmp.data.db.dao.StageDao
-import com.ilyne.helloszigetkmp.data.db.entity.StageEntity
-import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
+import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
+import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
+import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
+import com.ilyne.helloszigetkmp.core.db.dao.StageDao
+import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine

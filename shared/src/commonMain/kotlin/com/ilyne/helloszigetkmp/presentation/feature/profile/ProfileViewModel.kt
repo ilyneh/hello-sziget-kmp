@@ -2,10 +2,10 @@ package com.ilyne.helloszigetkmp.presentation.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
-import com.ilyne.helloszigetkmp.data.repository.FriendRepository
-import com.ilyne.helloszigetkmp.data.repository.UserRepository
-import com.ilyne.helloszigetkmp.data.sync.UsersSyncService
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
+import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.util.Logger

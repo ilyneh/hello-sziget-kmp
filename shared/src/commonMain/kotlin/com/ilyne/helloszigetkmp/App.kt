@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
-import com.ilyne.helloszigetkmp.auth.SzigetAuthService
+import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.navigation.AppNavGraph
 import com.ilyne.helloszigetkmp.navigation.Login
 import com.ilyne.helloszigetkmp.navigation.Main

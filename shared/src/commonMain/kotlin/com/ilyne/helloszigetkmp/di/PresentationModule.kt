@@ -1,8 +1,8 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.data.repository.ArtistRepository
-import com.ilyne.helloszigetkmp.data.repository.FriendRepository
-import com.ilyne.helloszigetkmp.data.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
+import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendViewModel
