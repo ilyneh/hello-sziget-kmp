@@ -66,6 +66,7 @@ fun MainScaffold(
     onNavigateToAddFriend: () -> Unit,
     appliedFilter: ScheduleFilter?,
     onAppliedFilterConsumed: () -> Unit,
+    onLoggedOut: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -214,7 +215,12 @@ fun MainScaffold(
             }
             composable<DiscoverTab> { DiscoverScreen() }
             composable<LineupTab> { MyLineupScreen() }
-            composable<ProfileTab> { ProfileScreen(onNavigateToAddFriend = onNavigateToAddFriend) }
+            composable<ProfileTab> {
+                ProfileScreen(
+                    onNavigateToAddFriend = onNavigateToAddFriend,
+                    onLoggedOut = onLoggedOut,
+                )
+            }
         }
     }
 }
