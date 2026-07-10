@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.component.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.lineup.LineupViewModel
 import org.koin.compose.viewmodel.koinViewModel
 

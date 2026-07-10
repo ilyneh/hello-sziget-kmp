@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
-import com.ilyne.helloszigetkmp.presentation.component.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.DaySelector
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.ViewModeToggle
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter

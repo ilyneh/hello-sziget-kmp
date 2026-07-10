@@ -25,7 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
-import com.ilyne.helloszigetkmp.presentation.component.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
@@ -63,27 +64,17 @@ fun AddFriendScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    OutlinedTextField(
+                    SearchTextField(
+                        value = uiState.searchQuery,
+                        placeHolderText = "Search users...",
+                        onValueChange = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
-                        value = uiState.searchQuery,
-                        onValueChange = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
-                        placeholder = { Text("Search users...") },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_discover),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.outline,
-                            )
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(size = 16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(),
                     )
                 }
 
