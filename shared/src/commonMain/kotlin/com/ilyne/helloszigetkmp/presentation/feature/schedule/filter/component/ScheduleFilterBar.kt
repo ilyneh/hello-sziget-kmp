@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
@@ -57,21 +58,7 @@ fun ScheduleFilterBar(
 
         if (data.filterTexts.isNotEmpty()) {
             data.filterTexts.forEach {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary,
-                            shape = RoundedCornerShape(size = 6.dp)
-                        )
-                ) {
-                    Text(
-                        text = it,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
+                TextPill(text = it)
             }
         }
     }
