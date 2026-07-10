@@ -96,9 +96,7 @@ private fun ScheduleContent(
             data = ScheduleFilterBarData(
                 filterCount = uiState.activeFilterCount,
                 setCount = uiState.setTimes.size,
-                filterItems = listOf(
-                    ScheduleFilterBarData.FilterItem()
-                )
+                filterTexts = uiState.activeFilterItemsText,
             ),
             onFilterButtonClicked = onFilterButtonClicked,
             modifier = Modifier.padding(horizontal = 16.dp)

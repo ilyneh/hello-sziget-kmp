@@ -24,12 +24,8 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 data class ScheduleFilterBarData (
     val filterCount: Int = 0,
     val setCount: Int = 0,
-    val filterItems: List<FilterItem> = emptyList()
-) {
-    data class FilterItem(
-        val name: String
-    )
-}
+    val filterTexts: List<String> = emptyList()
+)
 
 @Composable
 fun ScheduleFilterBar(
@@ -59,8 +55,8 @@ fun ScheduleFilterBar(
             )
         }
 
-        if (data.filterItems.isNotEmpty()) {
-            data.filterItems.forEach { filterItem ->
+        if (data.filterTexts.isNotEmpty()) {
+            data.filterTexts.forEach {
                 Box(
                     modifier = Modifier
                         .background(
@@ -69,7 +65,7 @@ fun ScheduleFilterBar(
                         )
                 ) {
                     Text(
-                        text = filterItem.name,
+                        text = it,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
@@ -78,7 +74,6 @@ fun ScheduleFilterBar(
                 }
             }
         }
-
     }
 }
 
@@ -90,10 +85,10 @@ private fun ScheduleFilterBarPreview() {
             data = ScheduleFilterBarData(
                 filterCount = 100,
                 setCount = 1000,
-                filterItems = listOf(
-                    ScheduleFilterBarData.FilterItem("Electronic"),
-                    ScheduleFilterBarData.FilterItem("Techno"),
-                    ScheduleFilterBarData.FilterItem("Hip-Hop"),
+                filterTexts = listOf(
+                    "Electronic",
+                    "Techno",
+                    "Hip-Hop",
                 )
             ),
             onFilterButtonClicked = {},

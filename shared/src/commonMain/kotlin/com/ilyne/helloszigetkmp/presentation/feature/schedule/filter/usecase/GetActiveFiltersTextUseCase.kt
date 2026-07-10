@@ -12,7 +12,7 @@ class GetActiveFiltersTextUseCase {
         }
 
         if (filter.showFriendsGoing) {
-            filtersText.add("Friends Going")
+            filtersText.add("Friends going")
         }
 
         return filtersText

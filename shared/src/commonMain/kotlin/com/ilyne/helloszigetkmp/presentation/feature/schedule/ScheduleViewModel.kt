@@ -11,6 +11,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -96,6 +97,7 @@ class ScheduleViewModel(
     private val friendRepository: FriendRepository,
     private val getSetTimeDaysUseCase: GetSetTimeDaysUseCase,
     private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
+    private val getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
@@ -220,7 +222,7 @@ class ScheduleViewModel(
                 _uiState.update {
                     it.copy(
                         activeFilterCount = filter.activeCount(),
-                        activeFilterItemsText =
+                        activeFilterItemsText = getActiveFiltersTextUseCase(filter)
                     )
                 }
             }
