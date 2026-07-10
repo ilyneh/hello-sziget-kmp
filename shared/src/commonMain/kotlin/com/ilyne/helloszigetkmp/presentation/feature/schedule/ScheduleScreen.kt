@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +65,7 @@ fun ScheduleScreen(
             viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId, current))
         },
         onArtistClick = onArtistClick,
+        onRefresh = { viewModel.refresh() },
         modifier = modifier
     )
 }
@@ -76,82 +78,89 @@ private fun ScheduleContent(
     onFilterButtonClicked: () -> Unit,
     onToggleFavorite: (String?, Boolean) -> Unit,
     onArtistClick: (String) -> Unit = {},
+    onRefresh: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Column(
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = onRefresh,
         modifier = modifier.fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
     ) {
-        MainHeader(text = "Schedule") {
-            ViewModeToggle(
-                current = uiState.viewMode,
-                onChange = onViewModeChanged,
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface)
+        ) {
+            MainHeader(text = "Schedule") {
+                ViewModeToggle(
+                    current = uiState.viewMode,
+                    onChange = onViewModeChanged,
+                )
+            }
+
+            DaySelector(
+                days = uiState.days,
+                selected = uiState.selectedDay,
+                onDaySelect = onDaySelected,
             )
-        }
 
-        DaySelector(
-            days = uiState.days,
-            selected = uiState.selectedDay,
-            onDaySelect = onDaySelected,
-        )
+            ScheduleFilterBar(
+                data = ScheduleFilterBarData(
+                    filterCount = uiState.activeFilterCount,
+                    setCount = uiState.setTimes.size,
+                    filterTexts = uiState.activeFilterItemsText,
+                ),
+                onFilterButtonClicked = onFilterButtonClicked,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
-        ScheduleFilterBar(
-            data = ScheduleFilterBarData(
-                filterCount = uiState.activeFilterCount,
-                setCount = uiState.setTimes.size,
-                filterTexts = uiState.activeFilterItemsText,
-            ),
-            onFilterButtonClicked = onFilterButtonClicked,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        // Content
-        when (val status = uiState.status) {
-            is ScheduleUiState.Status.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is ScheduleUiState.Status.Error -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(status.message, color = MaterialTheme.colorScheme.error)
-                }
-            }
-
-            else -> if (uiState.setTimes.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No Set Times")
-                }
-            } else {
-                when (uiState.viewMode) {
-                    ViewMode.GRID -> {
-                        TimelineGridView(
-                            setTimes = uiState.setTimes,
-                            stages = uiState.stages,
-                            gridMinHour = uiState.gridMinHour,
-                            gridMaxHour = uiState.gridMaxHour,
-                            onArtistClick = onArtistClick,
-                        )
+            // Content
+            when (val status = uiState.status) {
+                is ScheduleUiState.Status.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
+                }
 
-                    ViewMode.SWIMLANE -> {
-                        SwimLaneView(
-                            setTimes = uiState.setTimes,
-                            stages = uiState.stages,
-                            gridMinHour = uiState.gridMinHour,
-                            gridMaxHour = uiState.gridMaxHour,
-                            onArtistClick = onArtistClick,
-                        )
+                is ScheduleUiState.Status.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(status.message, color = MaterialTheme.colorScheme.error)
                     }
+                }
 
-                    ViewMode.LIST -> {
-                        SetTimeListView(
-                            uiState.setTimes,
-                            onToggleFavorite = onToggleFavorite,
-                            onArtistClick = onArtistClick,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                else -> if (uiState.setTimes.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No Set Times")
+                    }
+                } else {
+                    when (uiState.viewMode) {
+                        ViewMode.GRID -> {
+                            TimelineGridView(
+                                setTimes = uiState.setTimes,
+                                stages = uiState.stages,
+                                gridMinHour = uiState.gridMinHour,
+                                gridMaxHour = uiState.gridMaxHour,
+                                onArtistClick = onArtistClick,
+                            )
+                        }
+
+                        ViewMode.SWIMLANE -> {
+                            SwimLaneView(
+                                setTimes = uiState.setTimes,
+                                stages = uiState.stages,
+                                gridMinHour = uiState.gridMinHour,
+                                gridMaxHour = uiState.gridMaxHour,
+                                onArtistClick = onArtistClick,
+                            )
+                        }
+
+                        ViewMode.LIST -> {
+                            SetTimeListView(
+                                uiState.setTimes,
+                                onToggleFavorite = onToggleFavorite,
+                                onArtistClick = onArtistClick,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

@@ -16,6 +16,7 @@ import kotlinx.datetime.format
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val status: Status = Status.LOADING
 ) {
 
@@ -50,6 +51,18 @@ class MyLineupViewModel(
         return groupBy { setTime ->
             val festivalDate = setTime.startTime.toFestivalDate()
             festivalDate.formatDate()
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                scheduleRepository.refresh()
+                artistRepository.refresh()
+            } catch (_: Exception) {
+            }
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 

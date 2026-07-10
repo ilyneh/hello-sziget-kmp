@@ -17,6 +17,7 @@ data class DiscoverUiState(
     val artists: List<Artist> = emptyList(),
     val searchQuery: String = "",
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
 )
 
@@ -66,6 +67,18 @@ class DiscoverViewModel(
                     _effects.emit(value = DiscoverEffect.LaunchFilterDialog)
                 }
             }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                artistRepository.refresh()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 
