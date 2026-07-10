@@ -5,10 +5,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -25,9 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
 
-private val DayPillWidth = 64.dp
-private val DayPillSpacing = 8.dp
-private val DaySelectorHorizontalPadding = 16.dp
 
 @Composable
 fun DaySelector(
@@ -35,64 +30,48 @@ fun DaySelector(
     selected: SetTimeDay?,
     onDaySelect: (SetTimeDay) -> Unit,
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val contentWidth = if (days.isEmpty()) {
-            0.dp
-        } else {
-            DayPillWidth * days.size +
-                DayPillSpacing * (days.size - 1) +
-                DaySelectorHorizontalPadding * 2
-        }
-        val fitsWithoutScroll = contentWidth <= maxWidth
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .let { if (fitsWithoutScroll) it else it.horizontalScroll(rememberScrollState()) }
-                .padding(horizontal = DaySelectorHorizontalPadding, vertical = 8.dp),
-            horizontalArrangement = if (fitsWithoutScroll) {
-                Arrangement.spacedBy(DayPillSpacing, Alignment.CenterHorizontally)
-            } else {
-                Arrangement.spacedBy(DayPillSpacing)
-            },
-        ) {
-            days.forEach { day ->
-                val isSelected = day == selected
-                Column(
-                    modifier = Modifier
-                        .width(DayPillWidth)
-                        .clip(RoundedCornerShape(11.dp))
-                        .background(if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant)
-                        .run {
-                            if (isSelected) {
-                                border(
-                                    width = 2.dp,
-                                    shape = RoundedCornerShape(11.dp),
-                                    color = MaterialTheme.colorScheme.onSecondary
-                                )
-                            } else {
-                                this
-                            }
+    Row(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        days.forEach { day ->
+            val isSelected = day == selected
+            Column(
+                modifier = Modifier
+                    .width(64.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant)
+                    .run {
+                        if (isSelected) {
+                            border(
+                                width = 2.dp,
+                                shape = RoundedCornerShape(11.dp),
+                                color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        } else {
+                            this
                         }
-                        .clickable { onDaySelect(day) }
-                        .padding(vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    val textColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurfaceVariant
-                    Text(
-                        text = day.dayOfWeekLabel().uppercase(),
-                        fontSize = 10.sp,
-                        color = textColor,
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        text = day.dateOfMonth.toString(),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
+                    }
+                    .clickable { onDaySelect(day) }
+                    .padding(vertical = 6.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                val textColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurfaceVariant
+                Text(
+                    text = day.dayOfWeekLabel().uppercase(),
+                    fontSize = 10.sp,
+                    color = textColor,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    text = day.dateOfMonth.toString(),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor,
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }
