@@ -1,5 +1,6 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,7 +66,10 @@ fun SwimLaneView(
             stages.forEach { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }
                 Row(
-                    modifier = Modifier.height(80.dp).horizontalScroll(horizScroll),
+                    modifier = Modifier
+                        .height(80.dp)
+                        .background(color = stageColor(stage.id).copy(alpha = 0.2f))
+                        .horizontalScroll(horizScroll),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.width(80.dp).fillMaxHeight(), contentAlignment = Alignment.CenterStart) {
