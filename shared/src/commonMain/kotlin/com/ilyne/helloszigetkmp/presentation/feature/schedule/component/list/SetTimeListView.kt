@@ -30,6 +30,7 @@ import kotlinx.datetime.LocalDateTime
 fun SetTimeListView(
     setTimes: List<ScheduleUiState.SetTime>,
     onToggleFavorite: (artistId: String?, current: Boolean) -> Unit,
+    onArtistClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val grouped = setTimes.groupBy { setTime ->
@@ -63,6 +64,7 @@ fun SetTimeListView(
                     SetTimeListItem(
                         setTime = setTime,
                         onToggleFavorite = onToggleFavorite,
+                        onArtistClick = onArtistClick,
                         modifier = Modifier.fillMaxWidth()
                     )
                     HorizontalDivider(

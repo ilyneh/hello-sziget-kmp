@@ -49,7 +49,7 @@ import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DiscoverScreen(modifier: Modifier = Modifier) {
+fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {
     val viewModel = koinViewModel<DiscoverViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -99,6 +99,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
                         ArtistCard(
                             artist = artist,
                             onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
+                            onClick = { onArtistClick(artist.id) },
                         )
                     }
                 }
@@ -117,8 +118,10 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
 private fun ArtistCard(
     artist: Artist,
     onFavoriteToggle: () -> Unit,
+    onClick: () -> Unit = {},
 ) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.8f)
