@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,45 +63,51 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        MainHeader(text = "Discover")
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.refresh() },
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            MainHeader(text = "Discover")
 
-        SearchTextField(
-            value = uiState.searchQuery,
-            placeHolderText = "Search artists...",
-            onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(vertical = 8.dp)
-        )
+            SearchTextField(
+                value = uiState.searchQuery,
+                placeHolderText = "Search artists...",
+                onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(vertical = 8.dp)
+            )
 
-        DiscoverFilterBar(
-            data = DiscoverFilterBarData(),
-            onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+            DiscoverFilterBar(
+                data = DiscoverFilterBarData(),
+                onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
-        when {
-            uiState.isLoading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            when {
+                uiState.isLoading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
 
-            else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(uiState.artists, key = { it.id }) { artist ->
-                        ArtistCard(
-                            artist = artist,
-                            onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
-                            onClick = { onArtistClick(artist.id) },
-                        )
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(uiState.artists, key = { it.id }) { artist ->
+                            ArtistCard(
+                                artist = artist,
+                                onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
+                                onClick = { onArtistClick(artist.id) },
+                            )
+                        }
                     }
                 }
             }

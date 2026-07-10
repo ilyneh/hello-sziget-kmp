@@ -44,6 +44,7 @@ data class ScheduleUiState(
     val activeFilterCount: Int = 0,
     val activeFilterItemsText: List<String> = emptyList(),
     val status: Status = Status.Success,
+    val isRefreshing: Boolean = false,
 ) {
     data class SetTime(
         val id: String,
@@ -113,20 +114,30 @@ class ScheduleViewModel(
     private val filter = MutableStateFlow(scheduleFilterStorage.read() ?: ScheduleFilter())
 
     init {
-        viewModelScope.launch {
-            try {
-                scheduleRepository.refresh()
-                artistRepository.refresh()
-                friendRepository.refresh()
-            } catch (e: Exception) {
-                e.message?.let { message ->
-                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                }
-            }
-        }
+        viewModelScope.launch { refreshData() }
         observeSetTimeDays()
         observeSelectedDay()
         observeFilter()
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            refreshData()
+            _uiState.update { it.copy(isRefreshing = false) }
+        }
+    }
+
+    private suspend fun refreshData() {
+        try {
+            scheduleRepository.refresh()
+            artistRepository.refresh()
+            friendRepository.refresh()
+        } catch (e: Exception) {
+            e.message?.let { message ->
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
+            }
+        }
     }
 
     fun onIntent(intent: ScheduleIntent) {
