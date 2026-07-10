@@ -6,6 +6,7 @@ import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.core.db.dao.StageDao
+import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.Stage
@@ -60,8 +61,14 @@ class ScheduleRepository(
             )
         }
 
+
     fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> =
         setTimeDao.observeSetTimeRange()
+
+
+    fun observeFavoriteSetTimes(): Flow<List<SetTimeWithArtistStageSummary>> =
+        setTimeDao.observeFavorites()
+
 
     suspend fun refresh() {
         val stages = api.getStages()

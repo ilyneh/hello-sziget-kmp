@@ -52,9 +52,7 @@ fun SetTimeListView(
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp)
                     ) {
-                        SetTimeListHeader(
-                            text = header,
-                        )
+                        SetTimeListHeader(text = header,)
                     }
                 }
 
