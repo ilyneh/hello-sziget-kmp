@@ -113,20 +113,30 @@ class ScheduleViewModel(
     private val filter = MutableStateFlow(scheduleFilterStorage.read() ?: ScheduleFilter())
 
     init {
-        viewModelScope.launch {
-            try {
-                scheduleRepository.refresh()
-                artistRepository.refresh()
-                friendRepository.refresh()
-            } catch (e: Exception) {
-                e.message?.let { message ->
-                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                }
-            }
-        }
+        viewModelScope.launch { refreshData() }
         observeSetTimeDays()
         observeSelectedDay()
         observeFilter()
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = ScheduleUiState.Status.Loading) }
+            refreshData()
+            _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
+        }
+    }
+
+    private suspend fun refreshData() {
+        try {
+            scheduleRepository.refresh()
+            artistRepository.refresh()
+            friendRepository.refresh()
+        } catch (e: Exception) {
+            e.message?.let { message ->
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
+            }
+        }
     }
 
     fun onIntent(intent: ScheduleIntent) {
