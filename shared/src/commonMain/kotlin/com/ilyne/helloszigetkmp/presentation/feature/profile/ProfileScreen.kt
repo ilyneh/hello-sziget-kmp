@@ -152,7 +152,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         }
     }
 
-    uiState.friendOptionsFor?.let { friend ->
+    uiState.removeFriendOption?.let { friend ->
         AlertDialog(
             onDismissRequest = { viewModel.onIntent(ProfileIntent.DismissFriendOptions) },
             title = { Text(text = friend.name) },

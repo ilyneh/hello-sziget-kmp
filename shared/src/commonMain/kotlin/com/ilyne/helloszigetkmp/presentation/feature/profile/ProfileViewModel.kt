@@ -24,7 +24,7 @@ data class ProfileUiState(
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val friendOptionsFor: User? = null,
+    val removeFriendOption: User? = null,
 )
 
 sealed class ProfileEffect {
@@ -128,17 +128,17 @@ class ProfileViewModel(
             }
             is ProfileIntent.ViewFriend -> {
                 val friend = _uiState.value.friends.find { it.id == intent.friendId }
-                _uiState.update { it.copy(friendOptionsFor = friend) }
+                _uiState.update { it.copy(removeFriendOption = friend) }
             }
             is ProfileIntent.Logout -> viewModelScope.launch {
                 _effects.emit(ProfileEffect.Logout)
             }
             ProfileIntent.DismissFriendOptions -> {
-                _uiState.update { it.copy(friendOptionsFor = null) }
+                _uiState.update { it.copy(removeFriendOption = null) }
             }
             ProfileIntent.RemoveFriendClicked -> {
-                val friend = _uiState.value.friendOptionsFor ?: return
-                _uiState.update { it.copy(friendOptionsFor = null) }
+                val friend = _uiState.value.removeFriendOption ?: return
+                _uiState.update { it.copy(removeFriendOption = null) }
                 viewModelScope.launch {
                     try {
                         friendRepository.removeFriend(currentUser.id, friend.id)
