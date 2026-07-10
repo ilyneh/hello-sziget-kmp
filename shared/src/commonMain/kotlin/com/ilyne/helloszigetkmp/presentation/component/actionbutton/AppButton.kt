@@ -43,8 +43,8 @@ fun AppButton(
         colors = ButtonColors(
             containerColor = containerColor,
             contentColor = contentColor,
-            disabledContainerColor = containerColor,
-            disabledContentColor = contentColor,
+            disabledContainerColor = ActionButtonDefaults.disabledContainerColor,
+            disabledContentColor = ActionButtonDefaults.disabledContentColor,
         ),
         border = BorderStroke(borderWidth, borderColor),
         contentPadding = contentPadding,

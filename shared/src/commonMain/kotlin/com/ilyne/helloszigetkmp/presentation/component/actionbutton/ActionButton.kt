@@ -30,6 +30,8 @@ object ActionButtonDefaults {
     val ContainerColor: Color = SzigetPalette.SunshineYellow
     val BorderColor: Color = SzigetPalette.Navy
     val ContentColor: Color = SzigetPalette.Navy
+    val disabledContainerColor = SzigetPalette.CreamCanvas
+    val disabledContentColor = SzigetPalette.Hairline
 }
 
 /**

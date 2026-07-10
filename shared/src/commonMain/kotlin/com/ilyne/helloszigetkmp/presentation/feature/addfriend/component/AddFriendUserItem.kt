@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
+import com.ilyne.helloszigetkmp.presentation.component.actionbutton.AppButton
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendListItem
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.FriendshipStatus
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
@@ -76,11 +77,11 @@ fun AddFriendUserItemActionButton(
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    ActionButton(
+    AppButton(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier.wrapContentSize(),
+        modifier = modifier,
     ) {
         Text(
             text = text,
