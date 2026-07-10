@@ -79,6 +79,11 @@ fun AppNavGraph(
                 appliedFilter = appliedFilterJson?.let { Json.decodeFromString(it) },
                 onAppliedFilterConsumed = {
                     backStackEntry.savedStateHandle[SCHEDULE_FILTER_RESULT_KEY] = null
+                },
+                onLoggedOut = {
+                    navController.navigate(Login) {
+                        popUpTo<Main> { inclusive = true }
+                    }
                 }
             )
         }
