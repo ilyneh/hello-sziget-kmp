@@ -30,7 +30,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+        isRefreshing = uiState.status == MyLineupUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
         modifier = modifier.fillMaxSize()
     ) {
@@ -38,7 +38,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             MainHeader(text = "My Lineup")
 
             when {
-                uiState.status == MyLineupUiState.Status.LOADING -> {
+                uiState.status == MyLineupUiState.Status.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }

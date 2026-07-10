@@ -44,7 +44,6 @@ data class ScheduleUiState(
     val activeFilterCount: Int = 0,
     val activeFilterItemsText: List<String> = emptyList(),
     val status: Status = Status.Success,
-    val isRefreshing: Boolean = false,
 ) {
     data class SetTime(
         val id: String,
@@ -122,9 +121,9 @@ class ScheduleViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true) }
+            _uiState.update { it.copy(status = ScheduleUiState.Status.Loading) }
             refreshData()
-            _uiState.update { it.copy(isRefreshing = false) }
+            _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
         }
     }
 

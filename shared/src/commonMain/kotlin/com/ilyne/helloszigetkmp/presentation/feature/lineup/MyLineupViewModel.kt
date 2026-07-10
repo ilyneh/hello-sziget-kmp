@@ -15,15 +15,13 @@ import kotlinx.datetime.format
 
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),
-    val isLoading: Boolean = true,
-    val isRefreshing: Boolean = false,
-    val status: Status = Status.LOADING
+    val status: Status = Status.Loading
 ) {
 
     sealed class Status {
-        object SUCCESS : Status()
-        object LOADING : Status()
-        data class ERROR(val message: String?) : Status()
+        object Success : Status()
+        object Loading : Status()
+        data class Error(val message: String?) : Status()
     }
 }
 
@@ -40,7 +38,7 @@ class MyLineupViewModel(
                 _uiState.update {
                     it.copy(
                         favoritesGroupedByDay = setTimes.groupByDay(),
-                        status = MyLineupUiState.Status.SUCCESS
+                        status = MyLineupUiState.Status.Success
                     )
                 }
             }
@@ -56,13 +54,13 @@ class MyLineupViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true) }
+            _uiState.update { it.copy(status = MyLineupUiState.Status.Loading) }
             try {
                 scheduleRepository.refresh()
                 artistRepository.refresh()
             } catch (_: Exception) {
             }
-            _uiState.update { it.copy(isRefreshing = false) }
+            _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
         }
     }
 

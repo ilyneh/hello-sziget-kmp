@@ -82,7 +82,7 @@ private fun ScheduleContent(
     modifier: Modifier = Modifier
 ) {
     PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+        isRefreshing = uiState.status == ScheduleUiState.Status.Loading,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize()
     ) {

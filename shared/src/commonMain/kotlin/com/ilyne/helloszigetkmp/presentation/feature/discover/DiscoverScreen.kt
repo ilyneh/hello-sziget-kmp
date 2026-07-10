@@ -64,7 +64,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     }
 
     PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+        isRefreshing = uiState.status == DiscoverUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
         modifier = modifier.fillMaxSize()
     ) {
@@ -88,7 +88,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             )
 
             when {
-                uiState.isLoading -> {
+                uiState.status == DiscoverUiState.Status.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
