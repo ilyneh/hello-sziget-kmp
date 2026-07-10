@@ -28,7 +28,10 @@ private object StageColorAssignments {
     private val assignments: MutableMap<String, Int> = loadAssignments().toMutableMap()
 
     fun indexFor(stageId: String): Int {
-        assignments[stageId]?.let { return it }
+        // Re-mod stored indices against the current palette size — if the palette is ever
+        // resized, old persisted indices (from a larger palette) would otherwise be out of
+        // bounds here.
+        assignments[stageId]?.let { return it.mod(stagePalette.size) }
 
         val nextIndex = assignments.size.mod(stagePalette.size)
         assignments[stageId] = nextIndex

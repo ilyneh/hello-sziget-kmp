@@ -16,9 +16,14 @@ import kotlinx.coroutines.launch
 data class DiscoverUiState(
     val artists: List<Artist> = emptyList(),
     val searchQuery: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null,
-)
+    val status: Status = Status.Loading,
+) {
+    sealed class Status {
+        object Success : Status()
+        object Loading : Status()
+        data class Error(val message: String?) : Status()
+    }
+}
 
 sealed class DiscoverIntent {
     data class SearchQueryChanged(
@@ -35,7 +40,7 @@ sealed class DiscoverEffect {
 class DiscoverViewModel(
     private val artistRepository: ArtistRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(DiscoverUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _effects = MutableSharedFlow<DiscoverEffect>()
@@ -49,7 +54,7 @@ class DiscoverViewModel(
             try {
                 artistRepository.refresh()
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
             }
         }
     }
@@ -69,6 +74,18 @@ class DiscoverViewModel(
         }
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
+            try {
+                artistRepository.refresh()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
+            }
+            _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
+        }
+    }
+
     fun toggleFavorite(
         artistId: String,
         current: Boolean,
@@ -77,7 +94,7 @@ class DiscoverViewModel(
             try {
                 artistRepository.toggleFavorite(artistId, !current)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message) }
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
             }
         }
     }
@@ -92,7 +109,7 @@ class DiscoverViewModel(
                     artistRepository.searchArtists(query)
                 }
             }.collect { artists ->
-                _uiState.update { it.copy(artists = artists, isLoading = false) }
+                _uiState.update { it.copy(artists = artists, status = DiscoverUiState.Status.Success) }
             }
         }
     }
