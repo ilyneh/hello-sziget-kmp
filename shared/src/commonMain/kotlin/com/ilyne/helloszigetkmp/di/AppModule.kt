@@ -13,6 +13,7 @@ import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.core.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
 import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -31,6 +32,7 @@ val appModule = module {
     single { Settings() }
     single { GoogleAuthProvider() }
     single { TokenStorage(settings = get()) }
+    single { ScheduleFilterStorage(settings = get()) }
     single { baseHttpClient }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
     single { SzigetAuthService(appConfig = get(), authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
