@@ -2,12 +2,11 @@ package com.ilyne.helloszigetkmp.presentation.feature.addfriend
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +40,7 @@ fun AddFriendScreen(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
         AddFriendContent(
@@ -63,7 +62,7 @@ private fun AddFriendContent(
     onAccept: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().height(500.dp)) {
+    Column(modifier = modifier.fillMaxWidth().imePadding()) {
         MainHeader(
             text = "Add Friends",
             modifier = Modifier.fillMaxWidth(),
@@ -77,34 +76,31 @@ private fun AddFriendContent(
             }
         }
 
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            item {
-                SearchTextField(
-                    value = uiState.searchQuery,
-                    placeHolderText = "Search users...",
-                    onValueChange = onSearchQueryChanged,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                )
-            }
+            SearchTextField(
+                value = uiState.searchQuery,
+                placeHolderText = "Search users...",
+                onValueChange = onSearchQueryChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+            )
 
             if (uiState.results.isEmpty()) {
-                item {
-                    Text(
-                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                        text = "No users found",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                }
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                    text = "No users found",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.outline,
+                )
             } else {
-                items(uiState.results, key = { it.user.id }) { result ->
+                uiState.results.forEach { result ->
                     AddFriendUserItem(
                         name = result.user.name,
                         status = result.status,
