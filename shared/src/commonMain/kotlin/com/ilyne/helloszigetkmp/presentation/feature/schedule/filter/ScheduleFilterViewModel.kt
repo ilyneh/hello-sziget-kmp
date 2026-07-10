@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 data class ScheduleFilterUiState(
     val showFavoritesOnly: Boolean = false,
     val showFriendsGoing: Boolean = false,
-    val hideEmptyStages: Boolean = true
+    val hideEmptyStages: Boolean = true,
+    val showExtraDays: Boolean = false,
 )
 
 sealed class FilterEffect {
@@ -27,6 +28,7 @@ sealed class FilterIntent {
     data class ToggleFavoritesOnly(val value: Boolean) : FilterIntent()
     data class ToggleFriendsGoing(val value: Boolean) : FilterIntent()
     data class ToggleHideEmptyStages(val value: Boolean) : FilterIntent()
+    data class ToggleShowExtraDays(val value: Boolean) : FilterIntent()
     object Save : FilterIntent()
 }
 
@@ -63,6 +65,10 @@ class ScheduleFilterViewModel : ViewModel() {
                 filter = filter.copy(hideEmptyStages = intent.value)
                 updateUiState()
             }
+            is FilterIntent.ToggleShowExtraDays -> {
+                filter = filter.copy(showExtraDays = intent.value)
+                updateUiState()
+            }
             FilterIntent.Save -> {
                 viewModelScope.launch {
                     val effect = FilterEffect.UpdateFilter(filter)
@@ -77,7 +83,8 @@ class ScheduleFilterViewModel : ViewModel() {
             it.copy(
                 showFavoritesOnly = filter.showFavorites,
                 showFriendsGoing = filter.showFriendsGoing,
-                hideEmptyStages = filter.hideEmptyStages
+                hideEmptyStages = filter.hideEmptyStages,
+                showExtraDays = filter.showExtraDays,
             )
         }
     }

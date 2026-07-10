@@ -56,6 +56,7 @@ fun ScheduleFilterScreen(
             toggleFavoritesOnly = { viewModel.onIntent(FilterIntent.ToggleFavoritesOnly(it)) },
             toggleFriendsGoing = { viewModel.onIntent(FilterIntent.ToggleFriendsGoing(it)) },
             toggleHideEmptyStages = { viewModel.onIntent(FilterIntent.ToggleHideEmptyStages(it)) },
+            toggleShowExtraDays = { viewModel.onIntent(FilterIntent.ToggleShowExtraDays(it)) },
             saveFilter = { viewModel.onIntent(FilterIntent.Save) },
         )
     }
@@ -67,6 +68,7 @@ private fun ScheduleFilterContent(
     toggleFavoritesOnly: (Boolean) -> Unit,
     toggleFriendsGoing: (Boolean) -> Unit,
     toggleHideEmptyStages: (Boolean) -> Unit,
+    toggleShowExtraDays: (Boolean) -> Unit,
     saveFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -115,6 +117,19 @@ private fun ScheduleFilterContent(
             )
         }
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Show Extra Days",
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = uiState.showExtraDays,
+                onCheckedChange = { toggleShowExtraDays(it) }
+            )
+        }
+
         Button(
             onClick = { saveFilter() },
             modifier = Modifier.fillMaxWidth()
@@ -136,6 +151,7 @@ fun ScheduleFilterContentPreview() {
             toggleFavoritesOnly = {},
             toggleFriendsGoing = {},
             toggleHideEmptyStages = {},
+            toggleShowExtraDays = {},
             saveFilter = {},
         )
     }
