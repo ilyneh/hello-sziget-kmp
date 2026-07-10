@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.ilyne.helloszigetkmp.domain.model.Artist
+import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
@@ -135,9 +137,12 @@ private fun ArtistCard(
 
             IconButton(
                 onClick = onFavoriteToggle,
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier.align(Alignment.TopEnd),
             ) {
-                Text(if (artist.isFavorited) "♥" else "♡", fontSize = 20.sp)
+                HeartIcon(
+                    enabled = artist.isFavorited,
+                    modifier = Modifier.padding(8.dp)
+                )
             }
         }
     }

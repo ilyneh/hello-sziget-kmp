@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
@@ -106,8 +107,12 @@ fun MyLineupScreen(modifier: Modifier = Modifier) {
                                             )
                                         }
                                     }
+
                                     IconButton(onClick = { viewModel.removeFavorite(setTime.artistId) }) {
-                                        Text("♥", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)
+                                        HeartIcon(
+                                            enabled = true,
+                                            modifier = Modifier.padding(8.dp)
+                                        )
                                     }
                                 }
                             }
