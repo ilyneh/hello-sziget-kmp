@@ -50,9 +50,9 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
         MainHeader(text = "Discover")
 
         SearchTextField(
-            value = "",
+            value = uiState.searchQuery,
             placeHolderText = "Search artists...",
-            onValueChange = {},
+            onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)

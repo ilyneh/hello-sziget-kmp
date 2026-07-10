@@ -18,6 +18,8 @@ class ArtistRepository(
 
     fun observeFavorites(): Flow<List<Artist>> = dao.observeFavorites().map { entities -> entities.map { it.toDomain() } }
 
+    fun searchArtists(query: String): Flow<List<Artist>> = dao.searchByName(query).map { entities -> entities.map { it.toDomain() } }
+
     suspend fun refresh() {
         val dtos = api.getArtists()
         dao.upsertAll(dtos.map { it.toEntity() })
