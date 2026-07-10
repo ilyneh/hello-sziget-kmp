@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.schedule.components.swimlane
+package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box

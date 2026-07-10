@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.Color
  */
 object SzigetPalette {
     val PrimaryBlue = Color(0xFF4A5FE0)
+    val MediumBlue = Color(0xFF90AEFF)
+    val LightBlue = Color(0xFFB5C9FF)
     val Magenta = Color(0xFFA6178A)
     val Red = Color(0xFFFF084A)
     val Coral = Color(0xFFF2617A)

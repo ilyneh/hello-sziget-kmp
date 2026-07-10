@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
+import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
@@ -58,7 +60,11 @@ fun ScheduleFilterBar(
 
         if (data.filterTexts.isNotEmpty()) {
             data.filterTexts.forEach {
-                TextPill(text = it)
+                TextPill(
+                    text = it,
+                    style = TextPillDefaults.style.copy(fontSize = 12.sp),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                )
             }
         }
     }
