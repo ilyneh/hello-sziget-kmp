@@ -88,8 +88,8 @@ class ProfileViewModel(
 
                 if (usersSyncService.awaitSuccessfulSync()) {
                     _uiState.update { it.copy(isLoading = true) }
-                    friendRepository.refresh()
-                    artistRepository.refresh()
+                    friendRepository.refresh(force = false)
+                    artistRepository.refresh(force = false)
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
                     Logger.e("findme", "users sync failed, skipping friends refresh")
@@ -114,7 +114,7 @@ class ProfileViewModel(
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            friendRepository.refresh()
+            friendRepository.refresh(force = true)
             _uiState.update { it.copy(isLoading = false) }
         }
     }

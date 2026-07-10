@@ -11,6 +11,7 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.util.Logger
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
@@ -19,11 +20,14 @@ class ScheduleRepository(
     private val setTimeDao: SetTimeDao,
     private val stageDao: StageDao,
     private val artistDao: ArtistDao,
+    settings: Settings,
 ) {
 
     companion object {
         private const val TAG = "ScheduleRepository"
     }
+
+    private val softRefreshGate = SoftRefreshGate(settings, key = "ScheduleRepository")
 
     data class SetTimesForDay(
         val setTimes: List<SetTime>,
@@ -70,17 +74,19 @@ class ScheduleRepository(
         setTimeDao.observeFavorites()
 
 
-    suspend fun refresh() {
-        val stages = api.getStages()
-        stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.description) })
-        Logger.d(TAG, "Refreshed ${stages.size} stages")
+    suspend fun refresh(force: Boolean = false) {
+        softRefreshGate.refreshIfStale(force) {
+            val stages = api.getStages()
+            stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.description) })
+            Logger.d(TAG, "Refreshed ${stages.size} stages")
 
-        val setTimes = api.getSetTimes()
-        setTimeDao.upsertAll(
-            setTimes.map {
-                SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
-            },
-        )
-        Logger.d(TAG, "Refreshed ${setTimes.size} set times")
+            val setTimes = api.getSetTimes()
+            setTimeDao.upsertAll(
+                setTimes.map {
+                    SetTimeEntity(it.id, it.artistId, it.stageId, it.startTime, it.endTime, it.hideEndTime)
+                },
+            )
+            Logger.d(TAG, "Refreshed ${setTimes.size} set times")
+        }
     }
 }

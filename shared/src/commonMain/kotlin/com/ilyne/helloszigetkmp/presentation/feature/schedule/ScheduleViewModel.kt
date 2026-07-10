@@ -113,20 +113,29 @@ class ScheduleViewModel(
     private val filter = MutableStateFlow(scheduleFilterStorage.read() ?: ScheduleFilter())
 
     init {
+        refreshData(force = false)
+        observeSetTimeDays()
+        observeSelectedDay()
+        observeFilter()
+    }
+
+    /** Called from pull-to-refresh: always forces a fresh API fetch. */
+    fun refresh() {
+        refreshData(force = true)
+    }
+
+    private fun refreshData(force: Boolean) {
         viewModelScope.launch {
             try {
-                scheduleRepository.refresh()
-                artistRepository.refresh()
-                friendRepository.refresh()
+                scheduleRepository.refresh(force = force)
+                artistRepository.refresh(force = force)
+                friendRepository.refresh(force = force)
             } catch (e: Exception) {
                 e.message?.let { message ->
                     _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
                 }
             }
         }
-        observeSetTimeDays()
-        observeSelectedDay()
-        observeFilter()
     }
 
     fun onIntent(intent: ScheduleIntent) {

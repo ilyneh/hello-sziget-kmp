@@ -45,9 +45,18 @@ class DiscoverViewModel(
 
     init {
         observeArtists()
+        refreshArtists(force = false)
+    }
+
+    /** Called from pull-to-refresh: always forces a fresh API fetch. */
+    fun refresh() {
+        refreshArtists(force = true)
+    }
+
+    private fun refreshArtists(force: Boolean) {
         viewModelScope.launch {
             try {
-                artistRepository.refresh()
+                artistRepository.refresh(force = force)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
