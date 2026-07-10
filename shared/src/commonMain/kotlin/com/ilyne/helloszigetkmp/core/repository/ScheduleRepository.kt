@@ -7,6 +7,7 @@ import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.core.db.dao.StageDao
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
+import com.ilyne.helloszigetkmp.core.sync.SingleFlight
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.Stage
@@ -24,6 +25,8 @@ class ScheduleRepository(
     companion object {
         private const val TAG = "ScheduleRepository"
     }
+
+    private val refreshGuard = SingleFlight()
 
     data class SetTimesForDay(
         val setTimes: List<SetTime>,
@@ -70,7 +73,7 @@ class ScheduleRepository(
         setTimeDao.observeFavorites()
 
 
-    suspend fun refresh() {
+    suspend fun refresh() = refreshGuard.run {
         val stages = api.getStages()
         stageDao.upsertAll(stages.map { StageEntity(it.id, it.name, it.description) })
         Logger.d(TAG, "Refreshed ${stages.size} stages")

@@ -10,6 +10,7 @@ import com.ilyne.helloszigetkmp.core.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity.Status
 import com.ilyne.helloszigetkmp.core.db.model.ArtistFriendsFavoritedSummary
+import com.ilyne.helloszigetkmp.core.sync.SingleFlight
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
@@ -24,6 +25,7 @@ class FriendRepository(
     private val friendDao: FriendDao,
     private val userDao: UserDao,
 ) {
+    private val refreshGuard = SingleFlight()
 
     suspend fun sendFriendRequest(currentUserId: String, friendId: String) {
         val userFriendEntity = UserFriendEntity(
@@ -99,10 +101,11 @@ class FriendRepository(
     fun observeArtistsFriendsFavorited(): Flow<List<ArtistFriendsFavorited>> =
         friendDao.observeArtistsWithFriendsFavoritedSummary().map { entities -> entities.map { it.toDomain() } }
 
-    suspend fun refresh() {
-        val currentUserId = userDao.getCurrentUser()?.id ?: run {
+    suspend fun refresh() = refreshGuard.run {
+        val currentUserId = userDao.getCurrentUser()?.id
+        if (currentUserId == null) {
             Logger.e("findme", "Current user not found in dao")
-            return
+            return@run
         }
 
         coroutineScope {
