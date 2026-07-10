@@ -133,7 +133,10 @@ private fun ArtistCard(
                 )
             }
 
-            IconButton(onClick = onFavoriteToggle, modifier = Modifier.align(Alignment.TopEnd)) {
+            IconButton(
+                onClick = onFavoriteToggle,
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
                 Text(if (artist.isFavorited) "♥" else "♡", fontSize = 20.sp)
             }
         }
