@@ -52,7 +52,7 @@ class ScheduleFilterViewModel : ViewModel() {
                 updateUiState()
             }
             is FilterIntent.ToggleFavoritesOnly -> {
-                filter = filter.copy(showFavoritesOnly = intent.value)
+                filter = filter.copy(showFavorites = intent.value)
                 updateUiState()
             }
             is FilterIntent.ToggleFriendsGoing -> {
@@ -75,7 +75,7 @@ class ScheduleFilterViewModel : ViewModel() {
     private fun updateUiState() {
         _uiState.update {
             it.copy(
-                showFavoritesOnly = filter.showFavoritesOnly,
+                showFavoritesOnly = filter.showFavorites,
                 showFriendsGoing = filter.showFriendsGoing,
                 hideEmptyStages = filter.hideEmptyStages
             )

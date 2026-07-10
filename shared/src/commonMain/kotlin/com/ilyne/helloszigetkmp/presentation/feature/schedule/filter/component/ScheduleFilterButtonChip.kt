@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.LightAppColors
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_filter_sliders
 import org.jetbrains.compose.resources.painterResource
@@ -35,11 +34,11 @@ fun ScheduleFilterButtonChip(
     modifier: Modifier = Modifier
 ) {
     FilterChip(
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(0.dp),
         selected = true,
         onClick = onClick,
-        shape = RoundedCornerShape(100.dp),
+        shape = RoundedCornerShape(6.dp),
         colors = FilterChipDefaults.filterChipColors(
             iconColor = MaterialTheme.colorScheme.onPrimary,
             containerColor = MaterialTheme.colorScheme.secondaryContainer,

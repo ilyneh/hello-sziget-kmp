@@ -1,6 +1,5 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -23,14 +22,10 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
 data class ScheduleFilterBarData (
-    val filterCount: Int = 2,
-    val setCount: Int = 12,
-    val filterItems: List<FilterItem> = emptyList()
-) {
-    data class FilterItem(
-        val name: String
-    )
-}
+    val filterCount: Int = 0,
+    val setCount: Int = 0,
+    val filterTexts: List<String> = emptyList()
+)
 
 @Composable
 fun ScheduleFilterBar(
@@ -60,18 +55,18 @@ fun ScheduleFilterBar(
             )
         }
 
-        if (data.filterItems.isNotEmpty()) {
-            data.filterItems.forEach { filterItem ->
+        if (data.filterTexts.isNotEmpty()) {
+            data.filterTexts.forEach {
                 Box(
                     modifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(100)
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(size = 6.dp)
                         )
-
                 ) {
                     Text(
-                        text = filterItem.name,
+                        text = it,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -79,7 +74,6 @@ fun ScheduleFilterBar(
                 }
             }
         }
-
     }
 }
 
@@ -89,10 +83,12 @@ private fun ScheduleFilterBarPreview() {
     AppTheme {
         ScheduleFilterBar(
             data = ScheduleFilterBarData(
-                filterItems = listOf(
-                    ScheduleFilterBarData.FilterItem("Electronic"),
-                    ScheduleFilterBarData.FilterItem("Techno"),
-                    ScheduleFilterBarData.FilterItem("Hip-Hop"),
+                filterCount = 100,
+                setCount = 1000,
+                filterTexts = listOf(
+                    "Electronic",
+                    "Techno",
+                    "Hip-Hop",
                 )
             ),
             onFilterButtonClicked = {},

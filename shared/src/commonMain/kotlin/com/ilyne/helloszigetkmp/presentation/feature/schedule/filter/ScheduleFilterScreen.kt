@@ -81,7 +81,7 @@ private fun ScheduleFilterContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Favorites Only",
+                text = "Favorites",
                 modifier = Modifier.weight(1f)
             )
             Switch(
