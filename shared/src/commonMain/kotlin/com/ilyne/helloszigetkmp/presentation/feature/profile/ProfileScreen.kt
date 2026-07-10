@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,14 +40,20 @@ import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagemen
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.ic_logout
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Unit = {}) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToAddFriend: () -> Unit = {},
+    onLoggedOut: () -> Unit = {},
+) {
     val logoutService = koinInject<LogoutService>()
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -56,7 +63,10 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         viewModel.effects.collect { effect ->
             when (effect) {
                 ProfileEffect.NavigateToAddFriend -> onNavigateToAddFriend()
-                ProfileEffect.Logout -> logoutService.logout()
+                ProfileEffect.Logout -> {
+                    logoutService.logout()
+                    onLoggedOut()
+                }
             }
         }
     }
@@ -73,7 +83,18 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
         ) {
             MainHeader(
                 text = "Profile",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                trailingContent = {
+                    IconButton(
+                        onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) }
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_logout),
+                            contentDescription = "Log out",
+                            tint = SzigetPalette.SunshineYellow,
+                        )
+                    }
+                }
             )
 
             Column(
@@ -170,6 +191,32 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigateToAddFriend: () -> Un
             dismissButton = {
                 TextButton(
                     onClick = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) }
+                ) {
+                    Text(text = "Cancel")
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    }
+
+    if (uiState.showLogoutAlert) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) },
+            title = { Text(text = "Log out?") },
+            text = { Text(text = "Are you sure you want to log out?") },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(ProfileIntent.ConfirmLogout) }
+                ) {
+                    Text(
+                        text = "Log out",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) }
                 ) {
                     Text(text = "Cancel")
                 }

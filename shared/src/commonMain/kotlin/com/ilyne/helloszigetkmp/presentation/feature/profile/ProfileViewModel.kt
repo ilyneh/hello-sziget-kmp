@@ -25,6 +25,7 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val removeFriendAlert: User? = null,
+    val showLogoutAlert: Boolean = false,
 )
 
 sealed class ProfileEffect {
@@ -34,7 +35,9 @@ sealed class ProfileEffect {
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
-    object Logout: ProfileIntent()
+    object LogoutClicked : ProfileIntent()
+    object ConfirmLogout : ProfileIntent()
+    object DismissLogoutAlert : ProfileIntent()
 
     data class AcceptFriendRequest(
         val friendId: String
@@ -130,8 +133,17 @@ class ProfileViewModel(
                 val friend = _uiState.value.friends.find { it.id == intent.friendId }
                 _uiState.update { it.copy(removeFriendAlert = friend) }
             }
-            is ProfileIntent.Logout -> viewModelScope.launch {
-                _effects.emit(ProfileEffect.Logout)
+            ProfileIntent.LogoutClicked -> {
+                _uiState.update { it.copy(showLogoutAlert = true) }
+            }
+            ProfileIntent.DismissLogoutAlert -> {
+                _uiState.update { it.copy(showLogoutAlert = false) }
+            }
+            ProfileIntent.ConfirmLogout -> {
+                _uiState.update { it.copy(showLogoutAlert = false) }
+                viewModelScope.launch {
+                    _effects.emit(ProfileEffect.Logout)
+                }
             }
             ProfileIntent.DismissRemoveFriendAlert -> {
                 _uiState.update { it.copy(removeFriendAlert = null) }
