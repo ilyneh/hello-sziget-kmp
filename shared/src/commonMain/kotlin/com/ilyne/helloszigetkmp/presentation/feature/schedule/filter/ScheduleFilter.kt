@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 data class ScheduleFilter(
     val showFavorites: Boolean = false,
     val showFriendsGoing: Boolean = false,
-    val hideEmptyStages: Boolean = true
+    val hideEmptyStages: Boolean = true,
+    val showExtraDays: Boolean = false,
 ) {
 
     fun activeCount(): Int {
@@ -15,6 +16,7 @@ data class ScheduleFilter(
         if (showFavorites) count++
         if (showFriendsGoing) count++
         if (hideEmptyStages) count++
+        if (showExtraDays) count++
 
         return count
     }

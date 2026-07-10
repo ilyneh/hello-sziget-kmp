@@ -235,8 +235,21 @@ class ScheduleViewModel(
     private fun observeSetTimeDays() {
         viewModelScope.launch {
             try {
-                getSetTimeDaysUseCase().collect { setTimeDays ->
-                    _uiState.update { it.copy(days = setTimeDays.days) }
+                combine(
+                    flow = getSetTimeDaysUseCase(),
+                    flow2 = filter,
+                ) { setTimeDays, filter ->
+                    if (filter.showExtraDays) {
+                        setTimeDays.days
+                    } else {
+                        setTimeDays.days.filterNot { it.isExtraDay }
+                    }
+                }.collect { filteredDays ->
+                    _uiState.update { it.copy(days = filteredDays) }
+                    if (selectedDay.value == null || selectedDay.value !in filteredDays) {
+                        selectedDay.update { filteredDays.firstOrNull() }
+                        _uiState.update { it.copy(selectedDay = selectedDay.value) }
+                    }
                 }
             } catch (e: Exception) {
                 e.message?.let { message ->
