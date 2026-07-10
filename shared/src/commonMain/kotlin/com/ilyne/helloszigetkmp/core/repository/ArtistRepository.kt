@@ -5,13 +5,17 @@ import com.ilyne.helloszigetkmp.core.api.dto.ArtistDto
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
 import com.ilyne.helloszigetkmp.domain.model.Artist
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class ArtistRepository(
     private val api: SzigetApiService,
     private val dao: ArtistDao,
+    settings: Settings,
 ) {
+    private val softRefreshGate = SoftRefreshGate(settings, key = "ArtistRepository")
+
     fun observeArtists(): Flow<List<Artist>> = dao.observeAll().map { entities -> entities.map { it.toDomain() } }
 
     fun observeArtist(id: String): Flow<Artist?> = dao.observeById(id).map { it?.toDomain() }
@@ -20,9 +24,11 @@ class ArtistRepository(
 
     fun searchArtists(query: String): Flow<List<Artist>> = dao.searchByName(query).map { entities -> entities.map { it.toDomain() } }
 
-    suspend fun refresh() {
-        val dtos = api.getArtists()
-        dao.upsertAll(dtos.map { it.toEntity() })
+    suspend fun refresh(force: Boolean = false) {
+        softRefreshGate.refreshIfStale(force) {
+            val dtos = api.getArtists()
+            dao.upsertAll(dtos.map { it.toEntity() })
+        }
     }
 
     suspend fun toggleFavorite(

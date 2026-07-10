@@ -64,12 +64,23 @@ class DiscoverViewModel(
     init {
         observeArtists()
         observeFilter()
+        refreshArtists(force = false)
+    }
+
+    /** Called from pull-to-refresh: always forces a fresh API fetch. */
+    fun refresh() {
+        refreshArtists(force = true)
+    }
+
+    private fun refreshArtists(force: Boolean) {
         viewModelScope.launch {
+            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
             try {
-                artistRepository.refresh()
+                artistRepository.refresh(force = force)
             } catch (e: Exception) {
                 _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
             }
+            _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
         }
     }
 
@@ -92,17 +103,7 @@ class DiscoverViewModel(
         }
     }
 
-    fun refresh() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
-            try {
-                artistRepository.refresh()
-            } catch (e: Exception) {
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
-            }
-            _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
-        }
-    }
+
 
     fun toggleFavorite(
         artistId: String,

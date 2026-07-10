@@ -21,9 +21,9 @@ import org.koin.dsl.module
 
 val presentationModule = module {
     // Repositories
-    single { ArtistRepository(api = get(), dao = get()) }
-    single { ScheduleRepository(api = get(), setTimeDao = get(), stageDao = get(), artistDao = get()) }
-    single { FriendRepository(api = get(), friendDao = get(), userDao = get()) }
+    single { ArtistRepository(api = get(), dao = get(), settings = get()) }
+    single { ScheduleRepository(api = get(), setTimeDao = get(), stageDao = get(), artistDao = get(), settings = get()) }
+    single { FriendRepository(api = get(), friendDao = get(), userDao = get(), settings = get()) }
 
     // UseCases
     single { GetSetTimeDaysUseCase(scheduleRepository = get()) }
