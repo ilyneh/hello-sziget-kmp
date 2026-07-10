@@ -71,10 +71,14 @@ class GetFilteredScheduleContentUseCase {
         filter: ScheduleFilter,
         favoritedByArtistId: Map<String, ArtistFriendsFavorited>
     ) = filter { setTime ->
-        val matchesFavorites = !filter.showFavorites || setTime.artist?.isFavorited == true
-        val matchesFriendsGoing = !filter.showFriendsGoing
-            || favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
-        return@filter matchesFavorites || matchesFriendsGoing
+        val hasFriendsFavorited = favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
+        return@filter when {
+            !filter.showFavorites && !filter.showFriendsGoing -> true
+            else -> {
+                (filter.showFavorites && setTime.artist?.isFavorited == true) ||
+                    (filter.showFriendsGoing && hasFriendsFavorited)
+            }
+        }
     }
 
     private data class GridHourRange(val minHour: Int, val maxHour: Int)
