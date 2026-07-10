@@ -18,6 +18,9 @@ interface ArtistDao {
     @Query("SELECT * FROM artists WHERE isFavorited = 1 ORDER BY name ASC")
     fun observeFavorites(): Flow<List<ArtistEntity>>
 
+    @Query("SELECT * FROM artists WHERE name LIKE '%' || :query || '%' COLLATE NOCASE ORDER BY name ASC")
+    fun searchByName(query: String): Flow<List<ArtistEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(artists: List<ArtistEntity>)
 
