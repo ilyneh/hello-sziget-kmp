@@ -1,6 +1,7 @@
 package com.ilyne.helloszigetkmp.presentation.feature.lineup
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,7 @@ import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MyLineupScreen(modifier: Modifier = Modifier) {
+fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {
     val viewModel = koinViewModel<MyLineupViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -73,6 +74,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(color = SzigetPalette.WarmOrange, shape = itemShape)
+                                        .clickable { onArtistClick(setTime.artistId) }
                                         .padding(horizontal = 16.dp, vertical = 8.dp)
                                         .padding(top = 4.dp)
                                 ) {

@@ -1,6 +1,7 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import kotlin.time.Duration.Companion.hours
 fun SetTimeListItem(
     setTime: ScheduleUiState.SetTime,
     onToggleFavorite: (artistId: String?, current: Boolean) -> Unit,
+    onArtistClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
 
@@ -47,6 +49,9 @@ fun SetTimeListItem(
     Row(
         modifier = modifier
             .background(color = SzigetPalette.LightBlue)
+            .clickable(enabled = setTime.artistId != null) {
+                setTime.artistId?.let(onArtistClick)
+            }
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -6,6 +6,7 @@ import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.artistdetail.ArtistDetailViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.discover.DiscoverViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
@@ -56,5 +57,6 @@ val presentationModule = module {
         getLikedArtistCountUseCase = get()
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get()) }
+    viewModel { ArtistDetailViewModel(artistRepository = get()) }
 
 }

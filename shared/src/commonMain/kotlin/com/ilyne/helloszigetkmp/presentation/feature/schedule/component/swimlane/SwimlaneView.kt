@@ -39,6 +39,7 @@ fun SwimLaneView(
     stages: List<Stage>,
     gridMinHour: Int,
     gridMaxHour: Int,
+    onArtistClick: (String) -> Unit = {},
 ) {
     val horizScroll = rememberScrollState()
     val vertScroll = rememberScrollState()
@@ -92,6 +93,7 @@ fun SwimLaneView(
                                     .width(widthDp.coerceAtLeast(60.dp))
                                     .fillMaxHeight()
                                     .padding(2.dp),
+                                onClick = { setTime.artistId?.let(onArtistClick) },
                             )
                         }
                     }

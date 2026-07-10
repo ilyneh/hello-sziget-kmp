@@ -64,6 +64,7 @@ import org.jetbrains.compose.resources.painterResource
 fun MainScaffold(
     openFilterScreen: (ScheduleFilter) -> Unit,
     onNavigateToAddFriend: () -> Unit,
+    onArtistClick: (String) -> Unit,
     appliedFilter: ScheduleFilter?,
     onAppliedFilterConsumed: () -> Unit,
     modifier: Modifier = Modifier
@@ -209,11 +210,12 @@ fun MainScaffold(
                 ScheduleScreen(
                     openFilterScreen = openFilterScreen,
                     appliedFilter = appliedFilter,
-                    onAppliedFilterConsumed = onAppliedFilterConsumed
+                    onAppliedFilterConsumed = onAppliedFilterConsumed,
+                    onArtistClick = onArtistClick,
                 )
             }
-            composable<DiscoverTab> { DiscoverScreen() }
-            composable<LineupTab> { MyLineupScreen() }
+            composable<DiscoverTab> { DiscoverScreen(onArtistClick = onArtistClick) }
+            composable<LineupTab> { MyLineupScreen(onArtistClick = onArtistClick) }
             composable<ProfileTab> { ProfileScreen(onNavigateToAddFriend = onNavigateToAddFriend) }
         }
     }
