@@ -19,7 +19,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +42,9 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBar
+import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBarData
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -45,6 +52,15 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DiscoverScreen(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<DiscoverViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showFilterDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is DiscoverEffect.LaunchFilterDialog -> showFilterDialog = true
+            }
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         MainHeader(text = "Discover")
@@ -57,6 +73,12 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .padding(vertical = 8.dp)
+        )
+
+        DiscoverFilterBar(
+            data = DiscoverFilterBarData(),
+            onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         when {
@@ -82,6 +104,12 @@ fun DiscoverScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+
+    if (showFilterDialog) {
+        DiscoverFilterScreen(
+            onDismiss = { showFilterDialog = false }
+        )
     }
 }
 
