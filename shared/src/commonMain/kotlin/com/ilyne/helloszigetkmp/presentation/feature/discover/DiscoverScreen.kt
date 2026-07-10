@@ -76,7 +76,10 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         )
 
         DiscoverFilterBar(
-            data = DiscoverFilterBarData(),
+            data = DiscoverFilterBarData(
+                filterCount = uiState.filterCount,
+                filterTexts = uiState.filterTexts,
+            ),
             onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
             modifier = Modifier.padding(horizontal = 16.dp)
         )
@@ -109,6 +112,11 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
 
     if (showFilterDialog) {
         DiscoverFilterScreen(
+            initialFilter = uiState.filter,
+            onSave = { filter ->
+                viewModel.onIntent(DiscoverIntent.ApplyFilter(filter))
+                showFilterDialog = false
+            },
             onDismiss = { showFilterDialog = false }
         )
     }
