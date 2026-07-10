@@ -41,7 +41,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
-import hello_sziget_kmp.shared.generated.resources.ic_heart
+import hello_sziget_kmp.shared.generated.resources.ic_heart_outline
 import hello_sziget_kmp.shared.generated.resources.ic_person
 import hello_sziget_kmp.shared.generated.resources.ic_schedule
 import kotlinx.serialization.Serializable
@@ -89,7 +89,7 @@ fun MainScaffold(
         },
         tabs[2] to {
             Icon(
-                painter = painterResource(Res.drawable.ic_heart),
+                painter = painterResource(Res.drawable.ic_heart_outline),
                 contentDescription = "My_Lineup_Tab",
             )
         },

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Artist
+import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStack
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
@@ -114,7 +115,10 @@ fun SetTimeListItem(
                 )
             },
         ) {
-            Text(if (setTime.artist?.isFavorited ?: false) "♥" else "♡", fontSize = 20.sp)
+            HeartIcon(
+                enabled = setTime.artist?.isFavorited ?: false,
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }
