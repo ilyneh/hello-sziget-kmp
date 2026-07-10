@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_cancel
@@ -67,7 +68,7 @@ fun ProfileFriendRequestItem(
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold
         )
-        FilledIconButton(
+        ActionIconButton(
             onClick = onAccept,
             shape = IconButtonDefaults.mediumSquareShape
         ) {
