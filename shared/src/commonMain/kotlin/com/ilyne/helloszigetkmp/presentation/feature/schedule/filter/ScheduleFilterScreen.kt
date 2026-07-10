@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
-import com.ilyne.helloszigetkmp.presentation.component.actionbutton.AppButton
 import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
@@ -132,7 +131,7 @@ private fun ScheduleFilterContent(
             )
         }
 
-        AppButton(
+        ActionButton(
             onClick = { saveFilter() },
             modifier = Modifier.fillMaxWidth()
         ) {
