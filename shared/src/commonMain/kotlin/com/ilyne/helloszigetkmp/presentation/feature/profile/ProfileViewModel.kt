@@ -31,11 +31,13 @@ data class ProfileUiState(
 
 sealed class ProfileEffect {
     data object NavigateToAddFriend : ProfileEffect()
+    data object NavigateToPhotoPicker : ProfileEffect()
     object Logout : ProfileEffect()
 }
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
+    object AvatarClicked : ProfileIntent()
     object LogoutClicked : ProfileIntent()
     object ConfirmLogout : ProfileIntent()
     object DismissLogoutAlert : ProfileIntent()
@@ -119,10 +121,18 @@ class ProfileViewModel(
         }
     }
 
+    fun onPhotoPicked(newPictureUrl: String?) {
+        if (newPictureUrl == null) return
+        _uiState.update { it.copy(picture = newPictureUrl) }
+    }
+
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
             ProfileIntent.AddFriend -> viewModelScope.launch {
                 _effects.emit(ProfileEffect.NavigateToAddFriend)
+            }
+            ProfileIntent.AvatarClicked -> viewModelScope.launch {
+                _effects.emit(ProfileEffect.NavigateToPhotoPicker)
             }
             is ProfileIntent.AcceptFriendRequest -> viewModelScope.launch {
                 friendRepository.acceptFriendRequest(currentUser.id, intent.friendId)

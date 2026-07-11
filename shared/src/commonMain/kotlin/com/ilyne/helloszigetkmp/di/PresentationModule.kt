@@ -12,6 +12,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFil
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.profile.photopicker.PhotoPickerViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
@@ -62,5 +63,6 @@ val presentationModule = module {
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get()) }
     viewModel { ArtistDetailViewModel(artistRepository = get()) }
+    viewModel { PhotoPickerViewModel(devicePhotoLibrary = get(), userRepository = get(), api = get()) }
 
 }

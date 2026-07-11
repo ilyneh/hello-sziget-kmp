@@ -28,6 +28,12 @@ class UserRepository(
         dao.upsertAll(listOf(user.toEntity()))
         dao.setCurrentUser(user.id)
     }
+
+    suspend fun uploadProfilePicture(api: SzigetApiService, bytes: ByteArray, contentType: String): User {
+        val dto = api.uploadProfileImage(bytes = bytes, contentType = contentType)
+        syncCurrentUser(dto)
+        return dto.toEntity().toDomain()
+    }
 }
 
 fun UserDto.toEntity() =

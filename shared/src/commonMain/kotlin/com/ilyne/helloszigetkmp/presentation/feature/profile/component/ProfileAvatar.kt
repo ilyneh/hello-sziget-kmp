@@ -1,6 +1,7 @@
 package com.ilyne.helloszigetkmp.presentation.feature.profile.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ fun ProfileAvatar(
     avatarText: String,
     imageUrl: String? = null,
     elevated: Boolean = false,
+    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val modifier = if (elevated) modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(percent = 32)) else modifier
@@ -35,6 +37,7 @@ fun ProfileAvatar(
             .padding(2.dp)
             .clip(RoundedCornerShape(percent = 32))
             .background(MaterialTheme.colorScheme.primary)
+            .let { if (onClick != null) it.clickable(onClick = onClick) else it }
     ) {
         if (imageUrl != null) {
             AsyncImage(

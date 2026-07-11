@@ -51,6 +51,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     onNavigateToAddFriend: () -> Unit = {},
+    onNavigateToPhotoPicker: () -> Unit = {},
+    pickedPhotoUrl: String? = null,
+    onPickedPhotoConsumed: () -> Unit = {},
     onLoggedOut: () -> Unit = {},
 ) {
     val logoutService = koinInject<LogoutService>()
@@ -62,11 +65,19 @@ fun ProfileScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 ProfileEffect.NavigateToAddFriend -> onNavigateToAddFriend()
+                ProfileEffect.NavigateToPhotoPicker -> onNavigateToPhotoPicker()
                 ProfileEffect.Logout -> {
                     logoutService.logout()
                     onLoggedOut()
                 }
             }
+        }
+    }
+
+    LaunchedEffect(pickedPhotoUrl) {
+        if (pickedPhotoUrl != null) {
+            viewModel.onPhotoPicked(pickedPhotoUrl)
+            onPickedPhotoConsumed()
         }
     }
 
@@ -107,6 +118,7 @@ fun ProfileScreen(
                         .mapNotNull { it.firstOrNull()?.uppercase() }
                         .joinToString(separator = ""),
                     imageUrl = uiState.picture,
+                    onAvatarClick = { viewModel.onIntent(ProfileIntent.AvatarClicked) },
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 ProfileEngagementCountCard(
@@ -232,6 +244,7 @@ fun ProfileAvatarAndName(
     name: String,
     avatarText: String,
     imageUrl: String? = null,
+    onAvatarClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -243,6 +256,7 @@ fun ProfileAvatarAndName(
             elevated = true,
             avatarText = avatarText,
             imageUrl = imageUrl,
+            onClick = onAvatarClick,
             modifier = Modifier.size(100.dp)
         )
         Text(
