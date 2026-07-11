@@ -18,7 +18,6 @@ import androidx.savedstate.write
 import com.ilyne.helloszigetkmp.presentation.feature.MainScaffold
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendScreen
 import com.ilyne.helloszigetkmp.presentation.feature.artistdetail.ArtistDetailScreen
-import com.ilyne.helloszigetkmp.presentation.feature.profile.photopicker.PhotoPickerScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterScreen
 import com.ilyne.helloszigetkmp.presentation.login.LoginScreen
@@ -34,14 +33,11 @@ import kotlinx.serialization.json.Json
 
 @Serializable object AddFriend
 
-@Serializable object PhotoPicker
-
 @Serializable data class ScheduleFilterRoute(val filter: ScheduleFilter)
 
 @Serializable data class ArtistDetailRoute(val artistId: String)
 
 private const val SCHEDULE_FILTER_RESULT_KEY = "scheduleFilterResult"
-private const val PHOTO_PICKER_RESULT_KEY = "photoPickerResult"
 
 private val ScheduleFilterNavType = object : NavType<ScheduleFilter>(isNullableAllowed = false) {
     override fun get(bundle: SavedState, key: String): ScheduleFilter? =
@@ -78,22 +74,14 @@ fun AppNavGraph(
             val appliedFilterJson by backStackEntry.savedStateHandle
                 .getStateFlow<String?>(SCHEDULE_FILTER_RESULT_KEY, null)
                 .collectAsStateWithLifecycle()
-            val pickedPhotoUrl by backStackEntry.savedStateHandle
-                .getStateFlow<String?>(PHOTO_PICKER_RESULT_KEY, null)
-                .collectAsStateWithLifecycle()
 
             MainScaffold(
                 openFilterScreen = { filter -> navController.navigate(ScheduleFilterRoute(filter)) },
                 onNavigateToAddFriend = { navController.navigate(AddFriend) },
-                onNavigateToPhotoPicker = { navController.navigate(PhotoPicker) },
                 onArtistClick = { artistId -> navController.navigate(ArtistDetailRoute(artistId)) },
                 appliedFilter = appliedFilterJson?.let { Json.decodeFromString(it) },
                 onAppliedFilterConsumed = {
                     backStackEntry.savedStateHandle[SCHEDULE_FILTER_RESULT_KEY] = null
-                },
-                pickedPhotoUrl = pickedPhotoUrl,
-                onPickedPhotoConsumed = {
-                    backStackEntry.savedStateHandle[PHOTO_PICKER_RESULT_KEY] = null
                 },
                 onLoggedOut = {
                     navController.navigate(Login) {
@@ -134,20 +122,6 @@ fun AppNavGraph(
             dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             AddFriendScreen(onDismiss = { navController.popBackStack() })
-        }
-
-        dialog<PhotoPicker>(
-            dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            PhotoPickerScreen(
-                onDismiss = { navController.popBackStack() },
-                onPhotoUploaded = { newPictureUrl ->
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set(PHOTO_PICKER_RESULT_KEY, newPictureUrl)
-                    navController.popBackStack()
-                },
-            )
         }
     }
 }

@@ -9,7 +9,6 @@ import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
-import com.ilyne.helloszigetkmp.core.media.DevicePhotoLibrary
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.core.network.baseHttpClient
@@ -32,7 +31,6 @@ val appModule = module {
     single { AppConfig() }
     single { Settings() }
     single { GoogleAuthProvider() }
-    single { DevicePhotoLibrary() }
     single { TokenStorage(settings = get()) }
     single { ScheduleFilterStorage(settings = get()) }
     single { baseHttpClient }

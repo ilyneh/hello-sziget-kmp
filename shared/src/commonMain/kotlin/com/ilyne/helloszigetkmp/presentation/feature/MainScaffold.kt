@@ -64,12 +64,9 @@ import org.jetbrains.compose.resources.painterResource
 fun MainScaffold(
     openFilterScreen: (ScheduleFilter) -> Unit,
     onNavigateToAddFriend: () -> Unit,
-    onNavigateToPhotoPicker: () -> Unit,
     onArtistClick: (String) -> Unit,
     appliedFilter: ScheduleFilter?,
     onAppliedFilterConsumed: () -> Unit,
-    pickedPhotoUrl: String?,
-    onPickedPhotoConsumed: () -> Unit,
     onLoggedOut: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -223,9 +220,6 @@ fun MainScaffold(
             composable<ProfileTab> {
                 ProfileScreen(
                     onNavigateToAddFriend = onNavigateToAddFriend,
-                    onNavigateToPhotoPicker = onNavigateToPhotoPicker,
-                    pickedPhotoUrl = pickedPhotoUrl,
-                    onPickedPhotoConsumed = onPickedPhotoConsumed,
                     onLoggedOut = onLoggedOut,
                 )
             }

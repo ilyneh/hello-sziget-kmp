@@ -15,7 +15,5 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>127130301586-usgs03vut1sqra21q8meq3h8jaciciv3.apps.googleusercontent.com</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Choose photos from your library to use as your profile photo.</string>
 </dict>
 </plist>

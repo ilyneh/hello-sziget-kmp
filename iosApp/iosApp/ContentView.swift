@@ -10,7 +10,7 @@ struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Self.Context) -> UIViewController {
         let controller = MainViewControllerKt.MainViewController()
         GoogleSignInBridge.configure(presenting: controller)
-        PhotoLibraryBridge.configure(presenting: controller)
+        ProfileImagePickerBridge.configure(presenting: controller)
         return controller
     }
 
@@ -64,96 +64,84 @@ private enum GoogleSignInBridge {
     }
 }
 
-/// Bridges PhotosUI (PHPhotoLibrary/PHImageManager) to the `photoLibrary*Handler` hooks
-/// that `DevicePhotoLibrary.ios.kt` (shared/iosMain) reads from, following the same
-/// pattern as GoogleSignInBridge above.
-private enum PhotoLibraryBridge {
+/// Presents a single-selection PHPickerViewController and reports the picked image's raw
+/// bytes + MIME type back through `profileImagePickerHandler`, which
+/// `ProfileImagePicker.ios.kt` (shared/iosMain) reads from. PHPickerViewController runs
+/// out-of-process, so no photo-library permission/usage-description is needed.
+private enum ProfileImagePickerBridge {
+    private static var coordinator: ProfileImagePickerCoordinator?
+
     static func configure(presenting: UIViewController) {
-        DevicePhotoLibrary_iosKt.photoLibraryAccessStatusHandler = {
-            accessStatus(from: PHPhotoLibrary.authorizationStatus(for: .readWrite))
-        }
+        ProfileImagePicker_iosKt.profileImagePickerHandler = { onResult in
+            var configuration = PHPickerConfiguration(photoLibrary: .shared())
+            configuration.filter = .images
+            configuration.selectionLimit = 1
 
-        DevicePhotoLibrary_iosKt.photoLibraryRequestAccessHandler = { onResult in
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
-                onResult(accessStatus(from: status))
+            let picker = PHPickerViewController(configuration: configuration)
+            let coordinator = ProfileImagePickerCoordinator { data, mimeType in
+                onResult(data?.toKotlinByteArray(), mimeType)
+                ProfileImagePickerBridge.coordinator = nil
             }
+            ProfileImagePickerBridge.coordinator = coordinator
+            picker.delegate = coordinator
+            presenting.present(picker, animated: true)
+        }
+    }
+}
+
+private final class ProfileImagePickerCoordinator: NSObject, PHPickerViewControllerDelegate {
+    private let onResult: (Data?, String?) -> Void
+
+    init(onResult: @escaping (Data?, String?) -> Void) {
+        self.onResult = onResult
+    }
+
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+
+        guard let provider = results.first?.itemProvider else {
+            onResult(nil, nil)
+            return
         }
 
-        DevicePhotoLibrary_iosKt.photoLibraryLoadPhotosHandler = { onResult in
-            let options = PHFetchOptions()
-            options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            let assets = PHAsset.fetchAssets(with: .image, options: options)
+        let typeIdentifier = provider.registeredTypeIdentifiers.first ?? UTType.jpeg.identifier
+        let mimeType = UTType(typeIdentifier)?.preferredMIMEType ?? "image/jpeg"
 
-            let imageManager = PHImageManager.default()
-            let requestOptions = PHImageRequestOptions()
-            requestOptions.isSynchronous = false
-            requestOptions.deliveryMode = .opportunistic
-
-            var photos: [DevicePhoto] = []
-            let group = DispatchGroup()
-
-            assets.enumerateObjects { asset, _, _ in
-                group.enter()
-                imageManager.requestImage(
-                    for: asset,
-                    targetSize: CGSize(width: 300, height: 300),
-                    contentMode: .aspectFill,
-                    options: requestOptions
-                ) { image, _ in
-                    if let data = image?.jpegData(compressionQuality: 0.8) {
-                        photos.append(DevicePhoto(id: asset.localIdentifier, thumbnail: data.toKotlinByteArray()))
-                    }
-                    group.leave()
+        provider.loadDataRepresentation(forTypeIdentifier: typeIdentifier) { data, _ in
+            DispatchQueue.main.async {
+                guard let data else {
+                    self.onResult(nil, nil)
+                    return
+                }
+                if data.count > maxProfileImageBytes, let downscaled = downscaledJPEG(from: data, maxBytes: maxProfileImageBytes) {
+                    self.onResult(downscaled, "image/jpeg")
+                } else {
+                    self.onResult(data, mimeType)
                 }
             }
-
-            group.notify(queue: .main) {
-                onResult(photos)
-            }
-        }
-
-        DevicePhotoLibrary_iosKt.photoLibraryLoadFullImageHandler = { id, onResult in
-            let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
-            guard let asset = fetchResult.firstObject else {
-                onResult(nil, nil)
-                return
-            }
-
-            let contentType = PHAssetResource.assetResources(for: asset).first
-                .flatMap { UTType($0.uniformTypeIdentifier) }
-                .flatMap { $0.preferredMIMEType } ?? "image/jpeg"
-
-            let requestOptions = PHImageRequestOptions()
-            requestOptions.isSynchronous = false
-            requestOptions.deliveryMode = .highQualityFormat
-            requestOptions.version = .current
-
-            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: requestOptions) { data, _, _, _ in
-                onResult(data?.toKotlinByteArray(), contentType)
-            }
-        }
-
-        DevicePhotoLibrary_iosKt.photoLibraryManageAccessHandler = { onComplete in
-            PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: presenting) { _ in
-                onComplete()
-            }
-        }
-
-        DevicePhotoLibrary_iosKt.photoLibraryOpenSettingsHandler = {
-            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-            UIApplication.shared.open(url)
         }
     }
+}
 
-    private static func accessStatus(from status: PHAuthorizationStatus) -> PhotoAccessStatus {
-        switch status {
-        case .authorized: return .full
-        case .limited: return .limited
-        case .denied, .restricted: return .denied
-        case .notDetermined: return .notdetermined
-        @unknown default: return .notdetermined
-        }
+// Keep in sync with MAX_PROFILE_IMAGE_BYTES in ProfileImagePicker.kt (shared/commonMain).
+private let maxProfileImageBytes = 10 * 1024 * 1024
+
+private func downscaledJPEG(from data: Data, maxBytes: Int) -> Data? {
+    guard let originalImage = UIImage(data: data) else { return nil }
+
+    let scale = (Double(maxBytes) / Double(data.count)).squareRoot()
+    let targetSize = CGSize(width: originalImage.size.width * scale, height: originalImage.size.height * scale)
+    let scaledImage = UIGraphicsImageRenderer(size: targetSize).image { _ in
+        originalImage.draw(in: CGRect(origin: .zero, size: targetSize))
     }
+
+    var quality: CGFloat = 0.9
+    var result = scaledImage.jpegData(compressionQuality: quality)
+    while let current = result, current.count > maxBytes, quality > 0.1 {
+        quality -= 0.1
+        result = scaledImage.jpegData(compressionQuality: quality)
+    }
+    return result
 }
 
 private extension Data {
