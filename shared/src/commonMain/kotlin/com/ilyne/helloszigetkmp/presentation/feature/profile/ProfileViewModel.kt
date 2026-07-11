@@ -21,17 +21,17 @@ import kotlinx.coroutines.launch
 
 data class ProfileUiState(
     val name: String? = null,
-    val picture: String? = null,
+    val imageUrl: String? = null,
     // A "file://" URL for the on-disk cached copy of a just-picked photo (see DeviceImage.localUri),
     // shown immediately in place of `picture` while the upload is in flight. Cleared on upload
     // failure so the avatar reverts to `picture`; left in place (and `picture` updated) on
     // success, so there's no flicker.
-    val pendingPhotoUrl: String? = null,
+    val pendingImageUrl: String? = null,
     val friends: List<User> = emptyList(),
     val friendRequests: List<User> = emptyList(),
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
-    val isUploadingPhoto: Boolean = false,
+    val isUploadingImage: Boolean = false,
     val error: String? = null,
     val removeFriendAlert: User? = null,
     val showLogoutAlert: Boolean = false,
@@ -93,7 +93,7 @@ class ProfileViewModel(
                 }
 
                 _uiState.update {
-                    it.copy(name = currentUser.name, picture = currentUser.picture)
+                    it.copy(name = currentUser.name, imageUrl = currentUser.imageUrl)
                 }
 
                 if (usersSyncService.awaitSuccessfulSync()) {
@@ -131,17 +131,17 @@ class ProfileViewModel(
 
     private fun uploadPhoto(image: DeviceImage) {
         viewModelScope.launch {
-            _uiState.update { it.copy(pendingPhotoUrl = image.localUri, isUploadingPhoto = true, error = null) }
+            _uiState.update { it.copy(pendingImageUrl = image.localUri, isUploadingImage = true, error = null) }
             try {
                 val user = userRepository.uploadProfilePicture(
                     api = api,
                     bytes = image.bytes,
                     contentType = image.contentType,
                 )
-                _uiState.update { it.copy(isUploadingPhoto = false, picture = user.picture) }
+                _uiState.update { it.copy(isUploadingImage = false, imageUrl = user.imageUrl) }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(isUploadingPhoto = false, pendingPhotoUrl = null, error = "Failed to upload photo")
+                    it.copy(isUploadingImage = false, pendingImageUrl = null, error = "Failed to upload photo")
                 }
             }
         }

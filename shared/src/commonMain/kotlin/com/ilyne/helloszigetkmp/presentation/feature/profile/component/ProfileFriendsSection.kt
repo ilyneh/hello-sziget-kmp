@@ -32,7 +32,7 @@ fun ProfileFriendsSection(
                     avatarText = friend.name
                         .split(" ")
                         .joinToString(separator = "") { it.first().uppercase() },
-                    imageUrl = friend.picture,
+                    imageUrl = friend.imageUrl,
                 ),
                 onClick = { onClick(friend.id) },
             )

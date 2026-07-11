@@ -113,8 +113,8 @@ fun ProfileScreen(
                         .split(" ")
                         .mapNotNull { it.firstOrNull()?.uppercase() }
                         .joinToString(separator = ""),
-                    imageUrl = uiState.pendingPhotoUrl ?: uiState.picture,
-                    isUploading = uiState.isUploadingPhoto,
+                    imageUrl = uiState.pendingImageUrl ?: uiState.imageUrl,
+                    isUploading = uiState.isUploadingImage,
                     onAvatarClick = launchImagePicker,
                 )
                 Spacer(modifier = Modifier.height(24.dp))

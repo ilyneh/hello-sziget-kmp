@@ -90,7 +90,7 @@ private fun FriendsAvatar(
         friends = friends.map { friend ->
             FriendAvatarStackData(
                 name = friend.name,
-                imageUrl = friend.picture,
+                imageUrl = friend.imageUrl,
             )
         },
         maxNumAvatars = 3,

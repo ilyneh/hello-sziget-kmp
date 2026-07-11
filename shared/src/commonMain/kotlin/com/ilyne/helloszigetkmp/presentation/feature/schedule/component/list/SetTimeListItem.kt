@@ -107,7 +107,7 @@ fun SetTimeListItem(
                 friends = friendsFavorited.map { friend ->
                     FriendAvatarStackData(
                         name = friend.name,
-                        imageUrl = friend.picture,
+                        imageUrl = friend.imageUrl,
                     )
                 },
             )
