@@ -13,6 +13,7 @@ import com.ilyne.helloszigetkmp.core.db.model.ArtistFriendsFavoritedSummary
 import com.ilyne.helloszigetkmp.domain.model.ArtistFriendsFavorited
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,9 @@ class FriendRepository(
     private val api: SzigetApiService,
     private val friendDao: FriendDao,
     private val userDao: UserDao,
+    settings: Settings,
 ) {
+    private val softRefreshGate = SoftRefreshGate(settings, key = "FriendRepository")
 
     suspend fun sendFriendRequest(currentUserId: String, friendId: String) {
         val userFriendEntity = UserFriendEntity(
@@ -99,38 +102,40 @@ class FriendRepository(
     fun observeArtistsFriendsFavorited(): Flow<List<ArtistFriendsFavorited>> =
         friendDao.observeArtistsWithFriendsFavoritedSummary().map { entities -> entities.map { it.toDomain() } }
 
-    suspend fun refresh() {
+    suspend fun refresh(force: Boolean = false) {
         val currentUserId = userDao.getCurrentUser()?.id ?: run {
             Logger.e("findme", "Current user not found in dao")
             return
         }
 
-        coroutineScope {
-            val friendsDeferred = async { api.getFriends() }
-            val friendRequestsDeferred = async { api.getFriendRequests() }
-            val sentFriendRequestsDeferred = async { api.getSentFriendRequests() }
-            val artistsFriendsFavoritedDeferred = async { api.getArtistsFriendsFavorited() }
+        softRefreshGate.refreshIfStale(force) {
+            coroutineScope {
+                val friendsDeferred = async { api.getFriends() }
+                val friendRequestsDeferred = async { api.getFriendRequests() }
+                val sentFriendRequestsDeferred = async { api.getSentFriendRequests() }
+                val artistsFriendsFavoritedDeferred = async { api.getArtistsFriendsFavorited() }
 
-            val friends = friendsDeferred.await()
-            val friendRequests = friendRequestsDeferred.await()
-            val sentFriendRequests = sentFriendRequestsDeferred.await()
-            val artistsFriendsFavorited = artistsFriendsFavoritedDeferred.await()
+                val friends = friendsDeferred.await()
+                val friendRequests = friendRequestsDeferred.await()
+                val sentFriendRequests = sentFriendRequestsDeferred.await()
+                val artistsFriendsFavorited = artistsFriendsFavoritedDeferred.await()
 
-            // Friends/requesters aren't necessarily in the local users table yet
-            // (e.g. UserRepository's own sync never ran) — upsert them first so the
-            // foreign keys on UserFriendEntity.userId/friendId are satisfied.
-            userDao.upsertAll((friends + friendRequests + sentFriendRequests).map { it.toEntity() })
+                // Friends/requesters aren't necessarily in the local users table yet
+                // (e.g. UserRepository's own sync never ran) — upsert them first so the
+                // foreign keys on UserFriendEntity.userId/friendId are satisfied.
+                userDao.upsertAll((friends + friendRequests + sentFriendRequests).map { it.toEntity() })
 
-            friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
-            friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
-            friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
-            friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
+                friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
+                friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
+                friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
+                friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
 
-            // clean out previous friend relationships that no longer exist
-            val existingFriendships = (friends + friendRequests + sentFriendRequests)
-                .map { it.id }
-                .distinct()
-            friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
+                // clean out previous friend relationships that no longer exist
+                val existingFriendships = (friends + friendRequests + sentFriendRequests)
+                    .map { it.id }
+                    .distinct()
+                friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
+            }
         }
     }
 
