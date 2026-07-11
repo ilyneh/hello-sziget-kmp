@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.unit.dp
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 
 @Composable
@@ -32,7 +33,7 @@ fun FriendListItem(
                 spotColor = DefaultShadowColor.copy(alpha = 0.4f)
             )
             .clip(shape = RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(color = SzigetPalette.Coral)
             .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(24.dp))
             .clickable(enabled = true, onClick = onClick)
             .padding(12.dp),
