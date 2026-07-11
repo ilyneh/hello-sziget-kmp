@@ -1,7 +1,9 @@
 package com.ilyne.helloszigetkmp.core.media
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,10 +13,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import java.io.ByteArrayOutputStream
+import java.io.File
 import kotlin.math.sqrt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private data class RawImage(val bytes: ByteArray, val contentType: String)
 
 @Composable
 actual fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> Unit {
@@ -33,8 +38,9 @@ actual fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> U
             val image = withContext(Dispatchers.IO) {
                 val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 bytes?.let {
-                    DeviceImage(bytes = it, contentType = context.contentResolver.getType(uri) ?: "image/jpeg")
+                    RawImage(bytes = it, contentType = context.contentResolver.getType(uri) ?: "image/jpeg")
                         .downscaledIfNeeded()
+                        .cacheToDisk(context)
                 }
             }
             currentOnPicked(image)
@@ -46,7 +52,7 @@ actual fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> U
     }
 }
 
-private fun DeviceImage.downscaledIfNeeded(): DeviceImage {
+private fun RawImage.downscaledIfNeeded(): RawImage {
     if (bytes.size <= MAX_PROFILE_IMAGE_BYTES) return this
 
     val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return this
@@ -65,7 +71,7 @@ private fun DeviceImage.downscaledIfNeeded(): DeviceImage {
         output = scaled.toJpegBytes(quality)
     }
 
-    return DeviceImage(bytes = output, contentType = "image/jpeg")
+    return RawImage(bytes = output, contentType = "image/jpeg")
 }
 
 private fun Bitmap.toJpegBytes(quality: Int): ByteArray =
@@ -73,3 +79,12 @@ private fun Bitmap.toJpegBytes(quality: Int): ByteArray =
         compress(Bitmap.CompressFormat.JPEG, quality, stream)
         stream.toByteArray()
     }
+
+private fun RawImage.cacheToDisk(context: Context): DeviceImage {
+    val dir = File(context.cacheDir, "profile_photos").apply { mkdirs() }
+    dir.listFiles()?.forEach { it.delete() }
+    val extension = if (contentType.contains("png")) "png" else "jpg"
+    val file = File(dir, "pending_${System.currentTimeMillis()}.$extension")
+    file.writeBytes(bytes)
+    return DeviceImage(bytes = bytes, contentType = contentType, localUri = Uri.fromFile(file).toString())
+}

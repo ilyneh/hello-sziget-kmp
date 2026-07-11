@@ -113,7 +113,7 @@ fun ProfileScreen(
                         .split(" ")
                         .mapNotNull { it.firstOrNull()?.uppercase() }
                         .joinToString(separator = ""),
-                    imageUrl = uiState.picture,
+                    imageUrl = uiState.pendingPhotoUrl ?: uiState.picture,
                     isUploading = uiState.isUploadingPhoto,
                     onAvatarClick = launchImagePicker,
                 )

@@ -7,15 +7,20 @@ import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-// Set from ContentView.swift (PhotoPickerBridge), which presents a PHPickerViewController
-// and calls back with the picked image's raw bytes + MIME type (or null if cancelled).
-var profileImagePickerHandler: ((onResult: (ByteArray?, String?) -> Unit) -> Unit)? = null
+// Set from ContentView.swift (ProfileImagePickerBridge), which presents a PHPickerViewController,
+// writes the (possibly downscaled) picked image to a cache file, and calls back with the raw
+// bytes + MIME type + "file://" path to that cached copy (or null if cancelled).
+var profileImagePickerHandler: ((onResult: (ByteArray?, String?, String?) -> Unit) -> Unit)? = null
 
 private suspend fun pickProfileImage(): DeviceImage? {
     val handler = profileImagePickerHandler ?: return null
     return suspendCancellableCoroutine { continuation ->
-        handler { bytes, contentType ->
-            val image = bytes?.let { DeviceImage(bytes = it, contentType = contentType ?: "image/jpeg") }
+        handler { bytes, contentType, localUri ->
+            val image = if (bytes != null && localUri != null) {
+                DeviceImage(bytes = bytes, contentType = contentType ?: "image/jpeg", localUri = localUri)
+            } else {
+                null
+            }
             continuation.resume(image, onCancellation = null)
         }
     }

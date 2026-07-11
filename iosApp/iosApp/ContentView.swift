@@ -64,10 +64,11 @@ private enum GoogleSignInBridge {
     }
 }
 
-/// Presents a single-selection PHPickerViewController and reports the picked image's raw
-/// bytes + MIME type back through `profileImagePickerHandler`, which
-/// `ProfileImagePicker.ios.kt` (shared/iosMain) reads from. PHPickerViewController runs
-/// out-of-process, so no photo-library permission/usage-description is needed.
+/// Presents a single-selection PHPickerViewController, caches the (possibly downscaled) picked
+/// image to a file under Caches/, and reports the raw bytes + MIME type + cache file path back
+/// through `profileImagePickerHandler`, which `ProfileImagePicker.ios.kt` (shared/iosMain) reads
+/// from. PHPickerViewController runs out-of-process, so no photo-library permission/usage
+/// description is needed.
 private enum ProfileImagePickerBridge {
     private static var coordinator: ProfileImagePickerCoordinator?
 
@@ -79,7 +80,13 @@ private enum ProfileImagePickerBridge {
 
             let picker = PHPickerViewController(configuration: configuration)
             let coordinator = ProfileImagePickerCoordinator { data, mimeType in
-                onResult(data?.toKotlinByteArray(), mimeType)
+                guard let data, let mimeType else {
+                    onResult(nil, nil, nil)
+                    ProfileImagePickerBridge.coordinator = nil
+                    return
+                }
+                let localUri = cacheProfilePhoto(data: data, mimeType: mimeType)
+                onResult(data.toKotlinByteArray(), mimeType, localUri)
                 ProfileImagePickerBridge.coordinator = nil
             }
             ProfileImagePickerBridge.coordinator = coordinator
@@ -120,6 +127,28 @@ private final class ProfileImagePickerCoordinator: NSObject, PHPickerViewControl
                 }
             }
         }
+    }
+}
+
+/// Writes `data` to Caches/profile_photos/, clearing any previously-cached pending photo first,
+/// and returns a "file://" URL string pointing at it (or nil if the write failed).
+private func cacheProfilePhoto(data: Data, mimeType: String) -> String? {
+    guard let cachesUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+        return nil
+    }
+    let dir = cachesUrl.appendingPathComponent("profile_photos")
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    if let existing = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
+        existing.forEach { try? FileManager.default.removeItem(at: $0) }
+    }
+
+    let ext = mimeType.contains("png") ? "png" : "jpg"
+    let fileUrl = dir.appendingPathComponent("pending_\(Int(Date().timeIntervalSince1970 * 1000)).\(ext)")
+    do {
+        try data.write(to: fileUrl)
+        return fileUrl.absoluteString
+    } catch {
+        return nil
     }
 }
 

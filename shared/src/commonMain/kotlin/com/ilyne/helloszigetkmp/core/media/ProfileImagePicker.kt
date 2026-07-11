@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 data class DeviceImage(
     val bytes: ByteArray,
     val contentType: String,
+    // A "file://" URL pointing at a cached on-disk copy of `bytes`, so the picked photo can be
+    // displayed (e.g. via Coil's AsyncImage) without holding the raw bytes in UI state.
+    val localUri: String,
 )
 
 // Keep in sync with the downscaling threshold used in ContentView.swift's picker bridge.

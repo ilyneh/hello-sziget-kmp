@@ -22,6 +22,11 @@ import kotlinx.coroutines.launch
 data class ProfileUiState(
     val name: String? = null,
     val picture: String? = null,
+    // A "file://" URL for the on-disk cached copy of a just-picked photo (see DeviceImage.localUri),
+    // shown immediately in place of `picture` while the upload is in flight. Cleared on upload
+    // failure so the avatar reverts to `picture`; left in place (and `picture` updated) on
+    // success, so there's no flicker.
+    val pendingPhotoUrl: String? = null,
     val friends: List<User> = emptyList(),
     val friendRequests: List<User> = emptyList(),
     val likedArtistCount: Int = 0,
@@ -126,7 +131,7 @@ class ProfileViewModel(
 
     private fun uploadPhoto(image: DeviceImage) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isUploadingPhoto = true, error = null) }
+            _uiState.update { it.copy(pendingPhotoUrl = image.localUri, isUploadingPhoto = true, error = null) }
             try {
                 val user = userRepository.uploadProfilePicture(
                     api = api,
@@ -135,7 +140,9 @@ class ProfileViewModel(
                 )
                 _uiState.update { it.copy(isUploadingPhoto = false, picture = user.picture) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isUploadingPhoto = false, error = "Failed to upload photo") }
+                _uiState.update {
+                    it.copy(isUploadingPhoto = false, pendingPhotoUrl = null, error = "Failed to upload photo")
+                }
             }
         }
     }
