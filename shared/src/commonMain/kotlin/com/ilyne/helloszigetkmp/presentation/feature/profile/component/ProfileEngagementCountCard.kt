@@ -1,5 +1,6 @@
-package com.ilyne.helloszigetkmp.presentation.profile.components
+package com.ilyne.helloszigetkmp.presentation.feature.profile.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 
 @Composable
@@ -27,7 +28,7 @@ fun ProfileEngagementCountCard(
 ) {
     Card(
         modifier = modifier.height(IntrinsicSize.Min),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = SzigetPalette.Coral),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
@@ -40,7 +41,7 @@ fun ProfileEngagementCountCard(
             )
 
             for (item in items.drop(1)) {
-                VerticalDivider(modifier = Modifier.fillMaxHeight())
+                VerticalDivider(modifier = Modifier.fillMaxHeight().background(color = SzigetPalette.Navy))
                 ProfileEngagementCountItem(
                     item = item,
                     modifier = Modifier.weight(1f)
@@ -68,12 +69,14 @@ fun ProfileEngagementCountItem(
         Text(
             text = item.count.toString(),
             fontSize = 20.sp,
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
+            color = SzigetPalette.SunshineYellow
         )
         Text(
             text = item.label,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = SzigetPalette.PrimaryBlue,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

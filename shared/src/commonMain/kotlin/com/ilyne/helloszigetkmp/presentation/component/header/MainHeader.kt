@@ -37,6 +37,7 @@ fun MainHeader(
 ) {
     Row(
         modifier = modifier.fillMaxWidth()
+            .height(72.dp)
             .background(color = SzigetPalette.Navy)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

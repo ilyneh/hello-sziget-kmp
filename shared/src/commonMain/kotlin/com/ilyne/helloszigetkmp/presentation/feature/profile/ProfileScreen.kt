@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,8 +35,8 @@ import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
-import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountCard
-import com.ilyne.helloszigetkmp.presentation.profile.components.ProfileEngagementCountItemState
+import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountCard
+import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountItemState
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
@@ -77,12 +78,11 @@ fun ProfileScreen(
     ) {
         Column(
             modifier = modifier.fillMaxSize()
-                .verticalScroll(vertScroll)
+                .verticalScroll(state = vertScroll)
                 .background(color = MaterialTheme.colorScheme.surface)
         ) {
             MainHeader(
                 text = "Profile",
-                modifier = Modifier.fillMaxWidth(),
                 trailingContent = {
                     IconButton(
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) }
@@ -97,7 +97,7 @@ fun ProfileScreen(
             )
 
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -109,7 +109,7 @@ fun ProfileScreen(
                         .joinToString(separator = ""),
                     imageUrl = uiState.picture,
                 )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 ProfileEngagementCountCard(
                     modifier = Modifier.fillMaxWidth(),
                     items = listOf(
@@ -244,12 +244,13 @@ fun ProfileAvatarAndName(
             elevated = true,
             avatarText = avatarText,
             imageUrl = imageUrl,
-            modifier = Modifier.width(72.dp).height(72.dp)
+            modifier = Modifier.size(100.dp)
         )
         Text(
             text = name,
             fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.Bold,
+            color = SzigetPalette.PrimaryBlue
         )
     }
 }
