@@ -2,6 +2,8 @@ package com.ilyne.helloszigetkmp.presentation.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.media.DeviceImage
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
@@ -20,10 +22,16 @@ import kotlinx.coroutines.launch
 data class ProfileUiState(
     val name: String? = null,
     val picture: String? = null,
+    // A "file://" URL for the on-disk cached copy of a just-picked photo (see DeviceImage.localUri),
+    // shown immediately in place of `picture` while the upload is in flight. Cleared on upload
+    // failure so the avatar reverts to `picture`; left in place (and `picture` updated) on
+    // success, so there's no flicker.
+    val pendingPhotoUrl: String? = null,
     val friends: List<User> = emptyList(),
     val friendRequests: List<User> = emptyList(),
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
+    val isUploadingPhoto: Boolean = false,
     val error: String? = null,
     val removeFriendAlert: User? = null,
     val showLogoutAlert: Boolean = false,
@@ -36,6 +44,7 @@ sealed class ProfileEffect {
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
+    data class PhotoPicked(val image: DeviceImage?) : ProfileIntent()
     object LogoutClicked : ProfileIntent()
     object ConfirmLogout : ProfileIntent()
     object DismissLogoutAlert : ProfileIntent()
@@ -63,6 +72,7 @@ class ProfileViewModel(
     private val userRepository: UserRepository,
     private val usersSyncService: UsersSyncService,
     private val getLikedArtistCountUseCase: GetLikedArtistCountUseCase,
+    private val api: SzigetApiService,
 ) : ViewModel()  {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -119,11 +129,30 @@ class ProfileViewModel(
         }
     }
 
+    private fun uploadPhoto(image: DeviceImage) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(pendingPhotoUrl = image.localUri, isUploadingPhoto = true, error = null) }
+            try {
+                val user = userRepository.uploadProfilePicture(
+                    api = api,
+                    bytes = image.bytes,
+                    contentType = image.contentType,
+                )
+                _uiState.update { it.copy(isUploadingPhoto = false, picture = user.picture) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isUploadingPhoto = false, pendingPhotoUrl = null, error = "Failed to upload photo")
+                }
+            }
+        }
+    }
+
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
             ProfileIntent.AddFriend -> viewModelScope.launch {
                 _effects.emit(ProfileEffect.NavigateToAddFriend)
             }
+            is ProfileIntent.PhotoPicked -> intent.image?.let { uploadPhoto(it) }
             is ProfileIntent.AcceptFriendRequest -> viewModelScope.launch {
                 friendRepository.acceptFriendRequest(currentUser.id, intent.friendId)
             }

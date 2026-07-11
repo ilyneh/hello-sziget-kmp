@@ -10,6 +10,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 class SzigetApiService(
     private val client: HttpClient,
@@ -18,6 +21,12 @@ class SzigetApiService(
     suspend fun getMe(): UserDto = client.get("$baseUrl/auth/me").body()
 
     suspend fun getUsers(): List<UserDto> = client.get("$baseUrl/users").body()
+
+    suspend fun uploadProfileImage(bytes: ByteArray, contentType: String): UserDto =
+        client.post("$baseUrl/users/me/image") {
+            contentType(ContentType.parse(contentType))
+            setBody(bytes)
+        }.body()
 
     suspend fun getArtists(): List<ArtistDto> = client.get("$baseUrl/artists").body()
 

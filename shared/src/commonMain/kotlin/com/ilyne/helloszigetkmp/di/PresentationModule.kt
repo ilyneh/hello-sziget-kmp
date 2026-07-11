@@ -58,7 +58,8 @@ val presentationModule = module {
         userRepository = get(),
         usersSyncService = get(),
         artistRepository = get(),
-        getLikedArtistCountUseCase = get()
+        getLikedArtistCountUseCase = get(),
+        api = get()
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get()) }
     viewModel { ArtistDetailViewModel(artistRepository = get()) }

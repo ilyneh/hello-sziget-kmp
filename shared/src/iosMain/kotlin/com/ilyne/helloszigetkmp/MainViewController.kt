@@ -1,6 +1,7 @@
 package com.ilyne.helloszigetkmp
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.ilyne.helloszigetkmp.core.image.initAppImageLoader
 import com.ilyne.helloszigetkmp.di.initKoin
 import platform.UIKit.UIViewController
 
@@ -9,5 +10,6 @@ import platform.UIKit.UIViewController
 @Suppress("ktlint:standard:function-naming")
 fun MainViewController(): UIViewController {
     initKoin()
+    initAppImageLoader()
     return ComposeUIViewController { App() }
 }

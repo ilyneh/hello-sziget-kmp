@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.presentation.feature.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
+import com.ilyne.helloszigetkmp.core.media.rememberProfileImagePicker
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
@@ -57,6 +61,9 @@ fun ProfileScreen(
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val vertScroll = rememberScrollState()
+    val launchImagePicker = rememberProfileImagePicker { image ->
+        viewModel.onIntent(ProfileIntent.PhotoPicked(image))
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
@@ -77,7 +84,6 @@ fun ProfileScreen(
     ) {
         Column(
             modifier = modifier.fillMaxSize()
-                .verticalScroll(state = vertScroll)
                 .background(color = SzigetPalette.Peach)
         ) {
             MainHeader(
@@ -96,7 +102,8 @@ fun ProfileScreen(
             )
 
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp)
+                    .verticalScroll(state = vertScroll),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -106,7 +113,9 @@ fun ProfileScreen(
                         .split(" ")
                         .mapNotNull { it.firstOrNull()?.uppercase() }
                         .joinToString(separator = ""),
-                    imageUrl = uiState.picture,
+                    imageUrl = uiState.pendingPhotoUrl ?: uiState.picture,
+                    isUploading = uiState.isUploadingPhoto,
+                    onAvatarClick = launchImagePicker,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 ProfileEngagementCountCard(
@@ -232,6 +241,8 @@ fun ProfileAvatarAndName(
     name: String,
     avatarText: String,
     imageUrl: String? = null,
+    isUploading: Boolean = false,
+    onAvatarClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -239,12 +250,18 @@ fun ProfileAvatarAndName(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ProfileAvatar(
-            elevated = true,
-            avatarText = avatarText,
-            imageUrl = imageUrl,
-            modifier = Modifier.size(100.dp)
-        )
+        Box(contentAlignment = Alignment.Center) {
+            ProfileAvatar(
+                elevated = true,
+                avatarText = avatarText,
+                imageUrl = imageUrl,
+                onClick = if (isUploading) null else onAvatarClick,
+                modifier = Modifier.size(100.dp)
+            )
+            if (isUploading) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        }
         Text(
             text = name,
             fontSize = 20.sp,
