@@ -18,6 +18,7 @@ import kotlin.math.sqrt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.scale
 
 private data class RawImage(val bytes: ByteArray, val contentType: String)
 
@@ -57,11 +58,9 @@ private fun RawImage.downscaledIfNeeded(): RawImage {
 
     val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return this
     val scale = sqrt(MAX_PROFILE_IMAGE_BYTES.toDouble() / bytes.size.toDouble()).coerceAtMost(1.0)
-    val scaled = Bitmap.createScaledBitmap(
-        original,
-        (original.width * scale).toInt().coerceAtLeast(1),
-        (original.height * scale).toInt().coerceAtLeast(1),
-        true,
+    val scaled = original.scale(
+        width = (original.width * scale).toInt().coerceAtLeast(1),
+        height = (original.height * scale).toInt().coerceAtLeast(1)
     )
 
     var quality = 90

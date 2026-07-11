@@ -21,7 +21,7 @@ private suspend fun pickProfileImage(): DeviceImage? {
             } else {
                 null
             }
-            continuation.resume(image, onCancellation = null)
+            continuation.resume(image) { _, _, _ -> }
         }
     }
 }
