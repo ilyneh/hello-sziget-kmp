@@ -32,6 +32,7 @@ import com.ilyne.helloszigetkmp.domain.model.PerformanceType
 import com.ilyne.helloszigetkmp.domain.model.displayName
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader2
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
@@ -152,7 +153,7 @@ private fun ScheduleFilterContent(
             )
         }
 
-        SubHeader(text = "Performance Types")
+        SubHeader2(text = "Performance Types")
 
         uiState.performanceTypes.forEach { performanceType ->
             PerformanceTypeSection(

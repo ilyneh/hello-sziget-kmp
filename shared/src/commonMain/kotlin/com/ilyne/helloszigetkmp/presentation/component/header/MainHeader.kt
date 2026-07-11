@@ -65,3 +65,23 @@ fun SubHeader(
         trailingContent?.invoke()
     }
 }
+
+@Composable
+fun SubHeader2(
+    text: String,
+    modifier: Modifier = Modifier,
+    trailingContent: (@Composable () -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+        )
+        trailingContent?.invoke()
+    }
+}
