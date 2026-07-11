@@ -31,7 +31,7 @@ import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.domain.model.PerformanceType
 import com.ilyne.helloszigetkmp.domain.model.displayName
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
-import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.ModalHeader
 import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader2
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
@@ -99,59 +99,31 @@ private fun ScheduleFilterContent(
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        SubHeader(text = "Filters")
+        ModalHeader(text = "Filters")
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Favorites",
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = uiState.showFavoritesOnly,
-                onCheckedChange = { toggleFavoritesOnly(it) }
-            )
-        }
+        FilterSwitchRow(
+            text = "Favorites",
+            checked = uiState.showFavoritesOnly,
+            onCheckedChange = { toggleFavoritesOnly(it) }
+        )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Friends Going",
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = uiState.showFriendsGoing,
-                onCheckedChange = { toggleFriendsGoing(it) }
-            )
-        }
+        FilterSwitchRow(
+            text = "Friends Going",
+            checked = uiState.showFriendsGoing,
+            onCheckedChange = { toggleFriendsGoing(it) }
+        )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Hide Stages with Empty Timeslots",
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = uiState.hideEmptyStages,
-                onCheckedChange = { toggleHideEmptyStages(it) }
-            )
-        }
+        FilterSwitchRow(
+            text = "Hide Stages with Empty Timeslots",
+            checked = uiState.hideEmptyStages,
+            onCheckedChange = { toggleHideEmptyStages(it) }
+        )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Show Extra Days",
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = uiState.showExtraDays,
-                onCheckedChange = { toggleShowExtraDays(it) }
-            )
-        }
+        FilterSwitchRow(
+            text = "Show Extra Days",
+            checked = uiState.showExtraDays,
+            onCheckedChange = { toggleShowExtraDays(it) }
+        )
 
         SubHeader2(text = "Performance Types")
 
@@ -237,6 +209,24 @@ fun ScheduleFilterContentPreview() {
             toggleGenreGroup = { _, _ -> },
             toggleGenreDropdown = {},
             saveFilter = {},
+        )
+    }
+}
+
+@Composable
+private fun FilterSwitchRow(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = text,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
         )
     }
 }

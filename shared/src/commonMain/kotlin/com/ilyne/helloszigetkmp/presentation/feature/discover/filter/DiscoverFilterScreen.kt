@@ -30,7 +30,7 @@ import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.domain.model.PerformanceType
 import com.ilyne.helloszigetkmp.domain.model.displayName
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
-import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.ModalHeader
 import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader2
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
@@ -90,7 +90,7 @@ private fun DiscoverFilterContent(
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        SubHeader(text = "Filters")
+        ModalHeader(text = "Filters")
         SubHeader2(text = "Performance Types")
 
         uiState.performanceTypes.forEach { performanceType ->
