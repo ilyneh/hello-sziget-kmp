@@ -84,7 +84,6 @@ fun ProfileScreen(
     ) {
         Column(
             modifier = modifier.fillMaxSize()
-                .verticalScroll(state = vertScroll)
                 .background(color = SzigetPalette.Peach)
         ) {
             MainHeader(
@@ -103,7 +102,8 @@ fun ProfileScreen(
             )
 
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp)
+                    .verticalScroll(state = vertScroll),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
