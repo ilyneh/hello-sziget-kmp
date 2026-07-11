@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,7 +69,6 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             MainHeader(text = "Discover")
-
             SearchTextField(
                 value = uiState.searchQuery,
                 placeHolderText = "Search artists...",
@@ -75,16 +76,14 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(vertical = 8.dp)
             )
-
             DiscoverFilterBar(
                 data = DiscoverFilterBarData(
                     filterCount = uiState.filterCount,
                     filterTexts = uiState.filterTexts,
                 ),
                 onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             when {
@@ -97,7 +96,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
@@ -148,7 +147,9 @@ private fun ArtistCard(
                 model = artist.imageUrl,
                 contentDescription = "${artist.name} image",
                 contentScale = ContentScale.Crop,
+                alignment = Alignment.BottomCenter,
                 modifier = Modifier
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(size = 8.dp))
                     .drawWithContent {
                         drawContent()
@@ -173,7 +174,13 @@ private fun ArtistCard(
                     fontWeight = FontWeight.SemiBold,
                     color = SzigetPalette.Coral,
                     maxLines = 2,
-                    lineHeight = 1.1.sp,
+                    lineHeight = 14.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 10.sp,        // Minimum allowable size
+                        maxFontSize = 14.sp,        // Maximum allowable size
+                        stepSize = 0.5.sp             // Granularity of adjustment
+                    ),
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }

@@ -28,7 +28,7 @@ fun ProfileEngagementCountCard(
 ) {
     Card(
         modifier = modifier.height(IntrinsicSize.Min),
-        colors = CardDefaults.cardColors(containerColor = SzigetPalette.Coral),
+        colors = CardDefaults.cardColors(containerColor = SzigetPalette.TealGreen),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
@@ -75,7 +75,7 @@ fun ProfileEngagementCountItem(
         Text(
             text = item.label,
             fontSize = 12.sp,
-            color = SzigetPalette.PrimaryBlue,
+            color = SzigetPalette.CardSurface,
             fontWeight = FontWeight.SemiBold
         )
     }

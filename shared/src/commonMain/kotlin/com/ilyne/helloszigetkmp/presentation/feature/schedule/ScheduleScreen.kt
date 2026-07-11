@@ -110,7 +110,7 @@ private fun ScheduleContent(
                     filterTexts = uiState.activeFilterItemsText,
                 ),
                 onFilterButtonClicked = onFilterButtonClicked,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             // Content

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -79,7 +78,7 @@ fun ProfileScreen(
         Column(
             modifier = modifier.fillMaxSize()
                 .verticalScroll(state = vertScroll)
-                .background(color = MaterialTheme.colorScheme.surface)
+                .background(color = SzigetPalette.Peach)
         ) {
             MainHeader(
                 text = "Profile",
@@ -147,7 +146,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                         text = "No friends",
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = SzigetPalette.Navy,
                     )
                 }
 
