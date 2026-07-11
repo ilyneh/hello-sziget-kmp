@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.component.header.SubHeader
+import com.ilyne.helloszigetkmp.presentation.component.header.ModalHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
@@ -64,24 +64,16 @@ private fun AddFriendContent(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth().imePadding()) {
-        SubHeader(
+        ModalHeader(
             text = "Add Friends",
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        ) {
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_cancel),
-                    contentDescription = "Close",
-                    tint = MaterialTheme.colorScheme.outline,
-                )
-            }
-        }
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SearchTextField(
