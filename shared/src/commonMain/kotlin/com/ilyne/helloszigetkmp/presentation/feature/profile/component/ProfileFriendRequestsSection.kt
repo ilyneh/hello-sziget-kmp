@@ -18,11 +18,12 @@ fun ProfileFriendRequestsSection(
     modifier: Modifier = Modifier
 ) {
     SectionHeader(
-        modifier = modifier.padding(top = 8.dp),
+        modifier = Modifier.padding(top = 8.dp),
         text = "Requests - ${friendRequests.size}"
     )
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth()
+            .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         friendRequests.forEach { friend ->
