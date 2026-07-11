@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +69,6 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             MainHeader(text = "Discover")
-
             SearchTextField(
                 value = uiState.searchQuery,
                 placeHolderText = "Search artists...",
@@ -78,16 +76,14 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(vertical = 8.dp)
             )
-
             DiscoverFilterBar(
                 data = DiscoverFilterBarData(
                     filterCount = uiState.filterCount,
                     filterTexts = uiState.filterTexts,
                 ),
                 onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             when {
@@ -100,7 +96,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
