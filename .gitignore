@@ -12,6 +12,9 @@ androidApp/keystore/
 *.jks
 *.keystore
 iosApp/iosApp/GoogleService-Info.plist
+iosApp/GoogleService-Info-Debug.plist
+iosApp/GoogleService-Info-Release.plist
+.crashlytics
 .idea
 .DS_Store
 captures

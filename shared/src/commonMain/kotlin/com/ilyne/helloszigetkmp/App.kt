@@ -40,10 +40,14 @@ fun App() {
     LaunchedEffect(Unit) {
         authService.sessionInvalidated.collect {
             sessionWasInvalidated = true
-            // The NavHost may not have composed yet (startDestination still null while
-            // restoreSession() is in flight), in which case navController has no graph set
-            // and navigate() would throw. Just point the eventual start destination at Login.
-            if (startDestination == null) {
+            // startDestination being non-null doesn't guarantee the NavHost has actually
+            // recomposed and called setGraph() yet - Compose state writes and recompositions
+            // aren't synchronous, so this coroutine can resume and observe the new
+            // startDestination before that recomposition has run. Ask the NavController
+            // directly (its graph getter throws the same way navigate() would) instead of
+            // inferring readiness from our own state.
+            val graphIsSet = runCatching { navController.graph }.isSuccess
+            if (!graphIsSet) {
                 startDestination = Login
             } else {
                 navController.navigate(Login) {

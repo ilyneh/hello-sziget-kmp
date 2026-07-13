@@ -14,6 +14,8 @@
 
 /* Begin PBXFileReference section */
 		5E2FE646507EA2F45C526B46 /* hello-sziget-kmp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hello-sziget-kmp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF720D433005846B00726921 /* GoogleService-Info-Release.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Release.plist"; sourceTree = "<group>"; };
+		DF720D453005846B00726921 /* GoogleService-Info-Debug.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Debug.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -62,6 +64,8 @@
 				90FEFC123A5D9731560C95CD /* Configuration */,
 				271B114401313D8F9A46AB03 /* iosApp */,
 				6C93EFEAD9BBB4BDA37C8393 /* Products */,
+				DF720D433005846B00726921 /* GoogleService-Info-Release.plist */,
+				DF720D453005846B00726921 /* GoogleService-Info-Debug.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -80,10 +84,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D05C0AF4A6B18D416895EC6A /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				DF720D463005846B00726921 /* Select GoogleService-Info.plist */,
 				BAD366CABE20FEC801B2C746 /* Compile Kotlin Framework */,
 				8EC45603D9FE1D929D047DD7 /* Sources */,
 				7B4B2AE1F4FB271D050395C6 /* Frameworks */,
 				25B7A66A23B41728CCE1886C /* Resources */,
+				DF720D473005846B00726921 /* Crashlytics: Run */,
 			);
 			buildRules = (
 			);
@@ -151,6 +157,27 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		DF720D473005846B00726921 /* Crashlytics: Run */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Crashlytics: Run";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/crashlytics-run.stamp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\ntouch \"$SCRIPT_OUTPUT_FILE_0\"\n";
+		};
 		BAD366CABE20FEC801B2C746 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -169,6 +196,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+		};
+		DF720D463005846B00726921 /* Select GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/GoogleService-Info-$(CONFIGURATION).plist",
+			);
+			name = "Select GoogleService-Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/iosApp/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nSRC=\"${SRCROOT}/GoogleService-Info-${CONFIGURATION}.plist\"\nDEST=\"${SRCROOT}/iosApp/GoogleService-Info.plist\"\nif [ ! -f \"$SRC\" ]; then\n  echo \"error: Missing $SRC for configuration $CONFIGURATION. See iosApp/GoogleService-Info-Debug.plist / GoogleService-Info-Release.plist.\" >&2\n  exit 1\nfi\ncp \"$SRC\" \"$DEST\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

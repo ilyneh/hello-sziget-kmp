@@ -136,8 +136,13 @@ profile/cert validity in Xcode's Signing & Capabilities tab first.
 
 - **Android**: place `androidApp/google-services.json` (from Firebase console) — required by the
   `google-services` Gradle plugin; any Gradle task touching `:androidApp` fails without it.
-- **iOS**: place `iosApp/iosApp/GoogleService-Info.plist` (from Firebase console). `Info.plist`
-  declares a matching `GIDClientID` and URL scheme.
+- **iOS**: place two per-configuration files at `iosApp/GoogleService-Info-Debug.plist`
+  (Firebase app `com.ilyne.hellosziget.debug`) and `iosApp/GoogleService-Info-Release.plist`
+  (Firebase app `com.ilyne.hellosziget`). A "Select GoogleService-Info.plist" Run Script build
+  phase copies the one matching the active `$(CONFIGURATION)` to
+  `iosApp/iosApp/GoogleService-Info.plist` (gitignored, build-generated) before every build —
+  the build fails fast with a clear error if the source file for the active configuration is
+  missing. `Info.plist` declares a matching `GIDClientID` and URL scheme.
 - **Shared Web Client ID**: hardcoded in
   `shared/src/commonMain/kotlin/.../core/auth/GoogleAuthConfig.kt` — update this if the OAuth
   Web Client ID ever changes (it is not build-time configurable).
