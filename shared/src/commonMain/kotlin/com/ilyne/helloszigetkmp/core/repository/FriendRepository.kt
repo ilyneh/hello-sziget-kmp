@@ -15,9 +15,9 @@ import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.supervisorScope
 
 
 class FriendRepository(
@@ -104,37 +104,76 @@ class FriendRepository(
 
     suspend fun refresh(force: Boolean = false) {
         val currentUserId = userDao.getCurrentUser()?.id ?: run {
-            Logger.e("findme", "Current user not found in dao")
-            return
+            Logger.e("FriendRepository", "refresh(): current user not found in dao")
+            error("Cannot refresh friends: current user not found")
         }
 
         softRefreshGate.refreshIfStale(force) {
-            coroutineScope {
-                val friendsDeferred = async { api.getFriends() }
-                val friendRequestsDeferred = async { api.getFriendRequests() }
-                val sentFriendRequestsDeferred = async { api.getSentFriendRequests() }
-                val artistsFriendsFavoritedDeferred = async { api.getArtistsFriendsFavorited() }
+            // Run the 4 calls as independent siblings: one failing must not cancel/discard
+            // the others' successful results. supervisorScope (instead of coroutineScope)
+            // keeps a child's failure from cancelling its siblings, and each async body is
+            // wrapped in runCatching so a failed await() doesn't itself get treated as an
+            // uncaught exception that would cancel the scope.
+            supervisorScope {
+                val friendsDeferred = async { runCatching { api.getFriends() } }
+                val friendRequestsDeferred = async { runCatching { api.getFriendRequests() } }
+                val sentFriendRequestsDeferred = async { runCatching { api.getSentFriendRequests() } }
+                val artistsFriendsFavoritedDeferred = async { runCatching { api.getArtistsFriendsFavorited() } }
 
-                val friends = friendsDeferred.await()
-                val friendRequests = friendRequestsDeferred.await()
-                val sentFriendRequests = sentFriendRequestsDeferred.await()
-                val artistsFriendsFavorited = artistsFriendsFavoritedDeferred.await()
+                val friendsResult = friendsDeferred.await()
+                val friendRequestsResult = friendRequestsDeferred.await()
+                val sentFriendRequestsResult = sentFriendRequestsDeferred.await()
+                val artistsFriendsFavoritedResult = artistsFriendsFavoritedDeferred.await()
+
+                val friends = friendsResult.getOrNull().orEmpty()
+                val friendRequests = friendRequestsResult.getOrNull().orEmpty()
+                val sentFriendRequests = sentFriendRequestsResult.getOrNull().orEmpty()
+                val artistsFriendsFavorited = artistsFriendsFavoritedResult.getOrNull().orEmpty()
 
                 // Friends/requesters aren't necessarily in the local users table yet
                 // (e.g. UserRepository's own sync never ran) — upsert them first so the
                 // foreign keys on UserFriendEntity.userId/friendId are satisfied.
                 userDao.upsertAll((friends + friendRequests + sentFriendRequests).map { it.toEntity() })
 
-                friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
-                friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
-                friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
-                friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
+                // Only persist the slices that actually succeeded — a failed call's stale/empty
+                // result must not overwrite already-cached data for that slice.
+                if (friendsResult.isSuccess) {
+                    friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
+                }
+                if (friendRequestsResult.isSuccess) {
+                    friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
+                }
+                if (sentFriendRequestsResult.isSuccess) {
+                    friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
+                }
+                if (artistsFriendsFavoritedResult.isSuccess) {
+                    friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
+                }
 
-                // clean out previous friend relationships that no longer exist
-                val existingFriendships = (friends + friendRequests + sentFriendRequests)
-                    .map { it.id }
-                    .distinct()
-                friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
+                // clean out previous friend relationships that no longer exist — only safe once
+                // all three friend-list calls succeeded, otherwise a failed call's empty result
+                // would wipe out relationships whose source list just didn't load this time.
+                if (friendsResult.isSuccess && friendRequestsResult.isSuccess && sentFriendRequestsResult.isSuccess) {
+                    val existingFriendships = (friends + friendRequests + sentFriendRequests)
+                        .map { it.id }
+                        .distinct()
+                    friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
+                }
+
+                val failures = listOfNotNull(
+                    friendsResult.exceptionOrNull()?.let { "getFriends" to it },
+                    friendRequestsResult.exceptionOrNull()?.let { "getFriendRequests" to it },
+                    sentFriendRequestsResult.exceptionOrNull()?.let { "getSentFriendRequests" to it },
+                    artistsFriendsFavoritedResult.exceptionOrNull()?.let { "getArtistsFriendsFavorited" to it },
+                )
+                failures.forEach { (name, throwable) ->
+                    Logger.e("FriendRepository", "refresh(): $name failed", throwable)
+                }
+                // Surface a failure to the caller so it can stop spinners / show an error,
+                // even though whichever calls succeeded above were still persisted to the DB.
+                if (failures.isNotEmpty()) {
+                    throw failures.first().second
+                }
             }
         }
     }
