@@ -1,18 +1,18 @@
 package com.ilyne.helloszigetkmp.di
 
+import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import com.ilyne.helloszigetkmp.core.config.AppConfig
-import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
+import com.ilyne.helloszigetkmp.core.network.createBaseHttpClient
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.settings.createSecureSettings
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
-import com.ilyne.helloszigetkmp.core.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
 import org.koin.core.context.startKoin
@@ -33,7 +33,7 @@ val appModule = module {
     single { GoogleAuthProvider() }
     single { TokenStorage(settings = get()) }
     single { ScheduleFilterStorage(settings = get()) }
-    single { baseHttpClient }
+    single { createBaseHttpClient(isDebug = get<AppConfig>().isDebug()) }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
     single { SzigetAuthService(appConfig = get(), authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
     single { LogoutService(session = get()) }

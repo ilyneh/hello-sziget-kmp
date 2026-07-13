@@ -1,9 +1,9 @@
 package com.ilyne.helloszigetkmp.core.auth
 
-import com.ilyne.helloszigetkmp.core.config.AppConfig
-import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
+import com.ilyne.helloszigetkmp.core.config.AppConfig
+import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +18,6 @@ class SzigetAuthService(
     private val tokenStorage: TokenStorage,
     private val szigetAuthApiService: SzigetAuthApiService,
 ) {
-
     private var authenticatedApiModule: Module? = null
 
     private val _sessionInvalidated = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -42,7 +41,7 @@ class SzigetAuthService(
         val token = TokenDto(
             accessToken = BEARER_TOKEN_LOCALHOST,
             refreshToken = "",
-            tokenType = "bearer"
+            tokenType = "bearer",
         )
         tokenStorage.save(token)
         loadAuthenticatedModules(token)
@@ -71,7 +70,8 @@ class SzigetAuthService(
             accessToken = token.accessToken,
             refreshToken = token.refreshToken,
             tokenStorage = tokenStorage,
-            onSessionInvalidated = ::invalidateSession
+            onSessionInvalidated = ::invalidateSession,
+            isDebug = appConfig.isDebug(),
         )
         authenticatedApiModule = apiModule
         loadKoinModules(apiModule)
