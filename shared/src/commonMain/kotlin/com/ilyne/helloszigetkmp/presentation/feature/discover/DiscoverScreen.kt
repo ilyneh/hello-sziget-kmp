@@ -46,6 +46,7 @@ import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
+import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBar
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBarData
@@ -113,7 +114,11 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = LocalBottomBarPadding.current + 16.dp,
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {

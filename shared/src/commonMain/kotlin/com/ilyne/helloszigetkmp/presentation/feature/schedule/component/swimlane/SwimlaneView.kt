@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
+import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HEADER_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEIGHT_DP
@@ -65,7 +67,11 @@ fun SwimLaneView(
             }
         }
 
-        LazyColumn(modifier = Modifier.fillMaxSize(), state = vertListState) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = vertListState,
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 16.dp),
+        ) {
             items(stages, key = { it.id }) { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }
                 Row(
