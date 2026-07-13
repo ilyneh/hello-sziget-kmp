@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,41 +69,46 @@ private fun AddFriendContent(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         )
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            SearchTextField(
-                value = uiState.searchQuery,
-                placeHolderText = "Search users...",
-                onValueChange = onSearchQueryChanged,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-            )
-
-            val status = uiState.status
-            if (status is AddFriendUiState.Status.Error) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = status.message,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.error,
+            item {
+                SearchTextField(
+                    value = uiState.searchQuery,
+                    placeHolderText = "Search users...",
+                    onValueChange = onSearchQueryChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
                 )
             }
 
+            val status = uiState.status
+            if (status is AddFriendUiState.Status.Error) {
+                item {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = status.message,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
             if (uiState.results.isEmpty()) {
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                    text = "No users found",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.outline,
-                )
+                item {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        text = "No users found",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
             } else {
-                uiState.results.forEach { result ->
+                items(uiState.results, key = { it.user.id }) { result ->
                     AddFriendUserItem(
                         name = result.user.name,
                         status = result.status,
