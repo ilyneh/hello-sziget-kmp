@@ -23,6 +23,13 @@ import kotlinx.serialization.json.Json
 
 val baseHttpClient =
     HttpClient {
+        // A 307 means a call site is hitting the wrong URL (e.g. a trailing slash the
+        // FastAPI backend doesn't register, since it runs with redirect_slashes=False).
+        // Fail loudly instead of silently following so the bad URL gets fixed at the source.
+        followRedirects = false
+        // expectSuccess defaults to false in Ktor, so non-2xx responses (redirects included)
+        // wouldn't otherwise throw — callers' try/catch blocks would never see the failure.
+        expectSuccess = true
         install(ContentNegotiation) {
             json(
                 Json {

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "1b333f7e1ae845dc2731fe64ea43d65c",
+    "identityHash": "b8ff7dc4046affde15aa9f0488d11e87",
     "entities": [
       {
         "tableName": "artists",
@@ -127,7 +127,7 @@
       },
       {
         "tableName": "users",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `picture` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `imageUrl` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -142,8 +142,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "picture",
-            "columnName": "picture",
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
             "affinity": "TEXT"
           }
         ],
@@ -349,7 +349,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1b333f7e1ae845dc2731fe64ea43d65c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8ff7dc4046affde15aa9f0488d11e87')"
     ]
   }
 }

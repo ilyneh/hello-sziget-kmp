@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.core.api.auth
 import com.ilyne.helloszigetkmp.core.config.AppConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -14,7 +15,7 @@ class SzigetAuthApiService(
     private val client: HttpClient,
     private val appConfig: AppConfig,
 ) {
-    private val baseUrl = "${appConfig.baseUrl()}/auth"
+    private val baseUrl = "${appConfig.baseUrlLocal()}/auth"
 
     suspend fun googleLogin(googleToken: String): TokenDto {
         return client.post(urlString = "$baseUrl/google/mobile") {
@@ -23,8 +24,9 @@ class SzigetAuthApiService(
         }.body()
     }
 
-    suspend fun logout(refreshToken: String) {
+    suspend fun logout(accessToken: String, refreshToken: String) {
         return client.post(urlString = "$baseUrl/logout") {
+            bearerAuth(accessToken)
             contentType(ContentType.Application.Json)
             setBody(LogoutRequestDto(refreshToken))
         }.body()

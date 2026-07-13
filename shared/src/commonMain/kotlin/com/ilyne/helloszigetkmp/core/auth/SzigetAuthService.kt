@@ -33,7 +33,7 @@ class SzigetAuthService(
 
     suspend fun logout() {
         tokenStorage.read()?.let {
-            szigetAuthApiService.logout(refreshToken = it.refreshToken)
+            szigetAuthApiService.logout(accessToken = it.accessToken, refreshToken = it.refreshToken)
         }
         invalidateSession()
     }
@@ -67,7 +67,7 @@ class SzigetAuthService(
 
     private fun loadAuthenticatedModules(token: TokenDto) {
         val apiModule = createAuthenticatedApiModule(
-            baseUrl = appConfig.baseUrl(),
+            baseUrl = appConfig.baseUrlLocal(),
             accessToken = token.accessToken,
             refreshToken = token.refreshToken,
             tokenStorage = tokenStorage,
