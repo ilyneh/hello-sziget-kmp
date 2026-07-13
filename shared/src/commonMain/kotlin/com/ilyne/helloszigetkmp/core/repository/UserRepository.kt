@@ -40,12 +40,12 @@ fun UserDto.toEntity() =
     UserEntity(
         id = id,
         name = name,
-        picture = picture,
+        imageUrl = imageUrl,
     )
 
 fun UserEntity.toDomain() =
     User(
         id = id,
         name = name,
-        picture = picture,
+        imageUrl = imageUrl,
     )

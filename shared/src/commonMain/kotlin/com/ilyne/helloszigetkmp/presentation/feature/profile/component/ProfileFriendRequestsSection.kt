@@ -33,7 +33,7 @@ fun ProfileFriendRequestsSection(
                     avatarText = friend.name
                         .split(" ")
                         .joinToString(separator = "") { it.first().uppercase() },
-                    imageUrl = friend.picture,
+                    imageUrl = friend.imageUrl,
                 ),
                 onAccept = { onAccept(friend.id) },
                 onDecline = { onDecline(friend.id) }
