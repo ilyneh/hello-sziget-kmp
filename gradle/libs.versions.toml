@@ -33,8 +33,13 @@ detekt = "1.23.8"
 # Pinned below 0.5.0: compose-rules switched its detekt module to the dev.detekt
 # 2.x API starting at 0.5.0, which isn't compatible with detekt 1.23.x.
 detekt-compose = "0.4.28"
+googleServices = "4.5.0"
+firebase-bom = "34.16.0"
+firebase-crashlytics-gradle = "3.0.7"
 
 [libraries]
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -90,6 +95,7 @@ googleid = { module = "com.google.android.libraries.identity.googleid:googleid",
 security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -102,3 +108,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
