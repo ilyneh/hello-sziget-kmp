@@ -1,0 +1,157 @@
+name: CI Android
+
+on:
+  pull_request:
+    paths:
+      - "androidApp/**"
+      - "shared/**"
+      - "buildSrc/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/ci-android.yml"
+  push:
+    branches: [main]
+    paths:
+      - "androidApp/**"
+      - "shared/**"
+      - "buildSrc/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/ci-android.yml"
+
+concurrency:
+  group: ci-android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Required by the com.google.gms.google-services plugin — every androidApp Gradle task fails
+  # without this file. See docs/notes/google-services-json-ci-plan.md.
+  # TODO: add the GOOGLE_SERVICES_JSON_B64 secret to the repo before this workflow can pass.
+  GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+
+jobs:
+  quality:
+    name: Format & static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > androidApp/google-services.json
+
+      - name: spotlessCheck
+        run: ./gradlew spotlessCheck
+
+      - name: detekt
+        run: ./gradlew detekt
+
+  test:
+    name: Unit & integration tests
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > androidApp/google-services.json
+
+      - name: Run shared JVM tests
+        run: ./gradlew :shared:testAndroidHostTest
+
+      - name: Publish test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-results
+          path: shared/build/test-results/**/*.xml
+          retention-days: 14
+
+  build-debug:
+    name: Assemble debug
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Android versionCode/versionName are git-commit-count derived — a shallow clone falls
+          # back to a static placeholder. See androidApp/build.gradle.kts.
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > androidApp/google-services.json
+
+      - name: Assemble debug APK
+        run: ./gradlew :androidApp:assembleDebug
+
+  build-release:
+    name: Assemble release
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > androidApp/google-services.json
+
+      # Release builds are signed and fail loudly (by design) without keystore.properties + the
+      # actual keystore file — see androidApp/build.gradle.kts. Not wired up yet.
+      # TODO: add ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_STORE_PASSWORD /
+      # ANDROID_KEYSTORE_KEY_ALIAS / ANDROID_KEYSTORE_KEY_PASSWORD secrets, then write
+      # androidApp/keystore.properties + decode the keystore file here before this job can pass.
+      - name: Write keystore.properties
+        run: |
+          echo "storeFile=keystore/release.keystore" >> androidApp/keystore.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_STORE_PASSWORD }}" >> androidApp/keystore.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEYSTORE_KEY_ALIAS }}" >> androidApp/keystore.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}" >> androidApp/keystore.properties
+          mkdir -p androidApp/keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > androidApp/keystore/release.keystore
+
+      - name: Assemble release APK
+        run: ./gradlew :androidApp:assembleRelease

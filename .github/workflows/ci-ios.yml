@@ -1,0 +1,79 @@
+name: CI iOS
+
+on:
+  pull_request:
+    paths:
+      - "iosApp/**"
+      - "shared/**"
+      - ".github/workflows/ci-ios.yml"
+  push:
+    branches: [main]
+    paths:
+      - "iosApp/**"
+      - "shared/**"
+      - ".github/workflows/ci-ios.yml"
+
+concurrency:
+  group: ci-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Shared KMP tests (iOS simulator)
+    # NOTE: targets the self-hosted macOS runner described in docs/notes/ci-cd-plan.md. This job
+    # will queue indefinitely until that runner is registered with these labels.
+    runs-on: [self-hosted, macOS, ios]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run shared iOS simulator tests
+        run: ./gradlew :shared:iosSimulatorArm64Test
+
+  build-debug:
+    name: Build debug (iOS Simulator)
+    needs: test
+    runs-on: [self-hosted, macOS, ios]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: xcodebuild (Debug, simulator)
+        # embedAndSignAppleFrameworkForXcode runs automatically as an Xcode build phase (see
+        # RUNBOOK.md), so a plain xcodebuild invocation is enough to exercise the full build.
+        # CODE_SIGNING_ALLOWED=NO: no distribution cert/profile wired up yet, and none is needed
+        # to verify a simulator build compiles.
+        run: |
+          xcodebuild build \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+  build-release:
+    name: Build release (iOS Simulator)
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, macOS, ios]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: xcodebuild (Release, simulator)
+        # Verifies the release configuration compiles (catches release-only regressions), same as
+        # the Android build-release job. Not an archive/export — that's the future release.yml,
+        # which will need real signing (distribution cert + provisioning profile) wired in.
+        run: |
+          xcodebuild build \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
