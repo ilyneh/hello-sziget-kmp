@@ -17,6 +17,71 @@ val keystoreProperties = Properties().apply {
     }
 }
 
+// --- Git-based versioning scheme -------------------------------------------------------------
+//
+// versionCode: total commit count on HEAD (`git rev-list --count HEAD`). Monotonically increasing
+// as long as history isn't rewritten (rebases/force-pushes that drop commits could in theory lower
+// it, but that's true of any scheme and isn't specific to this one). Works identically for local/
+// manual builds and CI builds without needing any external build-number service or persisted state.
+//
+// versionName: "<base>-<commitCount>-<shortSha>", e.g. "1.0-292-c9327b4". Combined with the
+// existing per-build-type versionNameSuffix, a tester sees e.g. "1.0-292-c9327b4-beta" or
+// "1.0-292-c9327b4-debug" — human-readable, sortable by commit count, and pinpoints the exact
+// commit a bug report came from.
+//
+// Guarding against a shallow clone: a shallow clone (e.g. CI doing `git fetch --depth=1`) makes
+// `git rev-list --count HEAD` return the depth (often just 1) instead of the true commit count,
+// which would not be monotonic across builds at different commits — every shallow build would
+// report versionCode 1. Rather than silently emitting a wrong-but-plausible-looking number, we
+// detect this case (`git rev-parse --is-shallow-repository`) and fall back to the static baseline,
+// printing a loud warning so CI can be fixed to do a full clone (`fetch-depth: 0`) instead of
+// masking the problem with a "correct-looking" but meaningless value.
+//
+// No-git fallback: if git isn't available at all (e.g. building from a source archive with no
+// .git directory), we fall back to the same static baseline rather than failing configuration —
+// a working build with a non-unique version is a smaller regression than a hard failure.
+val versioningBaseName = "1.0"
+val versioningFallbackCode = 1
+val versioningFallbackName = "$versioningBaseName-nogit"
+
+fun execGitOutput(vararg args: String): String? =
+    runCatching {
+        providers
+            .exec {
+                commandLine("git", *args)
+                isIgnoreExitValue = false
+            }.standardOutput.asText
+            .get()
+            .trim()
+    }.getOrNull()
+
+val gitIsShallow = execGitOutput("rev-parse", "--is-shallow-repository") == "true"
+
+val computedVersionCode: Int =
+    if (!gitIsShallow) {
+        execGitOutput("rev-list", "--count", "HEAD")?.toIntOrNull() ?: versioningFallbackCode
+    } else {
+        logger.warn(
+            "androidApp: git repository is a shallow clone — falling back to a static " +
+                "versionCode ($versioningFallbackCode) instead of the (meaningless, non-monotonic) " +
+                "shallow commit count. CI should fetch full history (e.g. `fetch-depth: 0` on " +
+                "actions/checkout) so versionCode can be computed correctly.",
+        )
+        versioningFallbackCode
+    }
+
+val computedVersionName: String =
+    if (!gitIsShallow) {
+        val shortSha = execGitOutput("rev-parse", "--short", "HEAD")
+        if (shortSha != null) {
+            "$versioningBaseName-$computedVersionCode-$shortSha"
+        } else {
+            versioningFallbackName
+        }
+    } else {
+        versioningFallbackName
+    }
+
 // Fail loudly (instead of silently producing an unsigned APK/AAB) when a release/beta build is
 // actually requested without a keystore.properties in place. Debug builds are unaffected — they
 // use AGP's auto-generated debug keystore and don't reference signingConfigs["release"] below.
@@ -57,8 +122,8 @@ android {
         applicationId = "com.ilyne.helloszigetkmp"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = computedVersionCode
+        versionName = computedVersionName
     }
     packaging {
         resources {
