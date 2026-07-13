@@ -10,11 +10,11 @@ import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.settings.createSecureSettings
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.core.network.baseHttpClient
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
-import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -29,7 +29,7 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 val appModule = module {
     // Auth
     single { AppConfig() }
-    single { Settings() }
+    single { createSecureSettings() }
     single { GoogleAuthProvider() }
     single { TokenStorage(settings = get()) }
     single { ScheduleFilterStorage(settings = get()) }
