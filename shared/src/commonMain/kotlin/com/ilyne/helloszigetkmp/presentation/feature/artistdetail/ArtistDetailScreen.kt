@@ -91,6 +91,14 @@ private fun ArtistDetailContent(
                 }
             }
 
+            uiState.error != null -> {
+                Text(
+                    text = uiState.error,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
             uiState.artist == null -> {
                 Text(
                     text = "Artist not found",

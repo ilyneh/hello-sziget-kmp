@@ -77,10 +77,10 @@ class DiscoverViewModel(
             _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
             try {
                 artistRepository.refresh(force = force)
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
             }
-            _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
         }
     }
 

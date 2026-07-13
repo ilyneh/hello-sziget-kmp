@@ -85,6 +85,15 @@ private fun AddFriendContent(
                     .padding(bottom = 8.dp),
             )
 
+            uiState.error?.let { error ->
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = error,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
             if (uiState.results.isEmpty()) {
                 Text(
                     modifier = Modifier.fillMaxWidth().padding(top = 32.dp),

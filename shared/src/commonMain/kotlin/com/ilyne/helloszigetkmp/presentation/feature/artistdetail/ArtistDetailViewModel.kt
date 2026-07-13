@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 data class ArtistDetailUiState(
     val artist: Artist? = null,
     val isLoading: Boolean = true,
+    val error: String? = null,
 )
 
 class ArtistDetailViewModel(
@@ -27,8 +28,12 @@ class ArtistDetailViewModel(
         if (loadedArtistId == artistId) return
         loadedArtistId = artistId
         viewModelScope.launch {
-            artistRepository.observeArtist(artistId).collect { artist ->
-                _uiState.update { it.copy(artist = artist, isLoading = false) }
+            try {
+                artistRepository.observeArtist(artistId).collect { artist ->
+                    _uiState.update { it.copy(artist = artist, isLoading = false, error = null) }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = e.message ?: "Failed to load artist") }
             }
         }
     }
