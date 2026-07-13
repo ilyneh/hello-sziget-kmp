@@ -81,7 +81,12 @@ android {
             versionNameSuffix = "-debug"
         }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig = signingConfigs.getByName("release")
             // Enable automatic symbol and mapping file uploads
             configure<CrashlyticsExtension> {
