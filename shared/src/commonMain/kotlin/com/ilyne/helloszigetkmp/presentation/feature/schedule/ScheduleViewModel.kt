@@ -133,9 +133,8 @@ class ScheduleViewModel(
                 friendRepository.refresh(force = force)
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
             } catch (e: Exception) {
-                e.message?.let { message ->
-                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                }
+                val message = e.message ?: "Couldn't refresh the schedule. Pull to refresh to try again."
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
     }
@@ -160,9 +159,8 @@ class ScheduleViewModel(
                     try {
                         artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
-                        e.message?.let { message ->
-                            _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                        }
+                        val message = e.message ?: "Couldn't update favorite. Please try again."
+                        _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
                     }
                 }
             }
@@ -223,9 +221,8 @@ class ScheduleViewModel(
                     }
                 }
             } catch (e: Exception) {
-                e.message?.let { message ->
-                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                }
+                val message = e.message ?: "Couldn't load the schedule for this day."
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
     }
@@ -263,9 +260,8 @@ class ScheduleViewModel(
                     }
                 }
             } catch (e: Exception) {
-                e.message?.let { message ->
-                    _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
-                }
+                val message = e.message ?: "Couldn't load festival days."
+                _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
     }
