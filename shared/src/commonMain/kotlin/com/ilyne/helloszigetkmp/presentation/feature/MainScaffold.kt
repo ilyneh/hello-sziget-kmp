@@ -20,13 +20,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,6 +57,8 @@ import hello_sziget_kmp.shared.generated.resources.ic_schedule
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
+val LocalBottomBarPadding = staticCompositionLocalOf { 0.dp }
+
 @Serializable object ScheduleTab
 
 @Serializable object DiscoverTab
@@ -73,6 +80,8 @@ fun MainScaffold(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val density = LocalDensity.current
+    var bottomBarHeight by remember { mutableStateOf(0.dp) }
 
     val tabs = listOf(
         BottomTab("Schedule", ScheduleTab),
@@ -127,6 +136,7 @@ fun MainScaffold(
                 modifier = modifier
                     .padding(horizontal = 24.dp)
                     .navigationBarsPadding()
+                    .onSizeChanged { size -> bottomBarHeight = with(density) { size.height.toDp() } }
                     .fillMaxWidth()
                     .graphicsLayer {
                         shadowElevation = 16.dp.toPx() // The size/spread of the shadow
@@ -167,61 +177,63 @@ fun MainScaffold(
         fun tabIndex(destination: NavDestination?) =
             tabs.indexOfFirst { destination?.hasRoute(it.route::class) == true }
 
-        NavHost(
-            navController = navController,
-            startDestination = ScheduleTab,
-            enterTransition = {
-                if (tabIndex(targetState.destination) >= tabIndex(initialState.destination)) {
-                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left)
-                } else {
-                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right)
-                }
-            },
-            exitTransition = {
-                if (tabIndex(targetState.destination) >= tabIndex(initialState.destination)) {
-                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
-                } else {
-                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
-                }
-            },
-            modifier = Modifier
-                .padding(top = innerPadding.calculateTopPadding(), bottom = 0.dp)
-                .pointerInput(currentTabIndex) {
-                    detectHorizontalDragGestures(
-                        onDragStart = { swipeState.total = 0f },
-                        onDragCancel = { swipeState.total = 0f },
-                        onHorizontalDrag = { change, dragAmount ->
-                            swipeState.total += dragAmount
-                            change.consume()
-                        },
-                        onDragEnd = {
-                            if (currentTabIndex >= 0) {
-                                if (swipeState.total <= -SwipeThresholdPx && currentTabIndex < tabs.lastIndex) {
-                                    navigateToTab(tabs[currentTabIndex + 1].route)
-                                } else if (swipeState.total >= SwipeThresholdPx && currentTabIndex > 0) {
-                                    navigateToTab(tabs[currentTabIndex - 1].route)
-                                }
-                            }
-                            swipeState.total = 0f
-                        },
-                    )
+        CompositionLocalProvider(LocalBottomBarPadding provides bottomBarHeight) {
+            NavHost(
+                navController = navController,
+                startDestination = ScheduleTab,
+                enterTransition = {
+                    if (tabIndex(targetState.destination) >= tabIndex(initialState.destination)) {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    } else {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                    }
                 },
-        ) {
-            composable<ScheduleTab> {
-                ScheduleScreen(
-                    openFilterScreen = openFilterScreen,
-                    appliedFilter = appliedFilter,
-                    onAppliedFilterConsumed = onAppliedFilterConsumed,
-                    onArtistClick = onArtistClick,
-                )
-            }
-            composable<DiscoverTab> { DiscoverScreen(onArtistClick = onArtistClick) }
-            composable<LineupTab> { MyLineupScreen(onArtistClick = onArtistClick) }
-            composable<ProfileTab> {
-                ProfileScreen(
-                    onNavigateToAddFriend = onNavigateToAddFriend,
-                    onLoggedOut = onLoggedOut,
-                )
+                exitTransition = {
+                    if (tabIndex(targetState.destination) >= tabIndex(initialState.destination)) {
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    } else {
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                    }
+                },
+                modifier = Modifier
+                    .padding(top = innerPadding.calculateTopPadding(), bottom = 0.dp)
+                    .pointerInput(currentTabIndex) {
+                        detectHorizontalDragGestures(
+                            onDragStart = { swipeState.total = 0f },
+                            onDragCancel = { swipeState.total = 0f },
+                            onHorizontalDrag = { change, dragAmount ->
+                                swipeState.total += dragAmount
+                                change.consume()
+                            },
+                            onDragEnd = {
+                                if (currentTabIndex >= 0) {
+                                    if (swipeState.total <= -SwipeThresholdPx && currentTabIndex < tabs.lastIndex) {
+                                        navigateToTab(tabs[currentTabIndex + 1].route)
+                                    } else if (swipeState.total >= SwipeThresholdPx && currentTabIndex > 0) {
+                                        navigateToTab(tabs[currentTabIndex - 1].route)
+                                    }
+                                }
+                                swipeState.total = 0f
+                            },
+                        )
+                    },
+            ) {
+                composable<ScheduleTab> {
+                    ScheduleScreen(
+                        openFilterScreen = openFilterScreen,
+                        appliedFilter = appliedFilter,
+                        onAppliedFilterConsumed = onAppliedFilterConsumed,
+                        onArtistClick = onArtistClick,
+                    )
+                }
+                composable<DiscoverTab> { DiscoverScreen(onArtistClick = onArtistClick) }
+                composable<LineupTab> { MyLineupScreen(onArtistClick = onArtistClick) }
+                composable<ProfileTab> {
+                    ProfileScreen(
+                        onNavigateToAddFriend = onNavigateToAddFriend,
+                        onLoggedOut = onLoggedOut,
+                    )
+                }
             }
         }
     }

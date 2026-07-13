@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
@@ -45,7 +47,9 @@ fun SetTimeListView(
             color = SzigetPalette.Magenta
         )
 
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 16.dp),
+        ) {
             grouped.forEach { (header, setTimes) ->
                 stickyHeader {
                     Box(
