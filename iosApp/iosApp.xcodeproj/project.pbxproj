@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		CEFDE2143F1F5613A58EDA9E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0EA268DDBFB9BD218B471355 /* GoogleSignIn */; };
+		DF720C6E300473DB00726921 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = DF720C6D300473DB00726921 /* FirebaseCrashlytics */; };
+		FF665126D01C015A72290421 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DFBEE1D107CB2CC1F318E65C /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CEFDE2143F1F5613A58EDA9E /* GoogleSignIn in Frameworks */,
+				DF720C6E300473DB00726921 /* FirebaseCrashlytics in Frameworks */,
+				FF665126D01C015A72290421 /* FirebaseCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +95,8 @@
 			name = iosApp;
 			packageProductDependencies = (
 				0EA268DDBFB9BD218B471355 /* GoogleSignIn */,
+				DF720C6D300473DB00726921 /* FirebaseCrashlytics */,
+				DFBEE1D107CB2CC1F318E65C /* FirebaseCore */,
 			);
 			productName = iosApp;
 			productReference = 5E2FE646507EA2F45C526B46 /* hello-sziget-kmp.app */;
@@ -122,6 +128,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				DF720C6C300473DB00726921 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6C93EFEAD9BBB4BDA37C8393 /* Products */;
@@ -381,6 +388,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		DF720C6C300473DB00726921 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
 		EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -396,6 +411,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EDAD3AC8BE9CED74AC6DF143 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignIn;
+		};
+		DF720C6D300473DB00726921 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF720C6C300473DB00726921 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		DFBEE1D107CB2CC1F318E65C /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF720C6C300473DB00726921 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
