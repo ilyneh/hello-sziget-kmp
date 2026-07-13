@@ -98,10 +98,10 @@ class AddFriendViewModel(
                 users
                     .asSequence()
                     .filter { it.id != currentUserId }
+                    .filter { it.id !in friendIds }
                     .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
                     .map { user ->
                         val status = when (user.id) {
-                            in friendIds -> FriendshipStatus.FRIEND
                             in sentIds -> FriendshipStatus.REQUEST_SENT
                             in receivedIds -> FriendshipStatus.REQUEST_RECEIVED
                             else -> FriendshipStatus.NONE
