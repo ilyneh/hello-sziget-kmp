@@ -21,7 +21,10 @@ import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
+val secureSettingsQualifier = named("secure")
 
 fun initKoin(platformModules: List<Module> = emptyList()) {
     startKoin {
@@ -32,9 +35,15 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 val appModule = module {
     // Auth
     single { AppConfig() }
-    single { createSecureSettings() }
+    // Non-sensitive settings (e.g. soft-refresh timestamps, filter prefs): plain storage
+    // (SharedPreferences / NSUserDefaults) that is wiped when the app is uninstalled.
+    single { Settings() }
+    // Sensitive settings (auth tokens): Keychain/EncryptedSharedPreferences-backed, which on
+    // iOS deliberately survives app deletion - only use this for data that should persist
+    // across a reinstall.
+    single(secureSettingsQualifier) { createSecureSettings() }
     single { GoogleAuthProvider() }
-    single { TokenStorage(settings = get()) }
+    single { TokenStorage(settings = get(secureSettingsQualifier)) }
     single { ScheduleFilterStorage(settings = get()) }
     single { CurrentUserProvider() }
     single { createBaseHttpClient(isDebug = get<AppConfig>().isDebug()) }
