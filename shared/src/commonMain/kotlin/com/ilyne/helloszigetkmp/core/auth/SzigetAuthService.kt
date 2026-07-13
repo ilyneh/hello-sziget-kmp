@@ -7,6 +7,7 @@ import com.ilyne.helloszigetkmp.core.config.AppConfig
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
+import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import org.koin.core.context.loadKoinModules
@@ -35,7 +36,11 @@ class SzigetAuthService(
 
     suspend fun logout() {
         tokenStorage.read()?.let {
-            szigetAuthApiService.logout(accessToken = it.accessToken, refreshToken = it.refreshToken)
+            try {
+                szigetAuthApiService.logout(accessToken = it.accessToken, refreshToken = it.refreshToken)
+            } catch (e: Exception) {
+                Logger.e("SzigetAuthService", "Backend logout call failed, invalidating session locally anyway", e)
+            }
         }
         invalidateSession()
     }
