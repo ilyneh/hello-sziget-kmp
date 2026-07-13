@@ -39,7 +39,7 @@ sealed class AddFriendIntent {
 class AddFriendViewModel(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
-    private val currentUserProvider: CurrentUserProvider,
+    currentUserProvider: CurrentUserProvider,
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
@@ -47,8 +47,6 @@ class AddFriendViewModel(
     private val _uiState = MutableStateFlow(AddFriendUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Set once at login/session-restore — see CurrentUserProvider — instead of re-fetching from
-    // the DB on every init.
     private val currentUserId: String = currentUserProvider.currentUser.id
 
     init {

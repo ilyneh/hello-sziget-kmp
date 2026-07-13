@@ -74,7 +74,7 @@ class ProfileViewModel(
     private val usersSyncService: UsersSyncService,
     private val getLikedArtistCountUseCase: GetLikedArtistCountUseCase,
     private val api: SzigetApiService,
-    private val currentUserProvider: CurrentUserProvider,
+    currentUserProvider: CurrentUserProvider,
 ) : ViewModel()  {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -83,8 +83,6 @@ class ProfileViewModel(
     private val _effects = MutableSharedFlow<ProfileEffect>()
     val effects = _effects.asSharedFlow()
 
-    // Set once at login/session-restore, before Main (and therefore this screen) is reachable —
-    // see CurrentUserProvider. No more per-ViewModel DB fetch, no lateinit crash risk.
     private val currentUser: User = currentUserProvider.currentUser
 
     init {
