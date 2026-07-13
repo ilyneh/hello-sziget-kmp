@@ -40,7 +40,22 @@ class SzigetAuthService(
         invalidateSession()
     }
 
-    fun localSignIn() {
+    /**
+     * Dev-only shortcut that bypasses Google sign-in entirely and logs in as a fixed backend
+     * account using [BEARER_TOKEN_LOCALHOST]. Callers gate this behind [SKIP_GOOGLE_SIGN_IN], but
+     * that flag alone is not a safe-enough rail: it's trivial to leave set to `true` by accident.
+     * So the real guarantee lives here, next to the bypass itself - if this is ever invoked in a
+     * non-debug (release) build, we ignore the bypass and fall back to the real [signIn] flow
+     * instead of throwing or silently no-op-ing, so the app doesn't get stuck for the user. A
+     * release build therefore behaves as if [SKIP_GOOGLE_SIGN_IN] were always `false`, regardless
+     * of its actual value.
+     */
+    suspend fun localSignIn() {
+        if (!appConfig.isDebug()) {
+            signIn()
+            return
+        }
+
         val token = TokenDto(
             accessToken = BEARER_TOKEN_LOCALHOST,
             refreshToken = "",
