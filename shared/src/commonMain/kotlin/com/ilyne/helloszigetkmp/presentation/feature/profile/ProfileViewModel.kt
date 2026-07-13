@@ -87,8 +87,8 @@ class ProfileViewModel(
         viewModelScope.launch {
             try {
                 currentUser = userRepository.getCurrentUser() ?: run {
-                    Logger.e("findme", "currentUser is null")
-                    // need error handling
+                    Logger.e("ProfileViewModel", "init: currentUser is null")
+                    _uiState.update { it.copy(error = "Failed to load profile") }
                     return@launch
                 }
 
@@ -102,10 +102,11 @@ class ProfileViewModel(
                     artistRepository.refresh(force = false)
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
-                    Logger.e("findme", "users sync failed, skipping friends refresh")
+                    Logger.e("ProfileViewModel", "init: users sync failed, skipping friends refresh")
                 }
             } catch (e: Exception) {
-
+                Logger.e("ProfileViewModel", "init: failed to load profile", e)
+                _uiState.update { it.copy(isLoading = false, error = "Failed to load profile") }
             }
         }
         observeFriends()
