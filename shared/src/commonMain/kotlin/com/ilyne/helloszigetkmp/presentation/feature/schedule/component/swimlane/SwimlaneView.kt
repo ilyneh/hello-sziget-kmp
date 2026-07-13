@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +45,7 @@ fun SwimLaneView(
     onArtistClick: (String) -> Unit = {},
 ) {
     val horizScroll = rememberScrollState()
-    val vertScroll = rememberScrollState()
+    val vertListState = rememberLazyListState()
 
     if (setTimes.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -63,8 +65,8 @@ fun SwimLaneView(
             }
         }
 
-        Column(modifier = Modifier.verticalScroll(vertScroll)) {
-            stages.forEach { stage ->
+        LazyColumn(modifier = Modifier.fillMaxSize(), state = vertListState) {
+            items(stages, key = { it.id }) { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }
                 Row(
                     modifier = Modifier
