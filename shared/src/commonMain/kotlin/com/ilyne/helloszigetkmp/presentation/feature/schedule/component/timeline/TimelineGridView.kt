@@ -19,10 +19,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
@@ -37,6 +45,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.st
 
 private const val MIN_COLUMN_WIDTH_DP = 120
 private const val TIME_LABEL_WIDTH_DP = 48
+private const val VISIBLE_HOUR_BUFFER = 1
 
 @Composable
 fun TimelineGridView(
@@ -54,6 +63,28 @@ fun TimelineGridView(
             Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
+    }
+
+    val stageIndexOf = remember(stages) { stages.withIndex().associate { (index, stage) -> stage.id to index } }
+
+    val density = LocalDensity.current
+    val hourHeightPx = with(density) { HOUR_HEIGHT_DP.dp.toPx() }
+    var viewportSizePx by remember { mutableStateOf(IntSize.Zero) }
+
+    val visibleHourRange = remember {
+        derivedStateOf {
+            val scrollHours = vertScroll.value / hourHeightPx
+            val visibleHours = viewportSizePx.height / hourHeightPx
+            val start = gridMinHour + scrollHours - VISIBLE_HOUR_BUFFER
+            val end = gridMinHour + scrollHours + visibleHours + VISIBLE_HOUR_BUFFER
+            start..end
+        }
+    }
+    val visibleSetTimes by remember(setTimes) {
+        derivedStateOf {
+            val range = visibleHourRange.value
+            setTimes.filter { it.endHourFraction >= range.start && it.startHourFraction <= range.endInclusive }
+        }
     }
 
     val totalGridHeight = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp
@@ -113,6 +144,7 @@ fun TimelineGridView(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
+                        .onSizeChanged { viewportSizePx = it }
                         .verticalScroll(vertScroll)
                         .horizontalScroll(horizScroll),
                 ) {
@@ -148,10 +180,10 @@ fun TimelineGridView(
                             )
                         }
 
-                        // Set time cards
-                        setTimes.forEach { setTime ->
-                            val stageIndex = stages.indexOfFirst { it.id == setTime.stageId }
-                            if (stageIndex < 0) return@forEach
+                        // Set time cards — windowed to the visible (+buffer) hour range so we
+                        // don't compose every set for the day at once.
+                        visibleSetTimes.forEach { setTime ->
+                            val stageIndex = stageIndexOf[setTime.stageId] ?: return@forEach
                             val startHourFraction = setTime.startHourFraction
                             val endHourFraction = setTime.endHourFraction
                             val topDp = ((startHourFraction - gridMinHour) * HOUR_HEIGHT_DP).dp
