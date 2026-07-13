@@ -30,7 +30,7 @@ expect object SzigetDatabaseConstructor : RoomDatabaseConstructor<SzigetDatabase
         UserEntity::class, UserFriendEntity::class, CurrentUserEntity::class,
         ArtistFriendFavoritedEntity::class,
     ],
-    version = 2,
+    version = 1,
 )
 @ConstructedBy(SzigetDatabaseConstructor::class)
 @TypeConverters(Converters::class)

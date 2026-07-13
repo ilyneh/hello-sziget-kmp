@@ -11,6 +11,8 @@ actual class AppConfig actual constructor() {
         // if (AppConfigContext.isDebuggable) return "http://10.0.2.2:8000/api/v1"
         return if (AppConfigContext.isDebuggable) BASE_URL_DEV else BASE_URL_PROD
     }
+
+    actual fun isDebug(): Boolean = AppConfigContext.isDebuggable
 }
 
 /**

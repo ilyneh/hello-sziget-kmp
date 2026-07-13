@@ -15,4 +15,7 @@ actual class AppConfig actual constructor() {
         // if (Platform.isDebugBinary) return "http://192.168.1.193:8000/api/v1"
         return if (Platform.isDebugBinary) BASE_URL_DEV else BASE_URL_PROD
     }
+
+    @OptIn(ExperimentalNativeApi::class)
+    actual fun isDebug(): Boolean = Platform.isDebugBinary
 }
