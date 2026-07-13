@@ -7,6 +7,10 @@ xcuserdata
 local.properties
 androidApp/google-services.json
 androidApp/release/
+androidApp/keystore.properties
+androidApp/keystore/
+*.jks
+*.keystore
 iosApp/iosApp/GoogleService-Info.plist
 .idea
 .DS_Store
