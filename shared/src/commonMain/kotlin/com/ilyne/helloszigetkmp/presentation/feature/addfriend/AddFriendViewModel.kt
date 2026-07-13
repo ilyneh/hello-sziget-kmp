@@ -21,7 +21,13 @@ data class AddFriendUserItem(
 data class AddFriendUiState(
     val searchQuery: String = "",
     val results: List<AddFriendUserItem> = emptyList(),
-)
+    val status: Status = Status.Idle,
+) {
+    sealed class Status {
+        data object Idle : Status()
+        data class Error(val message: String) : Status()
+    }
+}
 
 sealed class AddFriendIntent {
     data class SearchQueryChanged(val query: String) : AddFriendIntent()
@@ -56,11 +62,25 @@ class AddFriendViewModel(
             }
             is AddFriendIntent.SendFriendRequest -> viewModelScope.launch {
                 val currentUserId = currentUserId ?: return@launch
-                friendRepository.sendFriendRequest(currentUserId, intent.userId)
+                try {
+                    friendRepository.sendFriendRequest(currentUserId, intent.userId)
+                    _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
+                    }
+                }
             }
             is AddFriendIntent.AcceptFriendRequest -> viewModelScope.launch {
                 val currentUserId = currentUserId ?: return@launch
-                friendRepository.acceptFriendRequest(currentUserId, intent.userId)
+                try {
+                    friendRepository.acceptFriendRequest(currentUserId, intent.userId)
+                    _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
+                    }
+                }
             }
         }
     }

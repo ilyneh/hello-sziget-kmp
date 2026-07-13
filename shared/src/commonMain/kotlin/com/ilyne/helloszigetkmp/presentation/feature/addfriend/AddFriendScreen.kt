@@ -85,6 +85,16 @@ private fun AddFriendContent(
                     .padding(bottom = 8.dp),
             )
 
+            val status = uiState.status
+            if (status is AddFriendUiState.Status.Error) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = status.message,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+
             if (uiState.results.isEmpty()) {
                 Text(
                     modifier = Modifier.fillMaxWidth().padding(top = 32.dp),

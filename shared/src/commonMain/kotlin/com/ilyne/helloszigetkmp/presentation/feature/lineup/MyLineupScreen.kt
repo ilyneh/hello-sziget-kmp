@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
+import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
@@ -37,10 +38,24 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         Column(modifier = Modifier.fillMaxSize()) {
             MainHeader(text = "My Lineup")
 
+            val status = uiState.status
             when {
-                uiState.status == MyLineupUiState.Status.Loading -> {
+                status == MyLineupUiState.Status.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
+                    }
+                }
+
+                status is MyLineupUiState.Status.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = status.message ?: "Something went wrong",
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ActionButton(text = "Retry", onClick = { viewModel.refresh() })
+                        }
                     }
                 }
 

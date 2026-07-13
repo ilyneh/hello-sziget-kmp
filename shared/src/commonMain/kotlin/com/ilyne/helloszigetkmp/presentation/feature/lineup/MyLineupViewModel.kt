@@ -58,9 +58,10 @@ class MyLineupViewModel(
             try {
                 scheduleRepository.refresh()
                 artistRepository.refresh()
-            } catch (_: Exception) {
+                _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
             }
-            _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
         }
     }
 
@@ -68,7 +69,8 @@ class MyLineupViewModel(
         viewModelScope.launch {
             try {
                 artistRepository.toggleFavorite(artistId, isFavorited = false)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
             }
         }
     }
