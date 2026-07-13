@@ -24,15 +24,15 @@ class UserRepository(
         dao.upsertAll(dtos.map { it.toEntity() })
     }
 
-    suspend fun syncCurrentUser(user: UserDto) {
+    suspend fun syncCurrentUser(user: UserDto): User {
         dao.upsertAll(listOf(user.toEntity()))
         dao.setCurrentUser(user.id)
+        return user.toEntity().toDomain()
     }
 
     suspend fun uploadProfilePicture(api: SzigetApiService, bytes: ByteArray, contentType: String): User {
         val dto = api.uploadProfileImage(bytes = bytes, contentType = contentType)
-        syncCurrentUser(dto)
-        return dto.toEntity().toDomain()
+        return syncCurrentUser(dto)
     }
 }
 

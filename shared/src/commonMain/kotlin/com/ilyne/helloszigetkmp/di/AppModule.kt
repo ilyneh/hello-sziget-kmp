@@ -1,5 +1,6 @@
 package com.ilyne.helloszigetkmp.di
 
+import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
@@ -33,9 +34,19 @@ val appModule = module {
     single { GoogleAuthProvider() }
     single { TokenStorage(settings = get()) }
     single { ScheduleFilterStorage(settings = get()) }
+    single { CurrentUserProvider() }
     single { baseHttpClient }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
-    single { SzigetAuthService(appConfig = get(), authProvider = get(), tokenStorage = get(), szigetAuthApiService = get()) }
+    single {
+        SzigetAuthService(
+            appConfig = get(),
+            authProvider = get(),
+            tokenStorage = get(),
+            szigetAuthApiService = get(),
+            userRepository = get(),
+            currentUserProvider = get(),
+        )
+    }
     single { LogoutService(session = get()) }
 
     // Database
@@ -53,5 +64,12 @@ val appModule = module {
     single { UsersSyncService(userRepository = get()) }
 
     // View Models
-    viewModel { LoginViewModel(szigetAuthService = get(), userRepository = get(), usersSyncService = get()) }
+    viewModel {
+        LoginViewModel(
+            szigetAuthService = get(),
+            userRepository = get(),
+            usersSyncService = get(),
+            currentUserProvider = get(),
+        )
+    }
 }

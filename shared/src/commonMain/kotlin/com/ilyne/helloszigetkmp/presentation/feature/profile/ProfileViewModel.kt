@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.presentation.feature.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.media.DeviceImage
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
@@ -73,6 +74,7 @@ class ProfileViewModel(
     private val usersSyncService: UsersSyncService,
     private val getLikedArtistCountUseCase: GetLikedArtistCountUseCase,
     private val api: SzigetApiService,
+    private val currentUserProvider: CurrentUserProvider,
 ) : ViewModel()  {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -81,17 +83,13 @@ class ProfileViewModel(
     private val _effects = MutableSharedFlow<ProfileEffect>()
     val effects = _effects.asSharedFlow()
 
-    private lateinit var currentUser: User
+    // Set once at login/session-restore, before Main (and therefore this screen) is reachable —
+    // see CurrentUserProvider. No more per-ViewModel DB fetch, no lateinit crash risk.
+    private val currentUser: User = currentUserProvider.currentUser
 
     init {
         viewModelScope.launch {
             try {
-                currentUser = userRepository.getCurrentUser() ?: run {
-                    Logger.e("ProfileViewModel", "init: currentUser is null")
-                    _uiState.update { it.copy(error = "Failed to load profile") }
-                    return@launch
-                }
-
                 _uiState.update {
                     it.copy(name = currentUser.name, imageUrl = currentUser.imageUrl)
                 }
