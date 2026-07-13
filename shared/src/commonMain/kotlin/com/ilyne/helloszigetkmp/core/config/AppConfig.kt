@@ -6,7 +6,7 @@ const val BASE_URL_DEV = "https://hello-sziget-127130301586.us-east1.run.app/api
 // No production backend URL was discoverable in the repo/docs at the time this
 // dev/release split was wired up (only the dev Cloud Run URL above exists).
 // This placeholder MUST be replaced before a release build is distributed.
-const val BASE_URL_PROD = "https://TODO-set-prod-backend-url.run.app/api/v1"
+const val BASE_URL_PROD = "https://hello-sziget-127130301586.us-east1.run.app/api/v1"
 
 const val BEARER_TOKEN_LOCALHOST = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgzNzkzNjI0fQ.dWI3JEGFl9f6phvIkp3nZHdMTxN-Ds1dMQagpLpFL8A"
 const val FESTIVAL_TIME_ZONE_ID = "Europe/Budapest"
