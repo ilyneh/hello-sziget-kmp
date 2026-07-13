@@ -15,4 +15,6 @@ const val SKIP_GOOGLE_SIGN_IN = false
 
 expect class AppConfig() {
     fun baseUrlLocal(): String
+
+    fun isDebug(): Boolean
 }
