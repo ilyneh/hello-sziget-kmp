@@ -33,8 +33,15 @@ fun App() {
 
     LaunchedEffect(Unit) {
         authService.sessionInvalidated.collect {
-            navController.navigate(Login) {
-                popUpTo(0) { inclusive = true }
+            // The NavHost may not have composed yet (startDestination still null while
+            // restoreSession() is in flight), in which case navController has no graph set
+            // and navigate() would throw. Just point the eventual start destination at Login.
+            if (startDestination == null) {
+                startDestination = Login
+            } else {
+                navController.navigate(Login) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
     }
