@@ -66,6 +66,8 @@ Repositories (`core/repository/`) are the source of truth for ViewModels and wra
 
 Room KMP (`androidx.room`) via `core/db/SzigetDatabase.kt`, with schema JSON snapshots under `shared/schemas/`. DAOs live in `core/db/dao/`. Both Android and iOS targets generate Room code via KSP (`kspAndroid`, `kspIosArm64`, `kspIosSimulatorArm64` in `shared/build.gradle.kts`).
 
+The database is still `version = 1` (only `1.json` exists) and `createDatabase()` uses `.fallbackToDestructiveMigration(dropAllTables = true)` — there are no real `Migration`s yet because there's been no version bump to migrate from. This is lower-stakes than it sounds: every Room table is a cache of backend data (friends, favorites, schedule, cached user), so a wipe just means the next screen load refetches instead of losing anything permanently — `createDatabase()` wires Room's `onDestructiveMigration` callback to `SoftRefreshGate.clearAll(settings)` so `SoftRefreshGate`'s `lastFetchedAt` timestamps (which live in `Settings`, not Room, so they'd otherwise survive the wipe) are cleared too, forcing an immediate refetch instead of screens looking "fresh" but empty for up to their staleness threshold. Still worth authoring a real `Migration` before bumping `version` past 1, since a full-screen reload/refetch is a worse experience than an in-place migration even if no data is truly lost.
+
 ### Networking
 
 Ktor client, built in `core/network/HttpClients.kt`. `baseHttpClient` is the unauthenticated client (used for login/auth endpoints); `createApiHttpClient(...)` builds the authenticated per-session client used after login, wired with token refresh via `TokenStorage`.

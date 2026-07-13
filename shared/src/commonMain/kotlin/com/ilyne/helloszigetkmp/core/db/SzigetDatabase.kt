@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
@@ -46,9 +47,17 @@ abstract class SzigetDatabase : RoomDatabase() {
     abstract fun friendDao(): FriendDao
 }
 
-fun createDatabase(builder: RoomDatabase.Builder<SzigetDatabase>): SzigetDatabase =
+fun createDatabase(
+    builder: RoomDatabase.Builder<SzigetDatabase>,
+    onDestructiveMigration: () -> Unit = {},
+): SzigetDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .addCallback(
+            object : RoomDatabase.Callback() {
+                override fun onDestructiveMigration(connection: SQLiteConnection) = onDestructiveMigration()
+            },
+        )
         .fallbackToDestructiveMigration(dropAllTables = true)
         .build()

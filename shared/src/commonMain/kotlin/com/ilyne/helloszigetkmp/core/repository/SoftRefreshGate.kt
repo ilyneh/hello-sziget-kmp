@@ -42,4 +42,16 @@ class SoftRefreshGate(
         val elapsed = Clock.System.now().toEpochMilliseconds() - lastFetchedAt
         return elapsed >= threshold.inWholeMilliseconds
     }
+
+    companion object {
+        /**
+         * Clears every gate's last-fetched timestamp. [Settings] survives a Room destructive
+         * migration (they're backed by separate storage), so without this a wiped local DB
+         * would still look "fresh" to every gate and screens would show empty state for up to
+         * their threshold instead of immediately refetching from the backend.
+         */
+        fun clearAll(settings: Settings) {
+            settings.keys.filter { it.startsWith(KEY_PREFIX) }.forEach(settings::remove)
+        }
+    }
 }
