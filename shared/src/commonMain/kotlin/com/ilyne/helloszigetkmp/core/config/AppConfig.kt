@@ -8,15 +8,12 @@ const val BASE_URL_DEV = "https://hello-sziget-127130301586.us-east1.run.app/api
 // This placeholder MUST be replaced before a release build is distributed.
 const val BASE_URL_PROD = "https://hello-sziget-127130301586.us-east1.run.app/api/v1"
 
-private const val DEFAULT_BEARER_TOKEN_LOCALHOST = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgzNzkzNjI0fQ.dWI3JEGFl9f6phvIkp3nZHdMTxN-Ds1dMQagpLpFL8A"
+const val FESTIVAL_TIME_ZONE_ID = "Europe/Budapest"
 
 // Overridable at build time via the `sziget.localBearerToken` property (see :shared's
 // build.gradle.kts), e.g. when the backend issues a fresh test token. Falls back to the
 // checked-in default when no override is configured.
-val BEARER_TOKEN_LOCALHOST: String =
-    SzigetBuildConfig.LOCAL_BEARER_TOKEN.ifBlank { DEFAULT_BEARER_TOKEN_LOCALHOST }
-
-const val FESTIVAL_TIME_ZONE_ID = "Europe/Budapest"
+val BEARER_TOKEN_LOCALHOST: String = SzigetBuildConfig.LOCAL_BEARER_TOKEN
 
 // Overridable at build time via the `sziget.skipGoogleSignIn` property. Even if left/set to
 // true by accident, SzigetAuthService.localSignIn() ignores it outside debug builds, so this
