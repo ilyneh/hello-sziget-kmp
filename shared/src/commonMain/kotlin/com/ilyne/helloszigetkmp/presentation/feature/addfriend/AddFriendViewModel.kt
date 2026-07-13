@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.presentation.feature.addfriend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
@@ -38,6 +39,7 @@ sealed class AddFriendIntent {
 class AddFriendViewModel(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
+    currentUserProvider: CurrentUserProvider,
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
@@ -45,13 +47,10 @@ class AddFriendViewModel(
     private val _uiState = MutableStateFlow(AddFriendUiState())
     val uiState = _uiState.asStateFlow()
 
-    private var currentUserId: String? = null
+    private val currentUserId: String = currentUserProvider.currentUser.id
 
     init {
-        viewModelScope.launch {
-            currentUserId = userRepository.getCurrentUser()?.id
-            observeResults()
-        }
+        observeResults()
     }
 
     fun onIntent(intent: AddFriendIntent) {
@@ -61,7 +60,6 @@ class AddFriendViewModel(
                 _uiState.update { it.copy(searchQuery = intent.query) }
             }
             is AddFriendIntent.SendFriendRequest -> viewModelScope.launch {
-                val currentUserId = currentUserId ?: return@launch
                 try {
                     friendRepository.sendFriendRequest(currentUserId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
@@ -72,7 +70,6 @@ class AddFriendViewModel(
                 }
             }
             is AddFriendIntent.AcceptFriendRequest -> viewModelScope.launch {
-                val currentUserId = currentUserId ?: return@launch
                 try {
                     friendRepository.acceptFriendRequest(currentUserId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }

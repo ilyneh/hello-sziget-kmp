@@ -7,6 +7,7 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -22,6 +23,17 @@ import com.ilyne.helloszigetkmp.util.Logger as AppLogger
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 private const val HTTP_LOG_TAG = "HttpClient"
+
+
+// Festival wifi/cell coverage is exactly the flaky-network case HttpTimeout exists for: without
+// it, a stalled request hangs the calling coroutine (and whatever UI is awaiting it) indefinitely,
+// with no way to recover short of force-quitting. 30s is generous for a JSON API call on a live
+// connection while still failing fast enough that a screen's error/retry UI shows up in a
+// reasonable time; connectTimeoutMillis is shorter since a dead connection attempt should give up
+// quicker than an in-flight request that's merely slow.
+private const val REQUEST_TIMEOUT_MILLIS = 30_000L
+private const val CONNECT_TIMEOUT_MILLIS = 15_000L
+private const val SOCKET_TIMEOUT_MILLIS = 30_000L
 
 /**
  * [isDebug] gates request/response logging entirely: release builds install no logger at all,
@@ -53,6 +65,11 @@ fun createBaseHttpClient(isDebug: Boolean): HttpClient =
                 }
             }
             level = if (isDebug) LogLevel.INFO else LogLevel.NONE
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+            connectTimeoutMillis = CONNECT_TIMEOUT_MILLIS
+            socketTimeoutMillis = SOCKET_TIMEOUT_MILLIS
         }
     }
 
