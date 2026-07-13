@@ -11,9 +11,14 @@ import kotlinx.coroutines.launch
 
 data class ArtistDetailUiState(
     val artist: Artist? = null,
-    val isLoading: Boolean = true,
-    val error: String? = null,
-)
+    val status: Status = Status.Loading,
+) {
+    sealed class Status {
+        data object Loading : Status()
+        data object Success : Status()
+        data class Error(val message: String?) : Status()
+    }
+}
 
 class ArtistDetailViewModel(
     private val artistRepository: ArtistRepository,
@@ -30,10 +35,12 @@ class ArtistDetailViewModel(
         viewModelScope.launch {
             try {
                 artistRepository.observeArtist(artistId).collect { artist ->
-                    _uiState.update { it.copy(artist = artist, isLoading = false, error = null) }
+                    _uiState.update { it.copy(artist = artist, status = ArtistDetailUiState.Status.Success) }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = e.message ?: "Failed to load artist") }
+                _uiState.update {
+                    it.copy(status = ArtistDetailUiState.Status.Error(e.message ?: "Failed to load artist"))
+                }
             }
         }
     }

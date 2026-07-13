@@ -81,8 +81,8 @@ private fun ArtistDetailContent(
             }
         }
 
-        when {
-            uiState.isLoading -> {
+        when (val status = uiState.status) {
+            is ArtistDetailUiState.Status.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     contentAlignment = Alignment.Center,
@@ -91,36 +91,37 @@ private fun ArtistDetailContent(
                 }
             }
 
-            uiState.error != null -> {
+            is ArtistDetailUiState.Status.Error -> {
                 Text(
-                    text = uiState.error,
+                    text = status.message ?: "Something went wrong",
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
 
-            uiState.artist == null -> {
-                Text(
-                    text = "Artist not found",
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                ) {
+            is ArtistDetailUiState.Status.Success -> {
+                val artist = uiState.artist
+                if (artist == null) {
                     Text(
-                        text = uiState.artist.bio
-                            ?.htmlToAnnotatedString()
-                            ?: AnnotatedString("No bio available yet."),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 24.dp),
+                        text = "Artist not found",
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        Text(
+                            text = artist.bio
+                                ?.htmlToAnnotatedString()
+                                ?: AnnotatedString("No bio available yet."),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 24.dp),
+                        )
+                    }
                 }
             }
         }
@@ -142,7 +143,7 @@ private fun ArtistDetailContentPreview() {
                     isFavorited = true,
                     tags = null,
                 ),
-                isLoading = false,
+                status = ArtistDetailUiState.Status.Success,
             ),
             onDismiss = {},
         )
