@@ -11,8 +11,10 @@ actual class AppConfig actual constructor() {
         // iosApp.xcodeproj) forwards the active scheme's build configuration (Debug/Release) to
         // the Gradle task, which picks NativeBuildType.DEBUG or RELEASE accordingly.
         //
-        // Uncomment to point a debug build at a local backend (replace with your machine's LAN IP):
-        // if (Platform.isDebugBinary) return "http://192.168.1.193:8000/api/v1"
+        // Point a debug build at a local backend by setting `sziget.localBackendUrl` in
+        // local.properties or via `-Psziget.localBackendUrl=...`, e.g. your machine's LAN IP
+        // "http://192.168.1.193:8000/api/v1". See local.properties.example.
+        SzigetBuildConfig.LOCAL_BACKEND_URL.takeIf { it.isNotBlank() }?.let { return it }
         return if (Platform.isDebugBinary) BASE_URL_DEV else BASE_URL_PROD
     }
 

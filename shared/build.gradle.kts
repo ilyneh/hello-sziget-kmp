@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,6 +10,35 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.spotless)
+}
+
+// --- Build-time app configuration -------------------------------------------------------------
+//
+// Lets a build point at a local/localhost backend, skip Google Sign-In, and swap the dev bearer
+// token, without editing source. Resolved the same layered way androidApp resolves
+// keystore.properties: a Gradle project property (`-Psziget.xxx=...`) wins if set — this also
+// covers CI (`-P` flags) and Xcode's embedAndSignAppleFrameworkForXcode Gradle invocation, since
+// both go through the same Gradle project properties mechanism — otherwise falls back to
+// `local.properties` at the repo root (gitignored, so it's safe to put a developer's own
+// machine-specific values there, e.g. a LAN IP or a personal test token). See
+// local.properties.example for the available keys.
+val rootLocalPropertiesFile = rootProject.file("local.properties")
+val rootLocalProperties = Properties().apply {
+    if (rootLocalPropertiesFile.exists()) {
+        rootLocalPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun resolveConfigProperty(key: String): String? =
+    (project.findProperty(key) as String?) ?: rootLocalProperties.getProperty(key)
+
+// GenerateSzigetBuildConfigTask lives in buildSrc/src/main/kotlin — see its kdoc for why it's a
+// dedicated task type rather than an ad-hoc `tasks.registering { doLast { ... } }`.
+val generateSzigetBuildConfig by tasks.registering(GenerateSzigetBuildConfigTask::class) {
+    localBackendUrl.set(resolveConfigProperty("sziget.localBackendUrl").orEmpty())
+    localBearerToken.set(resolveConfigProperty("sziget.localBearerToken").orEmpty())
+    skipGoogleSignIn.set(resolveConfigProperty("sziget.skipGoogleSignIn")?.toBoolean() ?: false)
+    outputDir.set(layout.buildDirectory.dir("generated/szigetConfig/commonMain/kotlin"))
 }
 
 kotlin {
@@ -39,6 +69,9 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.configure {
+            kotlin.srcDir(generateSzigetBuildConfig.flatMap { it.outputDir })
+        }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.ktor.client.okhttp)
