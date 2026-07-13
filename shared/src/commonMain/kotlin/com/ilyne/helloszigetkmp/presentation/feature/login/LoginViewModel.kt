@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.presentation.feature.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
+import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
@@ -29,6 +30,7 @@ class LoginViewModel(
     private val szigetAuthService: SzigetAuthService,
     private val userRepository: UserRepository,
     private val usersSyncService: UsersSyncService,
+    private val currentUserProvider: CurrentUserProvider,
 ) : ViewModel(), KoinComponent {
 
     // Resolved lazily: the authenticated SzigetApiService only exists in Koin
@@ -51,7 +53,8 @@ class LoginViewModel(
                     szigetAuthService.signIn()
                 }
 
-                userRepository.syncCurrentUser(apiService.getMe())
+                val currentUser = userRepository.syncCurrentUser(apiService.getMe())
+                currentUserProvider.set(currentUser)
                 usersSyncService.fetchAllUsers(apiService)
 
                 _effects.emit(LoginEffect.NavigateToMain)
