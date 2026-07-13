@@ -10,6 +10,9 @@ actual class AppConfig actual constructor() {
         // release mode. Xcode's `embedAndSignAppleFrameworkForXcode` build phase (see
         // iosApp.xcodeproj) forwards the active scheme's build configuration (Debug/Release) to
         // the Gradle task, which picks NativeBuildType.DEBUG or RELEASE accordingly.
+        //
+        // Uncomment to point a debug build at a local backend (replace with your machine's LAN IP):
+        // if (Platform.isDebugBinary) return "http://192.168.1.193:8000/api/v1"
         return if (Platform.isDebugBinary) BASE_URL_DEV else BASE_URL_PROD
     }
 }

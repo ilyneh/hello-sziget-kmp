@@ -6,7 +6,11 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 actual class AppConfig actual constructor() {
-    actual fun baseUrlLocal(): String = if (AppConfigContext.isDebuggable) BASE_URL_DEV else BASE_URL_PROD
+    actual fun baseUrlLocal(): String {
+        // Uncomment to point a debug build at a local backend (Android emulator host alias):
+        // if (AppConfigContext.isDebuggable) return "http://10.0.2.2:8000/api/v1"
+        return if (AppConfigContext.isDebuggable) BASE_URL_DEV else BASE_URL_PROD
+    }
 }
 
 /**
