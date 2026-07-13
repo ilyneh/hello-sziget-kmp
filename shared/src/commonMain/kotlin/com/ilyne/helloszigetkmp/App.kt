@@ -24,15 +24,22 @@ fun App() {
     val authService = koinInject<SzigetAuthService>()
     val navController = rememberNavController()
     var startDestination by remember { mutableStateOf<Any?>(null) }
+    var sessionWasInvalidated by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         // Suspends until CurrentUserProvider is either populated from the local DB or the
         // session is invalidated, so Main is never reachable before the current user is set.
-        startDestination = if (authService.restoreSession()) Main else Login
+        val restored = authService.restoreSession()
+        // If sessionInvalidated already fired while this was in flight, don't let a stale
+        // "restored" result clobber the Login destination it set.
+        if (!sessionWasInvalidated) {
+            startDestination = if (restored) Main else Login
+        }
     }
 
     LaunchedEffect(Unit) {
         authService.sessionInvalidated.collect {
+            sessionWasInvalidated = true
             // The NavHost may not have composed yet (startDestination still null while
             // restoreSession() is in flight), in which case navController has no graph set
             // and navigate() would throw. Just point the eventual start destination at Login.
