@@ -1,0 +1,20 @@
+# Copy this file to local.properties (gitignored, sits next to this file; Android Studio also
+# manages `sdk.dir` in that same file) to configure your machine-local build without editing
+# source. Every key here can also be passed as a Gradle project property instead, e.g.
+# `./gradlew :androidApp:assembleDebug -Psziget.localBackendUrl=http://10.0.2.2:8000/api/v1`
+# — a `-P` value always wins over local.properties. See shared/build.gradle.kts for how these
+# are resolved and baked into the app as SzigetBuildConfig.
+
+# Point debug builds at a local backend instead of the dev Cloud Run URL. Leave unset/empty to
+# use the default dev URL. Examples: Android emulator -> http://10.0.2.2:8000/api/v1,
+# iOS simulator/device -> http://<your-machine-LAN-IP>:8000/api/v1
+sziget.localBackendUrl=
+
+# Bearer token used by the dev-only "skip Google sign-in" shortcut (SzigetAuthService.localSignIn).
+# Leave unset/empty to use the checked-in default dev token.
+sziget.localBearerToken=
+
+# When true, the login screen bypasses Google Sign-In and logs in directly with
+# sziget.localBearerToken (or the default dev token). Ignored outside debug builds regardless of
+# this value (see SzigetAuthService.localSignIn).
+sziget.skipGoogleSignIn=false

@@ -27,6 +27,14 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 - Android tests: `./gradlew :shared:testAndroidHostTest`
 - iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
 
+### Local build configuration
+
+To point a debug build at a local backend, skip Google Sign-In, or override the dev bearer
+token without editing source, copy [local.properties.example](./local.properties.example) to
+`local.properties` (gitignored) and fill in the values you need, or pass the same keys as Gradle
+project properties (e.g. `-Psziget.localBackendUrl=...`). See
+[shared/build.gradle.kts](./shared/build.gradle.kts) for how these are resolved.
+
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…

@@ -7,8 +7,10 @@ import org.koin.core.component.inject
 
 actual class AppConfig actual constructor() {
     actual fun baseUrlLocal(): String {
-        // Uncomment to point a debug build at a local backend (Android emulator host alias):
-        // if (AppConfigContext.isDebuggable) return "http://10.0.2.2:8000/api/v1"
+        // Point a debug build at a local backend by setting `sziget.localBackendUrl` in
+        // local.properties or via `-Psziget.localBackendUrl=...`, e.g. the Android emulator
+        // host alias "http://10.0.2.2:8000/api/v1". See local.properties.example.
+        SzigetBuildConfig.LOCAL_BACKEND_URL.takeIf { it.isNotBlank() }?.let { return it }
         return if (AppConfigContext.isDebuggable) BASE_URL_DEV else BASE_URL_PROD
     }
 
