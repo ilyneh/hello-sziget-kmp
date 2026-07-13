@@ -11,11 +11,13 @@ import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
 import com.ilyne.helloszigetkmp.core.network.createBaseHttpClient
+import com.ilyne.helloszigetkmp.core.repository.SoftRefreshGate
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.settings.createSecureSettings
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
+import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -50,7 +52,10 @@ val appModule = module {
     single { LogoutService(session = get()) }
 
     // Database
-    single { createDatabase(getDatabaseBuilder()) }
+    single {
+        val settings = get<Settings>()
+        createDatabase(getDatabaseBuilder(), onDestructiveMigration = { SoftRefreshGate.clearAll(settings) })
+    }
     single { get<SzigetDatabase>().artistDao() }
     single { get<SzigetDatabase>().stageDao() }
     single { get<SzigetDatabase>().setTimeDao() }
