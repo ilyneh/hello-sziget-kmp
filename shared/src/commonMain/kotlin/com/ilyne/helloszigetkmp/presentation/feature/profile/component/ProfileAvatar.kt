@@ -61,12 +61,16 @@ fun ProfileAvatar(
             }
             // Regardless of *why* the painter's state cycles away from Success (spurious
             // recomposition, a real cache re-validation, platform-specific dispatch
-            // timing -- all of which are hard to fully rule out), never let the box go
-            // blank for a friend whose photo we've already successfully rendered once:
-            // keep drawing the last successfully-loaded painter until a *new* one
-            // succeeds. This is what actually stops the pull-to-refresh flash, since it
-            // doesn't depend on preventing the state churn in the first place.
-            var lastSuccessPainter by remember(imageUrl) { mutableStateOf<Painter?>(null) }
+            // timing -- or the URL itself changing slightly between refreshes, e.g. a
+            // rotating signed/cache-busted URL for what is otherwise the same photo),
+            // never let the box go blank for a friend whose photo we've already
+            // successfully rendered once: keep drawing the last successfully-loaded
+            // painter until a *new* one succeeds. Deliberately NOT keyed on `imageUrl` --
+            // this needs to survive the URL itself changing across refreshes, since that's
+            // exactly the case that was defeating it; it only needs to reset when this
+            // avatar slot starts representing a different person, which the caller already
+            // guarantees via key(friend.id) around this composable.
+            var lastSuccessPainter by remember { mutableStateOf<Painter?>(null) }
             val painter = rememberAsyncImagePainter(
                 model = request,
                 onSuccess = { lastSuccessPainter = it.painter },
