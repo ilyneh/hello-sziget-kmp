@@ -70,7 +70,7 @@ fun SwimLaneView(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = vertListState,
-            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 32.dp),
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 48.dp),
         ) {
             items(stages, key = { it.id }) { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }
