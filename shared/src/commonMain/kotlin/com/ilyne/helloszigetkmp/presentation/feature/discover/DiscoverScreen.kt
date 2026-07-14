@@ -91,11 +91,20 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
+            // Loading only replaces the screen when there's no cached data to show yet
+            // (e.g. first load); a pull-to-refresh with existing data keeps rendering that
+            // data underneath PullToRefreshBox's own refresh indicator instead of flashing empty.
             when (val status = uiState.status) {
-                is DiscoverUiState.Status.Loading -> {
+                is DiscoverUiState.Status.Loading -> if (uiState.artists.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
+                } else {
+                    DiscoverArtistGrid(
+                        artists = uiState.artists,
+                        onFavoriteToggle = viewModel::toggleFavorite,
+                        onArtistClick = onArtistClick,
+                    )
                 }
 
                 is DiscoverUiState.Status.Error -> {
@@ -112,24 +121,11 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 }
 
                 else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = LocalBottomBarPadding.current + 48.dp,
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(uiState.artists, key = { it.id }) { artist ->
-                            ArtistCard(
-                                artist = artist,
-                                onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
-                                onClick = { onArtistClick(artist.id) },
-                            )
-                        }
-                    }
+                    DiscoverArtistGrid(
+                        artists = uiState.artists,
+                        onFavoriteToggle = viewModel::toggleFavorite,
+                        onArtistClick = onArtistClick,
+                    )
                 }
             }
         }
@@ -144,6 +140,32 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             },
             onDismiss = { showFilterDialog = false }
         )
+    }
+}
+
+@Composable
+private fun DiscoverArtistGrid(
+    artists: List<Artist>,
+    onFavoriteToggle: (String, Boolean) -> Unit,
+    onArtistClick: (String) -> Unit,
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            bottom = LocalBottomBarPadding.current + 48.dp,
+        ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(artists, key = { it.id }) { artist ->
+            ArtistCard(
+                artist = artist,
+                onFavoriteToggle = { onFavoriteToggle(artist.id, artist.isFavorited) },
+                onClick = { onArtistClick(artist.id) },
+            )
+        }
     }
 }
 
