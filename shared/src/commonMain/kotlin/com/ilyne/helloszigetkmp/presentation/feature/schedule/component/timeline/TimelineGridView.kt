@@ -72,7 +72,7 @@ fun TimelineGridView(
     val hourHeightPx = with(density) { HOUR_HEIGHT_DP.dp.toPx() }
     var viewportSizePx by remember { mutableStateOf(IntSize.Zero) }
 
-    val visibleHourRange = remember {
+    val visibleHourRange = remember(gridMinHour, gridMaxHour) {
         derivedStateOf {
             val scrollHours = vertScroll.value / hourHeightPx
             val visibleHours = viewportSizePx.height / hourHeightPx
@@ -81,7 +81,7 @@ fun TimelineGridView(
             start..end
         }
     }
-    val visibleSetTimes by remember(setTimes) {
+    val visibleSetTimes by remember(setTimes, gridMinHour, gridMaxHour) {
         derivedStateOf {
             val range = visibleHourRange.value
             setTimes.filter { it.endHourFraction >= range.start && it.startHourFraction <= range.endInclusive }
