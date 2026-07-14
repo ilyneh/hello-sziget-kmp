@@ -116,11 +116,20 @@ private fun ScheduleContent(
             )
 
             // Content
+            // Loading only replaces the screen when there's no cached data to show yet
+            // (e.g. first load); a pull-to-refresh with existing data keeps rendering that
+            // data underneath PullToRefreshBox's own refresh indicator instead of flashing empty.
             when (val status = uiState.status) {
-                is ScheduleUiState.Status.Loading -> {
+                is ScheduleUiState.Status.Loading -> if (uiState.setTimes.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
+                } else {
+                    ScheduleSetTimesContent(
+                        uiState = uiState,
+                        onToggleFavorite = onToggleFavorite,
+                        onArtistClick = onArtistClick,
+                    )
                 }
 
                 is ScheduleUiState.Status.Error -> {
@@ -140,38 +149,51 @@ private fun ScheduleContent(
                         Text("No Set Times")
                     }
                 } else {
-                    when (uiState.viewMode) {
-                        ViewMode.GRID -> {
-                            TimelineGridView(
-                                setTimes = uiState.setTimes,
-                                stages = uiState.stages,
-                                gridMinHour = uiState.gridMinHour,
-                                gridMaxHour = uiState.gridMaxHour,
-                                onArtistClick = onArtistClick,
-                            )
-                        }
-
-                        ViewMode.SWIMLANE -> {
-                            SwimLaneView(
-                                setTimes = uiState.setTimes,
-                                stages = uiState.stages,
-                                gridMinHour = uiState.gridMinHour,
-                                gridMaxHour = uiState.gridMaxHour,
-                                onArtistClick = onArtistClick,
-                            )
-                        }
-
-                        ViewMode.LIST -> {
-                            SetTimeListView(
-                                uiState.setTimes,
-                                onToggleFavorite = onToggleFavorite,
-                                onArtistClick = onArtistClick,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
+                    ScheduleSetTimesContent(
+                        uiState = uiState,
+                        onToggleFavorite = onToggleFavorite,
+                        onArtistClick = onArtistClick,
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ScheduleSetTimesContent(
+    uiState: ScheduleUiState,
+    onToggleFavorite: (String?, Boolean) -> Unit,
+    onArtistClick: (String) -> Unit,
+) {
+    when (uiState.viewMode) {
+        ViewMode.GRID -> {
+            TimelineGridView(
+                setTimes = uiState.setTimes,
+                stages = uiState.stages,
+                gridMinHour = uiState.gridMinHour,
+                gridMaxHour = uiState.gridMaxHour,
+                onArtistClick = onArtistClick,
+            )
+        }
+
+        ViewMode.SWIMLANE -> {
+            SwimLaneView(
+                setTimes = uiState.setTimes,
+                stages = uiState.stages,
+                gridMinHour = uiState.gridMinHour,
+                gridMaxHour = uiState.gridMaxHour,
+                onArtistClick = onArtistClick,
+            )
+        }
+
+        ViewMode.LIST -> {
+            SetTimeListView(
+                uiState.setTimes,
+                onToggleFavorite = onToggleFavorite,
+                onArtistClick = onArtistClick,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
