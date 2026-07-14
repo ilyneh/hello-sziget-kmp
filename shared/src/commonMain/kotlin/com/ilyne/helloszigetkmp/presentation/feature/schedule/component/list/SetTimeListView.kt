@@ -48,7 +48,7 @@ fun SetTimeListView(
         )
 
         LazyColumn(
-            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 16.dp),
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 48.dp),
         ) {
             grouped.forEach { (header, setTimes) ->
                 stickyHeader {

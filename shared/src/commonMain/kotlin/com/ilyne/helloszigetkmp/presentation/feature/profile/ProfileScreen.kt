@@ -181,7 +181,7 @@ fun ProfileScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(LocalBottomBarPadding.current + 16.dp))
+                Spacer(modifier = Modifier.height(LocalBottomBarPadding.current + 48.dp))
             }
         }
     }
