@@ -92,7 +92,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             )
 
             when (val status = uiState.status) {
-                is DiscoverUiState.Status.Loading -> {
+                is DiscoverUiState.Status.Loading if uiState.artists.isEmpty() -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
