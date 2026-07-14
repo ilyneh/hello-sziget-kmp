@@ -24,7 +24,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -182,7 +181,9 @@ fun TimelineGridView(
                                     .background(MaterialTheme.colorScheme.outlineVariant),
                             )
                         }
-                        
+
+                        // Set time cards — windowed to the visible (+buffer) hour range so we
+                        // don't compose every set for the day at once.
                         visibleSetTimes.forEach { setTime ->
                             val stageIndex = stageIndexOf[setTime.stageId] ?: return@forEach
                             val startHourFraction = setTime.startHourFraction
