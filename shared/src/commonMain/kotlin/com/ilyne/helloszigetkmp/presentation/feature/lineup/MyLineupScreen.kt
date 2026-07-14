@@ -71,7 +71,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                             start = 16.dp,
                             end = 16.dp,
                             top = 16.dp,
-                            bottom = LocalBottomBarPadding.current + 16.dp,
+                            bottom = LocalBottomBarPadding.current + 32.dp,
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
