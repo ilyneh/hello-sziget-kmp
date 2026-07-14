@@ -20,9 +20,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -183,6 +185,7 @@ fun TimelineGridView(
 
                         // Set time cards — windowed to the visible (+buffer) hour range so we
                         // don't compose every set for the day at once.
+                        val currentOnArtistClick by rememberUpdatedState(onArtistClick)
                         visibleSetTimes.forEach { setTime ->
                             val stageIndex = stageIndexOf[setTime.stageId] ?: return@forEach
                             val startHourFraction = setTime.startHourFraction
@@ -192,14 +195,24 @@ fun TimelineGridView(
                             val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                             val leftDp = columnWidth * stageIndex + 2.dp
 
-                            SetTimeCard(
-                                setTime = setTime,
-                                modifier = Modifier
-                                    .offset(x = leftDp, y = topDp + topOffset)
-                                    .width(columnWidth - 4.dp)
-                                    .height(heightDp),
-                                onClick = { setTime.artistId?.let(onArtistClick) },
-                            )
+                            key(setTime.id) {
+                                // Stable per-card callback so Compose can skip recomposing
+                                // SetTimeCard (and the friend-avatar badge inside it) when
+                                // this set time hasn't actually changed -- see
+                                // ProfileFriendsSection for why an inline lambda here would
+                                // otherwise force it to recompose on every refresh.
+                                val stableOnClick = remember(setTime.id) {
+                                    { setTime.artistId?.let(currentOnArtistClick); Unit }
+                                }
+                                SetTimeCard(
+                                    setTime = setTime,
+                                    modifier = Modifier
+                                        .offset(x = leftDp, y = topDp + topOffset)
+                                        .width(columnWidth - 4.dp)
+                                        .height(heightDp),
+                                    onClick = stableOnClick,
+                                )
+                            }
                         }
                     }
                 }
