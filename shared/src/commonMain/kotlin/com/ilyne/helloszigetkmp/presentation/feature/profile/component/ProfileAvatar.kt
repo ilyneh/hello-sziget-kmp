@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
 
 
 @Composable
@@ -40,8 +43,21 @@ fun ProfileAvatar(
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
     ) {
         if (imageUrl != null) {
+            val platformContext = LocalPlatformContext.current
+            // Hold onto a single ImageRequest instance per URL. Passing a raw String
+            // `model` makes AsyncImage build a brand new ImageRequest every recomposition;
+            // Coil keys its internal painter/state machine off that request instance, so a
+            // fresh-but-equal request can still restart the state machine -- briefly
+            // clearing the already-cached bitmap -- even though nothing about the image
+            // actually changed. That restart is what caused the avatar to flash blank on
+            // pull-to-refresh.
+            val request = remember(imageUrl, platformContext) {
+                ImageRequest.Builder(platformContext)
+                    .data(imageUrl)
+                    .build()
+            }
             AsyncImage(
-                model = imageUrl,
+                model = request,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
