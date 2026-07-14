@@ -182,10 +182,7 @@ fun TimelineGridView(
                                     .background(MaterialTheme.colorScheme.outlineVariant),
                             )
                         }
-
-                        // Set time cards — windowed to the visible (+buffer) hour range so we
-                        // don't compose every set for the day at once.
-                        val currentOnArtistClick by rememberUpdatedState(onArtistClick)
+                        
                         visibleSetTimes.forEach { setTime ->
                             val stageIndex = stageIndexOf[setTime.stageId] ?: return@forEach
                             val startHourFraction = setTime.startHourFraction
@@ -196,21 +193,13 @@ fun TimelineGridView(
                             val leftDp = columnWidth * stageIndex + 2.dp
 
                             key(setTime.id) {
-                                // Stable per-card callback so Compose can skip recomposing
-                                // SetTimeCard (and the friend-avatar badge inside it) when
-                                // this set time hasn't actually changed -- see
-                                // ProfileFriendsSection for why an inline lambda here would
-                                // otherwise force it to recompose on every refresh.
-                                val stableOnClick = remember(setTime.id) {
-                                    { setTime.artistId?.let(currentOnArtistClick); Unit }
-                                }
                                 SetTimeCard(
                                     setTime = setTime,
                                     modifier = Modifier
                                         .offset(x = leftDp, y = topDp + topOffset)
                                         .width(columnWidth - 4.dp)
                                         .height(heightDp),
-                                    onClick = stableOnClick,
+                                    onClick = { setTime.artistId?.let(onArtistClick) },
                                 )
                             }
                         }
