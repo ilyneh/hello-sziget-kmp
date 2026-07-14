@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity
@@ -13,17 +15,31 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FriendDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertFriendship(friendship: UserFriendEntity)
+    // Plain INSERT-OR-REPLACE would delete-then-reinsert conflicting rows on every refresh
+    // (SQLite semantics), churning Room's invalidation tracker and the users_friends/users
+    // join even when nothing changed. Insert-or-ignore + update instead, so existing rows
+    // are updated in place (same fix as UserDao.upsertAll, for the same reason).
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertFriendshipsIgnoring(friendships: List<UserFriendEntity>): List<Long>
+
+    @Update
+    suspend fun updateFriendships(friendships: List<UserFriendEntity>)
+
+    @Transaction
+    suspend fun upsertFriendships(friendships: List<UserFriendEntity>) {
+        if (friendships.isEmpty()) return
+        val insertResults = insertFriendshipsIgnoring(friendships)
+        val existing = friendships.filterIndexed { index, _ -> insertResults[index] == -1L }
+        if (existing.isNotEmpty()) updateFriendships(existing)
+    }
+
+    suspend fun upsertFriendship(friendship: UserFriendEntity) = upsertFriendships(listOf(friendship))
 
     @Query("DELETE FROM users_friends WHERE userId = :userId AND friendId = :friendId")
     suspend fun deleteFriendship(userId: String, friendId: String)
 
     @Query("DELETE FROM users_friends WHERE friendId NOT IN (:friendIds)")
     suspend fun deleteFriendshipsNotIn(friendIds: List<String>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertFriendships(friendships: List<UserFriendEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>)
