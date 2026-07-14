@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.domain.model.User
@@ -26,16 +27,18 @@ fun ProfileFriendsSection(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         friends.forEach { friend ->
-            ProfileFriendItem(
-                item = ProfileFriendItemState(
-                    name = friend.name,
-                    avatarText = friend.name
-                        .split(" ")
-                        .joinToString(separator = "") { it.first().uppercase() },
-                    imageUrl = friend.imageUrl,
-                ),
-                onClick = { onClick(friend.id) },
-            )
+            key(friend.id) {
+                ProfileFriendItem(
+                    item = ProfileFriendItemState(
+                        name = friend.name,
+                        avatarText = friend.name
+                            .split(" ")
+                            .joinToString(separator = "") { it.first().uppercase() },
+                        imageUrl = friend.imageUrl,
+                    ),
+                    onClick = { onClick(friend.id) },
+                )
+            }
         }
     }
 }

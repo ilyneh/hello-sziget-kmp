@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.domain.model.User
@@ -27,17 +28,19 @@ fun ProfileFriendRequestsSection(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         friendRequests.forEach { friend ->
-            ProfileFriendRequestItem(
-                item = ProfileFriendRequestItemState(
-                    name = friend.name,
-                    avatarText = friend.name
-                        .split(" ")
-                        .joinToString(separator = "") { it.first().uppercase() },
-                    imageUrl = friend.imageUrl,
-                ),
-                onAccept = { onAccept(friend.id) },
-                onDecline = { onDecline(friend.id) }
-            )
+            key(friend.id) {
+                ProfileFriendRequestItem(
+                    item = ProfileFriendRequestItemState(
+                        name = friend.name,
+                        avatarText = friend.name
+                            .split(" ")
+                            .joinToString(separator = "") { it.first().uppercase() },
+                        imageUrl = friend.imageUrl,
+                    ),
+                    onAccept = { onAccept(friend.id) },
+                    onDecline = { onDecline(friend.id) }
+                )
+            }
         }
     }
 }
