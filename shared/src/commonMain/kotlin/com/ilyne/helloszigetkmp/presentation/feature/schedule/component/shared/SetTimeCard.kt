@@ -89,6 +89,7 @@ private fun FriendsAvatar(
     FriendAvatarStack(
         friends = friends.map { friend ->
             FriendAvatarStackData(
+                id = friend.id,
                 name = friend.name,
                 imageUrl = friend.imageUrl,
             )

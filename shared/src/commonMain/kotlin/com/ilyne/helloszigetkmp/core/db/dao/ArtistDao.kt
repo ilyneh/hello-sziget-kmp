@@ -4,6 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
+import androidx.room.Upsert
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -21,7 +24,7 @@ interface ArtistDao {
     @Query("SELECT * FROM artists WHERE name LIKE '%' || :query || '%' COLLATE NOCASE ORDER BY name ASC")
     fun searchByName(query: String): Flow<List<ArtistEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(artists: List<ArtistEntity>)
 
     @Query("UPDATE artists SET isFavorited = :isFavorited WHERE id = :id")

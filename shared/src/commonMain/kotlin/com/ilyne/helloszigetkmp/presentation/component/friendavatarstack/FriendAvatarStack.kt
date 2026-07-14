@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +27,7 @@ import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 
 data class FriendAvatarStackData(
+    val id: String,
     val name: String,
     val imageUrl: String? = null
 )
@@ -66,7 +68,9 @@ fun FriendAvatarStack(
         horizontalArrangement = Arrangement.spacedBy((-6).dp)
     ) {
         friends.take(maxNumAvatars).forEach { friend ->
-            FriendAvatar(friend = friend, avatarColor = avatarColorFor(friend))
+            key(friend.id) {
+                FriendAvatar(friend = friend, avatarColor = avatarColorFor(friend))
+            }
         }
 
         if (friends.size > maxNumAvatars) {
@@ -132,9 +136,9 @@ private fun PreviewFriendAvatarStack() {
     AppTheme {
         FriendAvatarStack(
             friends = listOf(
-                FriendAvatarStackData(name = "Zack"),
-                FriendAvatarStackData(name = "owen"),
-                FriendAvatarStackData(name = "Zaira")
+                FriendAvatarStackData(id = "1", name = "Zack"),
+                FriendAvatarStackData(id = "2", name = "owen"),
+                FriendAvatarStackData(id = "3", name = "Zaira")
             )
         )
     }

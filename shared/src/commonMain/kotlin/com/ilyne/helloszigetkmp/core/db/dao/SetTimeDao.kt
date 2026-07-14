@@ -4,6 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
+import androidx.room.Upsert
 import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +37,7 @@ interface SetTimeDao {
         dayEndMillis: Long,
     ): Flow<List<SetTimeEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(setTimes: List<SetTimeEntity>)
 
     @Query("SELECT MIN(startTime) AS minStart, MAX(startTime) AS maxStart FROM set_times")

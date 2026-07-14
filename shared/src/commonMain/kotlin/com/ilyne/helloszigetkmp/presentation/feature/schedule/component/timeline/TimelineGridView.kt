@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -192,14 +193,16 @@ fun TimelineGridView(
                             val heightDp = ((endHourFraction - startHourFraction) * HOUR_HEIGHT_DP - 3).dp
                             val leftDp = columnWidth * stageIndex + 2.dp
 
-                            SetTimeCard(
-                                setTime = setTime,
-                                modifier = Modifier
-                                    .offset(x = leftDp, y = topDp + topOffset)
-                                    .width(columnWidth - 4.dp)
-                                    .height(heightDp),
-                                onClick = { setTime.artistId?.let(onArtistClick) },
-                            )
+                            key(setTime.id) {
+                                SetTimeCard(
+                                    setTime = setTime,
+                                    modifier = Modifier
+                                        .offset(x = leftDp, y = topDp + topOffset)
+                                        .width(columnWidth - 4.dp)
+                                        .height(heightDp),
+                                    onClick = { setTime.artistId?.let(onArtistClick) },
+                                )
+                            }
                         }
                     }
                 }
