@@ -4,8 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room.Upsert
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity
@@ -15,23 +14,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FriendDao {
 
-    // Plain INSERT-OR-REPLACE would delete-then-reinsert conflicting rows on every refresh
-    // (SQLite semantics), churning Room's invalidation tracker and the users_friends/users
-    // join even when nothing changed. Insert-or-ignore + update instead, so existing rows
-    // are updated in place (same fix as UserDao.upsertAll, for the same reason).
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertFriendshipsIgnoring(friendships: List<UserFriendEntity>): List<Long>
-
-    @Update
-    suspend fun updateFriendships(friendships: List<UserFriendEntity>)
-
-    @Transaction
-    suspend fun upsertFriendships(friendships: List<UserFriendEntity>) {
-        if (friendships.isEmpty()) return
-        val insertResults = insertFriendshipsIgnoring(friendships)
-        val existing = friendships.filterIndexed { index, _ -> insertResults[index] == -1L }
-        if (existing.isNotEmpty()) updateFriendships(existing)
-    }
+    @Upsert
+    suspend fun upsertFriendships(friendships: List<UserFriendEntity>)
 
     suspend fun upsertFriendship(friendship: UserFriendEntity) = upsertFriendships(listOf(friendship))
 
