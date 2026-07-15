@@ -14,6 +14,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -188,12 +189,14 @@ private fun ScheduleSetTimesContent(
         }
 
         ViewMode.LIST -> {
-            SetTimeListView(
-                uiState.setTimes,
-                onToggleFavorite = onToggleFavorite,
-                onArtistClick = onArtistClick,
-                modifier = Modifier.fillMaxSize()
-            )
+            key(uiState.selectedDay) {
+                SetTimeListView(
+                    uiState.setTimes,
+                    onToggleFavorite = onToggleFavorite,
+                    onArtistClick = onArtistClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
