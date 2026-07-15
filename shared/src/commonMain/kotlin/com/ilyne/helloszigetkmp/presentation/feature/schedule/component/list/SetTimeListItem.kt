@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -96,7 +97,7 @@ fun SetTimeListItem(
 
                 SubtitleText(
                     text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.wrapContentWidth()
                 )
             }
         }
