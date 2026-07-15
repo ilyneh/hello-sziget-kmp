@@ -32,4 +32,7 @@ interface ArtistDao {
         id: String,
         isFavorited: Boolean,
     )
+
+    @Query("DELETE FROM artists")
+    suspend fun deleteAll()
 }

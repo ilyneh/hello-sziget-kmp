@@ -148,17 +148,23 @@ class FriendRepository(
                 if (friendsResult.isSuccess) {
                     friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
                 }
+
                 if (friendRequestsResult.isSuccess) {
                     friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
                 }
+
                 if (sentFriendRequestsResult.isSuccess) {
                     friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
                 }
+
                 if (artistsFriendsFavoritedResult.isSuccess) {
                     persistArtistsFriendsFavorited(
                         artistsFriendsFavorited = artistsFriendsFavorited,
                         friends = friends,
                         friendsFetchSucceeded = friendsResult.isSuccess,
+                    )
+                    friendDao.upsertAndPruneArtistFriendFavorited(
+                        artistsFriendFavorited = artistsFriendsFavorited.toArtistsFriendsFavoritedEntity(),
                     )
                 }
 
@@ -250,6 +256,20 @@ class FriendRepository(
         // itself, which we never do here) — prune them explicitly so a removed friend doesn't
         // keep showing up as having favorited artists forever.
         friendDao.deleteArtistFriendFavoritesNotIn(friendIds = existingFriendships)
+    }
+
+
+                failures.forEach { (name, throwable) ->
+                    Logger.e("FriendRepository", "refresh(): $name failed", throwable)
+                }
+
+                // Surface a failure to the caller so it can stop spinners / show an error,
+                // even though whichever calls succeeded above were still persisted to the DB.
+                if (failures.isNotEmpty()) {
+                    throw failures.first().second
+                }
+            }
+        }
     }
 
     private fun List<UserDto>.toUserFriends(

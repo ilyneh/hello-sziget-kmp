@@ -12,17 +12,16 @@ import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 private val BLUE = SzigetPalette.PrimaryBlue
 private val PURPLE = SzigetPalette.Magenta
 private val GREEN = SzigetPalette.TealGreen
-private val PINK = SzigetPalette.HotPink
+private val WARM_ORANGE = SzigetPalette.WarmOrange
 private val TEAL = SzigetPalette.DarkTeal
 private val YELLOW = SzigetPalette.SunshineYellow
-private val WARM_ORANGE = SzigetPalette.WarmOrange
 
 // Fill in the swatch for each genre group. Point multiple groups at the same swatch
 // to have them render as the same tile color.
 private val genreColors: Map<GenreGroup, Color> = mapOf(
-    GenreGroup.ROCK to PINK,
-    GenreGroup.POP to PINK,
-    GenreGroup.INDIE to PINK,
+    GenreGroup.ROCK to WARM_ORANGE,
+    GenreGroup.POP to WARM_ORANGE,
+    GenreGroup.INDIE to WARM_ORANGE,
     GenreGroup.JAZZ to PURPLE,
     GenreGroup.ELECTRONIC to BLUE,
     GenreGroup.TECHNO to BLUE,
@@ -31,19 +30,19 @@ private val genreColors: Map<GenreGroup, Color> = mapOf(
     GenreGroup.HIP_HOP to PURPLE,
     GenreGroup.EXPERIMENTAL to TEAL,
     GenreGroup.FOLK to GREEN,
-    GenreGroup.DISCO to YELLOW,
+    GenreGroup.DISCO to BLUE,
     GenreGroup.TRANCE to BLUE,
     GenreGroup.BASS to BLUE,
     GenreGroup.WORLD to GREEN,
     GenreGroup.DANCE to TEAL,
-    GenreGroup.PERFORMANCE to WARM_ORANGE,
-    GenreGroup.COMEDY to WARM_ORANGE,
-    GenreGroup.WORKSHOP to WARM_ORANGE,
-    GenreGroup.VISUAL_ART to WARM_ORANGE,
-    GenreGroup.UNKNOWN to WARM_ORANGE,
+    GenreGroup.PERFORMANCE to YELLOW,
+    GenreGroup.COMEDY to YELLOW,
+    GenreGroup.WORKSHOP to YELLOW,
+    GenreGroup.VISUAL_ART to YELLOW,
+    GenreGroup.UNKNOWN to YELLOW,
 )
 
-private val DEFAULT_COLOR = WARM_ORANGE
+private val DEFAULT_COLOR = YELLOW
 
 fun genreColor(genreGroup: GenreGroup): Color = genreColors[genreGroup] ?: DEFAULT_COLOR
 
