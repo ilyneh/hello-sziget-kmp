@@ -7,9 +7,8 @@ import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.domain.model.passesGenreFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
-import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHour
-import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFraction
-import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
+import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourFractionRange
+import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourRange
 import kotlin.time.Clock
 
 class GetFilteredScheduleContentUseCase {
@@ -39,6 +38,8 @@ class GetFilteredScheduleContentUseCase {
 
         val setTimesUiModel = setTimesFiltered
             .map { setTime ->
+                val (startHourFraction, endHourFraction) =
+                    normalizedFestivalHourFractionRange(setTime.startTime, setTime.endTime)
                 ScheduleUiState.SetTime(
                     id = setTime.id,
                     startTime = setTime.startTime,
@@ -54,8 +55,8 @@ class GetFilteredScheduleContentUseCase {
                     },
                     stage = setTime.stage,
                     isInThePast = setTime.endTime < currentTimeMillis,
-                    startHourFraction = setTime.startTime.normalizedFestivalHourFraction(),
-                    endHourFraction = setTime.endTime.normalizedFestivalHourFraction(),
+                    startHourFraction = startHourFraction,
+                    endHourFraction = endHourFraction,
                 )
             }
 
@@ -96,8 +97,7 @@ class GetFilteredScheduleContentUseCase {
         var minHour = Int.MAX_VALUE
         var maxHour = Int.MIN_VALUE
         for (setTime in setTimes) {
-            val startHour = setTime.startTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
-            val endHour = setTime.endTime.toLocalDateTime().hour.let(::normalizedFestivalHour)
+            val (startHour, endHour) = normalizedFestivalHourRange(setTime.startTime, setTime.endTime)
             if (startHour < minHour) minHour = startHour
             if (endHour > maxHour) maxHour = endHour
         }
