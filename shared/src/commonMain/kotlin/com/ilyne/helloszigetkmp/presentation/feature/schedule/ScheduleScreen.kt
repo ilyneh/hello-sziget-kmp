@@ -175,6 +175,7 @@ private fun ScheduleSetTimesContent(
                 gridMinHour = uiState.gridMinHour,
                 gridMaxHour = uiState.gridMaxHour,
                 onArtistClick = onArtistClick,
+                onToggleFavorite = onToggleFavorite,
             )
         }
 
@@ -185,6 +186,7 @@ private fun ScheduleSetTimesContent(
                 gridMinHour = uiState.gridMinHour,
                 gridMaxHour = uiState.gridMaxHour,
                 onArtistClick = onArtistClick,
+                onToggleFavorite = onToggleFavorite,
             )
         }
 

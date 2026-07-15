@@ -1,7 +1,8 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStack
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
@@ -27,21 +29,26 @@ enum class SetTimeCardViewMode {
     TIMELINE, SWIMLANE
 }
 
+private val FAVORITE_HEART_SIZE = 16.dp
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SetTimeCard(
     setTime: ScheduleUiState.SetTime,
     viewMode: SetTimeCardViewMode = SetTimeCardViewMode.TIMELINE,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
+    onToggleFavorite: () -> Unit = {},
 ) {
     val color = setTime.artist?.let(::artistColor) ?: Color.Gray
     val backgroundAlpha = if (setTime.isInThePast) 0.55f else 1f
+    val isFavorited = setTime.artist?.isFavorited == true
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .clipToBounds()
             .background(color.copy(alpha = backgroundAlpha))
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onToggleFavorite)
             .padding(8.dp),
     ) {
 
@@ -51,6 +58,7 @@ fun SetTimeCard(
         Column {
             Text(
                 text = setTime.artist?.name ?: "Unknown",
+                modifier = Modifier.padding(end = if (isFavorited) FAVORITE_HEART_SIZE + 4.dp else 0.dp),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,
                 maxLines = 2,
@@ -75,6 +83,15 @@ fun SetTimeCard(
                 friends = friendsFavorited,
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
+            )
+        }
+
+        if (isFavorited) {
+            HeartIcon(
+                enabled = true,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(FAVORITE_HEART_SIZE),
             )
         }
 

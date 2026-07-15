@@ -45,6 +45,7 @@ fun SwimLaneView(
     gridMinHour: Int,
     gridMaxHour: Int,
     onArtistClick: (String) -> Unit = {},
+    onToggleFavorite: (artistId: String?, current: Boolean) -> Unit = { _, _ -> },
 ) {
     val horizScroll = rememberScrollState()
     val vertListState = rememberLazyListState()
@@ -106,6 +107,12 @@ fun SwimLaneView(
                                     .fillMaxHeight()
                                     .padding(2.dp),
                                 onClick = { setTime.artistId?.let(onArtistClick) },
+                                onToggleFavorite = {
+                                    onToggleFavorite(
+                                        setTime.artistId,
+                                        setTime.artist?.isFavorited ?: false
+                                    )
+                                },
                             )
                         }
                     }

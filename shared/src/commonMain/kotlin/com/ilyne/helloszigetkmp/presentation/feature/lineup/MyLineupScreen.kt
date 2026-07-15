@@ -132,7 +132,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
 
                                                 SubtitleText(
                                                     text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
-                                                    modifier = Modifier.weight(1f)
+                                                    modifier = Modifier.wrapContentWidth()
                                                 )
                                             }
                                         }

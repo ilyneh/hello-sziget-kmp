@@ -6,6 +6,7 @@ import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -63,6 +64,7 @@ class AddFriendViewModel(
                 try {
                     friendRepository.sendFriendRequest(currentUserId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                    refreshFriendsFavoritedInBackground()
                 } catch (e: Exception) {
                     _uiState.update {
                         it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
@@ -73,12 +75,26 @@ class AddFriendViewModel(
                 try {
                     friendRepository.acceptFriendRequest(currentUserId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                    refreshFriendsFavoritedInBackground()
                 } catch (e: Exception) {
                     _uiState.update {
                         it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Best-effort background sync so a newly accepted/requested friend's favorited artists show
+     * up on the Schedule screen without waiting for its next pull-to-refresh. Fire-and-forget:
+     * launched in its own coroutine so it never blocks or delays the success state above, and
+     * failures are logged rather than surfaced, since this is not the primary operation.
+     */
+    private fun refreshFriendsFavoritedInBackground() {
+        viewModelScope.launch {
+            runCatching { friendRepository.refresh(force = true) }
+                .onFailure { Logger.e("AddFriendViewModel", "Background friends refresh failed", it) }
         }
     }
 
