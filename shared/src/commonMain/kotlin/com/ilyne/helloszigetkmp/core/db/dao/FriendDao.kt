@@ -29,7 +29,6 @@ interface FriendDao {
     @Query("DELETE FROM users_friends")
     suspend fun deleteAllFriendships()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Query("SELECT artistId FROM artist_friend_favorites")
     suspend fun getArtistIdsFriendsFavorited(): List<String>
 
