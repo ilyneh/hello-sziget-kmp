@@ -1,6 +1,5 @@
 package com.ilyne.helloszigetkmp.core.repository
 
-
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.api.dto.ArtistFriendsFavoritedDto
 import com.ilyne.helloszigetkmp.core.api.dto.UserDto
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 
-
 class FriendRepository(
     private val api: SzigetApiService,
     private val friendDao: FriendDao,
@@ -28,11 +26,14 @@ class FriendRepository(
 ) {
     private val softRefreshGate = SoftRefreshGate(settings, key = "FriendRepository")
 
-    suspend fun sendFriendRequest(currentUserId: String, friendId: String) {
+    suspend fun sendFriendRequest(
+        currentUserId: String,
+        friendId: String,
+    ) {
         val userFriendEntity = UserFriendEntity(
             userId = currentUserId,
             friendId = friendId,
-            status = Status.SENT
+            status = Status.SENT,
         )
         friendDao.upsertFriendship(userFriendEntity)
         try {
@@ -43,11 +44,14 @@ class FriendRepository(
         }
     }
 
-    suspend fun acceptFriendRequest(currentUserId: String, friendId: String) {
+    suspend fun acceptFriendRequest(
+        currentUserId: String,
+        friendId: String,
+    ) {
         val userFriendEntity = UserFriendEntity(
             userId = currentUserId,
             friendId = friendId,
-            status = Status.ACCEPTED
+            status = Status.ACCEPTED,
         )
         friendDao.upsertFriendship(userFriendEntity)
         try {
@@ -58,7 +62,10 @@ class FriendRepository(
         }
     }
 
-    suspend fun declineFriendRequest(currentUserId: String, friendId: String) {
+    suspend fun declineFriendRequest(
+        currentUserId: String,
+        friendId: String,
+    ) {
         friendDao.deleteFriendship(currentUserId, friendId)
         try {
             api.removeFriend(friendId)
@@ -67,14 +74,17 @@ class FriendRepository(
                 UserFriendEntity(
                     userId = currentUserId,
                     friendId = friendId,
-                    status = Status.REQUESTED
-                )
+                    status = Status.REQUESTED,
+                ),
             )
             throw e
         }
     }
 
-    suspend fun removeFriend(currentUserId: String, friendId: String) {
+    suspend fun removeFriend(
+        currentUserId: String,
+        friendId: String,
+    ) {
         friendDao.deleteFriendship(currentUserId, friendId)
         try {
             api.removeFriend(friendId)
@@ -83,18 +93,16 @@ class FriendRepository(
                 UserFriendEntity(
                     userId = currentUserId,
                     friendId = friendId,
-                    status = Status.ACCEPTED
-                )
+                    status = Status.ACCEPTED,
+                ),
             )
             throw e
         }
     }
 
-    fun observeFriends(): Flow<List<User>> =
-        friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
+    fun observeFriends(): Flow<List<User>> = friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
 
-    fun observeFriendRequests(): Flow<List<User>> =
-        friendDao.observeFriendRequests().map { entities -> entities.map { it.toDomain() } }
+    fun observeFriendRequests(): Flow<List<User>> = friendDao.observeFriendRequests().map { entities -> entities.map { it.toDomain() } }
 
     fun observeSentFriendRequests(): Flow<List<User>> =
         friendDao.observeSentFriendRequests().map { entities -> entities.map { it.toDomain() } }
@@ -140,14 +148,19 @@ class FriendRepository(
                 if (friendsResult.isSuccess) {
                     friendDao.upsertFriendships(friends.toUserFriends(currentUserId, Status.ACCEPTED))
                 }
+
                 if (friendRequestsResult.isSuccess) {
                     friendDao.upsertFriendships(friendRequests.toUserFriends(currentUserId, Status.REQUESTED))
                 }
+
                 if (sentFriendRequestsResult.isSuccess) {
                     friendDao.upsertFriendships(sentFriendRequests.toUserFriends(currentUserId, Status.SENT))
                 }
+
                 if (artistsFriendsFavoritedResult.isSuccess) {
-                    friendDao.upsertArtistFriendFavorited(artistsFriendsFavorited.toArtistsFriendsFavoritedEntity())
+                    friendDao.upsertAndPruneArtistFriendFavorited(
+                        artistsFriendFavorited = artistsFriendsFavorited.toArtistsFriendsFavoritedEntity(),
+                    )
                 }
 
                 // clean out previous friend relationships that no longer exist — only safe once
@@ -166,9 +179,11 @@ class FriendRepository(
                     sentFriendRequestsResult.exceptionOrNull()?.let { "getSentFriendRequests" to it },
                     artistsFriendsFavoritedResult.exceptionOrNull()?.let { "getArtistsFriendsFavorited" to it },
                 )
+
                 failures.forEach { (name, throwable) ->
                     Logger.e("FriendRepository", "refresh(): $name failed", throwable)
                 }
+
                 // Surface a failure to the caller so it can stop spinners / show an error,
                 // even though whichever calls succeeded above were still persisted to the DB.
                 if (failures.isNotEmpty()) {
@@ -178,22 +193,24 @@ class FriendRepository(
         }
     }
 
-    private fun List<UserDto>.toUserFriends(currentUserId: String, status: Status): List<UserFriendEntity> {
-        return map { friend ->
+    private fun List<UserDto>.toUserFriends(
+        currentUserId: String,
+        status: Status,
+    ): List<UserFriendEntity> =
+        map { friend ->
             UserFriendEntity(
                 userId = currentUserId,
                 friendId = friend.id,
-                status = status
+                status = status,
             )
         }
-    }
 
     private fun List<ArtistFriendsFavoritedDto>.toArtistsFriendsFavoritedEntity(): List<ArtistFriendFavoritedEntity> =
         flatMap { artist ->
             artist.friendsFavorited.map { friendId ->
                 ArtistFriendFavoritedEntity(
                     artistId = artist.id,
-                    friendId = friendId
+                    friendId = friendId,
                 )
             }
         }
@@ -202,5 +219,5 @@ class FriendRepository(
 private fun ArtistFriendsFavoritedSummary.toDomain(): ArtistFriendsFavorited =
     ArtistFriendsFavorited(
         artist = artist.toDomain(),
-        friendsFavorited = friends.map { it.toDomain() }
+        friendsFavorited = friends.map { it.toDomain() },
     )

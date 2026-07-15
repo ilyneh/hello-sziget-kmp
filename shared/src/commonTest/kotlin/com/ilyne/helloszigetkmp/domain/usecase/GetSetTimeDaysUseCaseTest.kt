@@ -2,13 +2,15 @@ package com.ilyne.helloszigetkmp.domain.usecase
 
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
-import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
 import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
-import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
 import com.ilyne.helloszigetkmp.core.db.dao.StageDao
+import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
+import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
 import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
+import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
+import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
@@ -227,6 +229,8 @@ class GetSetTimeDaysUseCaseTest {
             override suspend fun upsertAll(setTimes: List<SetTimeEntity>) {}
 
             override fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = flowOf(range)
+
+            override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = flowOf(emptyList())
         }
         val stageDao = object : StageDao {
             override fun observeAll(): Flow<List<StageEntity>> = flowOf(emptyList())
@@ -246,11 +250,19 @@ class GetSetTimeDaysUseCaseTest {
                 id: String,
                 isFavorited: Boolean,
             ) {}
+
+            override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
         }
         val api = SzigetApiService(
             client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
             baseUrl = "https://unused.test",
         )
-        return ScheduleRepository(api = api, setTimeDao = setTimeDao, stageDao = stageDao, artistDao = artistDao)
+        return ScheduleRepository(
+            api = api,
+            setTimeDao = setTimeDao,
+            stageDao = stageDao,
+            artistDao = artistDao,
+            settings = MapSettings(),
+        )
     }
 }
