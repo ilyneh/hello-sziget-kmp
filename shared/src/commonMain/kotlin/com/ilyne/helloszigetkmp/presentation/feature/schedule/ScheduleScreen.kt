@@ -150,11 +150,13 @@ private fun ScheduleContent(
                         Text("No Set Times")
                     }
                 } else {
-                    ScheduleSetTimesContent(
-                        uiState = uiState,
-                        onToggleFavorite = onToggleFavorite,
-                        onArtistClick = onArtistClick,
-                    )
+                    key(uiState.selectedDay) {
+                        ScheduleSetTimesContent(
+                            uiState = uiState,
+                            onToggleFavorite = onToggleFavorite,
+                            onArtistClick = onArtistClick,
+                        )
+                    }
                 }
             }
         }
@@ -191,14 +193,12 @@ private fun ScheduleSetTimesContent(
         }
 
         ViewMode.LIST -> {
-            key(uiState.selectedDay) {
-                SetTimeListView(
-                    uiState.setTimes,
-                    onToggleFavorite = onToggleFavorite,
-                    onArtistClick = onArtistClick,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            SetTimeListView(
+                uiState.setTimes,
+                onToggleFavorite = onToggleFavorite,
+                onArtistClick = onArtistClick,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
