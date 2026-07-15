@@ -57,7 +57,7 @@ fun App() {
         }
     }
 
-    AppTheme {
+    AppTheme(darkTheme = false) {
         val destination = startDestination
         if (destination == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
