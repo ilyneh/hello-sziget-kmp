@@ -252,6 +252,8 @@ class GetSetTimeDaysUseCaseTest {
             ) {}
 
             override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
+
+            override suspend fun deleteAll() {}
         }
         val api = SzigetApiService(
             client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
