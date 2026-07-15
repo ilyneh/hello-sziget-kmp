@@ -102,6 +102,10 @@ class ScheduleViewModel(
     private val scheduleFilterStorage: ScheduleFilterStorage,
 ) : ViewModel() {
 
+    private companion object {
+        const val TAG = "ScheduleViewModel"
+    }
+
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -133,7 +137,12 @@ class ScheduleViewModel(
                 friendRepository.refresh(force = force)
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
             } catch (e: Exception) {
-                val message = e.message ?: "Couldn't refresh the schedule. Pull to refresh to try again."
+                // Log the real exception rather than surfacing e.message directly: for a
+                // network/auth failure (e.g. an expired session after the app sat idle for a
+                // while) the message can carry a raw backend HTTP response body, which isn't
+                // meant for end users, instead of user-facing copy.
+                Logger.e(TAG, "refreshData(): failed to refresh schedule", e)
+                val message = "Couldn't refresh the schedule. Pull to refresh to try again."
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
@@ -159,7 +168,8 @@ class ScheduleViewModel(
                     try {
                         artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
-                        val message = e.message ?: "Couldn't update favorite. Please try again."
+                        Logger.e(TAG, "onIntent(): failed to toggle favorite", e)
+                        val message = "Couldn't update favorite. Please try again."
                         _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
                     }
                 }
@@ -221,7 +231,8 @@ class ScheduleViewModel(
                     }
                 }
             } catch (e: Exception) {
-                val message = e.message ?: "Couldn't load the schedule for this day."
+                Logger.e(TAG, "observeSelectedDay(): failed to load schedule for the selected day", e)
+                val message = "Couldn't load the schedule for this day."
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
@@ -260,7 +271,8 @@ class ScheduleViewModel(
                     }
                 }
             } catch (e: Exception) {
-                val message = e.message ?: "Couldn't load festival days."
+                Logger.e(TAG, "observeSetTimeDays(): failed to load festival days", e)
+                val message = "Couldn't load festival days."
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
