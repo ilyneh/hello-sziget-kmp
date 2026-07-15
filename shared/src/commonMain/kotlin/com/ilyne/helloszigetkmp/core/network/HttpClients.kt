@@ -78,7 +78,7 @@ fun createApiHttpClient(
     accessToken: String,
     refreshToken: String,
     tokenStorage: TokenStorage,
-    onSessionInvalidated: () -> Unit,
+    onSessionInvalidated: suspend () -> Unit,
     isDebug: Boolean,
 ): HttpClient =
     createBaseHttpClient(isDebug).config {

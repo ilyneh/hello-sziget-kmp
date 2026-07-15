@@ -11,7 +11,7 @@ fun createAuthenticatedApiModule(
     accessToken: String,
     refreshToken: String,
     tokenStorage: TokenStorage,
-    onSessionInvalidated: () -> Unit,
+    onSessionInvalidated: suspend () -> Unit,
     isDebug: Boolean,
 ): Module {
     val client = createApiHttpClient(

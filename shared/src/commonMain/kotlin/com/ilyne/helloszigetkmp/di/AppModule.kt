@@ -56,6 +56,10 @@ val appModule = module {
             szigetAuthApiService = get(),
             userRepository = get(),
             currentUserProvider = get(),
+            artistDao = get(),
+            userDao = get(),
+            friendDao = get(),
+            settings = get(),
         )
     }
     single { LogoutService(session = get()) }
