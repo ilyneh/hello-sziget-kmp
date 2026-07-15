@@ -25,8 +25,14 @@ interface FriendDao {
     @Query("DELETE FROM users_friends WHERE friendId NOT IN (:friendIds)")
     suspend fun deleteFriendshipsNotIn(friendIds: List<String>)
 
+    @Query("DELETE FROM users_friends")
+    suspend fun deleteAllFriendships()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>)
+
+    @Query("DELETE FROM artist_friend_favorites")
+    suspend fun deleteAllArtistFriendFavorited()
 
     @Query(
         """

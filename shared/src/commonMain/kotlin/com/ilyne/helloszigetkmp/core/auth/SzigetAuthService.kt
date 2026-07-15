@@ -2,13 +2,22 @@ package com.ilyne.helloszigetkmp.core.auth
 
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
-import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.config.AppConfig
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
+import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
+import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
+import com.ilyne.helloszigetkmp.core.db.dao.UserDao
+import com.ilyne.helloszigetkmp.core.repository.SoftRefreshGate
+import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
+import com.russhwolf.settings.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
@@ -20,8 +29,17 @@ class SzigetAuthService(
     private val szigetAuthApiService: SzigetAuthApiService,
     private val userRepository: UserRepository,
     private val currentUserProvider: CurrentUserProvider,
+    private val artistDao: ArtistDao,
+    private val userDao: UserDao,
+    private val friendDao: FriendDao,
+    private val settings: Settings,
 ) {
     private var authenticatedApiModule: Module? = null
+
+    // Outlives any single screen/ViewModel so the best-effort server-side revoke below still
+    // fires even if logout() itself returns (and its caller navigates away) before that
+    // network call finishes.
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val _sessionInvalidated = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val sessionInvalidated = _sessionInvalidated.asSharedFlow()
@@ -33,11 +51,27 @@ class SzigetAuthService(
         loadAuthenticatedModules(token)
     }
 
+    /**
+     * Logging out should feel instantaneous to the user, so this only awaits the local work
+     * (clearing tokens/DB/Koin modules, all fast in-memory/local-disk operations) before
+     * returning - the server-side token revocation is a nice-to-have, not something the UI
+     * should block navigation on, so it's fired in the background instead. The local token is
+     * already cleared by the time this returns, so the device can't use it again regardless of
+     * whether the revoke call itself succeeds.
+     */
     suspend fun logout() {
-        tokenStorage.read()?.let {
-            szigetAuthApiService.logout(accessToken = it.accessToken, refreshToken = it.refreshToken)
-        }
+        val token = tokenStorage.read()
         invalidateSession()
+        if (token != null) {
+            serviceScope.launch {
+                try {
+                    szigetAuthApiService.logout(accessToken = token.accessToken, refreshToken = token.refreshToken)
+                } catch (e: Exception) {
+                    // Best-effort: the token is already cleared locally, so a failed revoke just
+                    // means it stays valid server-side until it naturally expires.
+                }
+            }
+        }
     }
 
     /**
@@ -85,16 +119,34 @@ class SzigetAuthService(
         return true
     }
 
-    fun invalidateSession() {
+    suspend fun invalidateSession() {
         val moduleToUnload = authenticatedApiModule ?: return
         authenticatedApiModule = null
 
         tokenStorage.clear()
         currentUserProvider.clear()
+        clearLocalUserData()
         unloadKoinModules(presentationModule)
         unloadKoinModules(moduleToUnload)
 
         _sessionInvalidated.tryEmit(Unit)
+    }
+
+    /**
+     * Wipes every locally cached row that is scoped to the signed-out user, plus the
+     * [SoftRefreshGate] "last fetched" timestamps that gate each repository's refetch. Without
+     * this, a subsequent login (same device, different Google account) would read the previous
+     * user's still-intact Room cache - stale favorited artists, friend-favorite summaries, etc. -
+     * and `SoftRefreshGate` would even suppress refetching it for up to its staleness threshold.
+     * Deletion order respects the `users`/`artists` foreign keys (children before parents).
+     */
+    private suspend fun clearLocalUserData() {
+        friendDao.deleteAllArtistFriendFavorited()
+        friendDao.deleteAllFriendships()
+        userDao.clearCurrentUser()
+        userDao.deleteAll()
+        artistDao.deleteAll()
+        SoftRefreshGate.clearAll(settings)
     }
 
     private fun loadAuthenticatedModules(token: TokenDto) {
