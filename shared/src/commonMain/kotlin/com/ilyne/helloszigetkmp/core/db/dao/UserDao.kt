@@ -44,4 +44,10 @@ interface UserDao {
         """
     )
     fun observeCurrentUser(): Flow<UserEntity?>
+
+    @Query("DELETE FROM current_user")
+    suspend fun clearCurrentUser()
+
+    @Query("DELETE FROM users")
+    suspend fun deleteAll()
 }
