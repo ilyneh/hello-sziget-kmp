@@ -89,7 +89,6 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
 multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version.ref = "multiplatform-settings" }
-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 # Android Credential Manager + Google ID
 credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 credentials-play-services = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
@@ -97,6 +96,7 @@ googleid = { module = "com.google.android.libraries.identity.googleid:googleid",
 # Encrypted local storage (Android)
 security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detekt-compose" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 
