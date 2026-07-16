@@ -79,7 +79,7 @@ class ArtistRepositoryTest {
                 ),
                 dao.setFavoritedCalls,
             )
-            assertTrue(dao.setFavoritedCalls.size == 2)
+            assertEquals(dao.setFavoritedCalls.size, 2)
         }
 
     private fun repository(
