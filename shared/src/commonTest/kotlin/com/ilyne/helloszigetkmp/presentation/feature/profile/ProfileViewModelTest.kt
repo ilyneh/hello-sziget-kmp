@@ -204,14 +204,17 @@ class ProfileViewModelTest {
             assertTrue(friendDao.calls.contains("upsert(me, f1, ${Status.ACCEPTED})"))
         }
 
-    // NOTE: there is intentionally no acceptFriendRequest_apiFailure test. Unlike
-    // ProfileIntent.RemoveFriendClicked, ProfileIntent.AcceptFriendRequest does not wrap
-    // `friendRepository.acceptFriendRequest(...)` in a try/catch — FriendRepository still rolls
-    // its own optimistic write back before rethrowing, but ProfileViewModel then lets that
-    // exception escape uncaught from the viewModelScope.launch block. That's a real gap (flagged
-    // separately) but it also makes the failure path untestable here without either changing
-    // ProfileViewModel's behavior mid-test-writing or accepting a test run that fails on an
-    // uncaught coroutine exception rather than a real assertion.
+    @Test
+    fun acceptFriendRequest_apiFailure_setsError() =
+        runTest {
+            val friendDao = FakeProfileFriendDao()
+            val viewModel = buildViewModel(friendDao = friendDao, friendsApi = friendApi(actionsShouldFail = true))
+
+            viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = "f1"))
+            viewModel.uiState.first { it.error != null }
+
+            assertEquals("Failed to accept friend request", viewModel.uiState.value.error)
+        }
 
     @Test
     fun declineFriendRequest_success_deletesFriendshipLocally() =
@@ -225,8 +228,17 @@ class ProfileViewModelTest {
             assertTrue(friendDao.calls.contains("delete(me, f1)"))
         }
 
-    // NOTE: no declineFriendRequest_apiFailure test either — same uncaught-exception caveat as
-    // acceptFriendRequest above (ProfileIntent.DeclineFriendRequest also has no try/catch).
+    @Test
+    fun declineFriendRequest_apiFailure_setsError() =
+        runTest {
+            val friendDao = FakeProfileFriendDao()
+            val viewModel = buildViewModel(friendDao = friendDao, friendsApi = friendApi(actionsShouldFail = true))
+
+            viewModel.onIntent(ProfileIntent.DeclineFriendRequest(friendId = "f1"))
+            viewModel.uiState.first { it.error != null }
+
+            assertEquals("Failed to decline friend request", viewModel.uiState.value.error)
+        }
 
     @Test
     fun viewFriend_setsRemoveFriendAlertFromCurrentFriendsList() =

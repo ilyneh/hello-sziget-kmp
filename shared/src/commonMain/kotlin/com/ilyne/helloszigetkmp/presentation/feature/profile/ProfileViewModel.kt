@@ -151,10 +151,18 @@ class ProfileViewModel(
             }
             is ProfileIntent.PhotoPicked -> intent.image?.let { uploadPhoto(it) }
             is ProfileIntent.AcceptFriendRequest -> viewModelScope.launch {
-                friendRepository.acceptFriendRequest(currentUser.id, intent.friendId)
+                try {
+                    friendRepository.acceptFriendRequest(currentUser.id, intent.friendId)
+                } catch (e: Exception) {
+                    _uiState.update { it.copy(error = "Failed to accept friend request") }
+                }
             }
             is ProfileIntent.DeclineFriendRequest -> viewModelScope.launch {
-                friendRepository.declineFriendRequest(currentUser.id, intent.friendId)
+                try {
+                    friendRepository.declineFriendRequest(currentUser.id, intent.friendId)
+                } catch (e: Exception) {
+                    _uiState.update { it.copy(error = "Failed to decline friend request") }
+                }
             }
             is ProfileIntent.ViewFriend -> {
                 val friend = _uiState.value.friends.find { it.id == intent.friendId }
