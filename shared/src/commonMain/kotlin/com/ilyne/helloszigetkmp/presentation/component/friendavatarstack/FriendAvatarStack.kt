@@ -77,6 +77,28 @@ fun FriendAvatarStack(
     }
 }
 
+/**
+ * Same circular avatar styling as [FriendAvatarStack], but laid out as a plain, non-overlapping
+ * row (positive spacing instead of [FriendAvatarStack]'s negative "stacked" spacing) - for call
+ * sites that want each avatar fully visible rather than a compact overlapping cluster.
+ */
+@Composable
+fun FriendAvatarRow(
+    friends: List<FriendAvatarStackData>,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        friends.forEach { friend ->
+            key(friend.id) {
+                FriendAvatar(friend = friend, avatarColor = avatarColorFor(friend))
+            }
+        }
+    }
+}
+
 @Composable
 private fun FriendAvatar(
     friend: FriendAvatarStackData,
@@ -120,6 +142,20 @@ private fun Avatar(
 private fun PreviewFriendAvatarStack() {
     AppTheme {
         FriendAvatarStack(
+            friends = listOf(
+                FriendAvatarStackData(id = "1", name = "Zack"),
+                FriendAvatarStackData(id = "2", name = "owen"),
+                FriendAvatarStackData(id = "3", name = "Zaira")
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewFriendAvatarRow() {
+    AppTheme {
+        FriendAvatarRow(
             friends = listOf(
                 FriendAvatarStackData(id = "1", name = "Zack"),
                 FriendAvatarStackData(id = "2", name = "owen"),

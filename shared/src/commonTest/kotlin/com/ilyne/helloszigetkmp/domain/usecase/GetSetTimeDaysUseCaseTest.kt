@@ -226,6 +226,8 @@ class GetSetTimeDaysUseCaseTest {
                 dayEndMillis: Long,
             ): Flow<List<SetTimeEntity>> = flowOf(emptyList())
 
+            override fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>> = flowOf(emptyList())
+
             override suspend fun upsertAll(setTimes: List<SetTimeEntity>) {}
 
             override fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = flowOf(range)

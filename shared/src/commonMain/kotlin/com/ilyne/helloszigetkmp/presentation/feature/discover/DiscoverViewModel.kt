@@ -100,7 +100,10 @@ class DiscoverViewModel(
     ) {
         viewModelScope.launch {
             try {
-                artistRepository.toggleFavorite(artistId, !current)
+                artistRepository.toggleFavorite(
+                    artistId = artistId,
+                    isFavorited = !current
+                )
             } catch (e: Exception) {
                // silently fail here, do not disrupt the view with error screen
             }

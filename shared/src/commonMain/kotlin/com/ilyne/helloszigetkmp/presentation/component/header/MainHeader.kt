@@ -65,35 +65,33 @@ fun ModalHeader(
     modifier: Modifier = Modifier,
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier
-            .padding(bottom = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier.padding(bottom = 16.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.Bottom) {
             Text(
                 text = text,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = AppTheme.colors.highlightMagenta,
+                modifier = Modifier.weight(1f).padding(bottom = 8.dp),
             )
-            val primaryLineColor = MaterialTheme.colorScheme.primary
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                // Match canvas height to line width for layout pacing
-            ) {
-                drawLine(
-                    color = primaryLineColor,
-                    start = Offset(x = 0f, y = size.height / 2),
-                    end = Offset(x = size.width, y = size.height / 2),
-                    strokeWidth = 5.dp.toPx(),
-                    cap = StrokeCap.Round
-                )
-            }
+
+            trailingContent?.invoke()
         }
 
-        trailingContent?.invoke()
+        val primaryLineColor = MaterialTheme.colorScheme.primary
+        Canvas(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            drawLine(
+                color = primaryLineColor,
+                start = Offset(x = 0f, y = size.height / 2),
+                end = Offset(x = size.width, y = size.height / 2),
+                strokeWidth = 5.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+        }
     }
 }
 
