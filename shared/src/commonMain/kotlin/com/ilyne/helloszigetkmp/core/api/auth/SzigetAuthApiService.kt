@@ -1,6 +1,6 @@
 package com.ilyne.helloszigetkmp.core.api.auth
 
-import com.ilyne.helloszigetkmp.core.config.AppConfig
+import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 
 class SzigetAuthApiService(
     private val client: HttpClient,
-    private val appConfig: AppConfig,
+    private val appConfig: AppConfiguring,
 ) {
     private val baseUrl = "${appConfig.baseUrlLocal()}/auth"
 
