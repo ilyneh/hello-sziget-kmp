@@ -1,0 +1,198 @@
+package com.ilyne.helloszigetkmp.presentation.feature.artistdetail
+
+import app.cash.turbine.test
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
+import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
+import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
+import com.russhwolf.settings.MapSettings
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondOk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNull
+
+/**
+ * [ArtistDetailViewModel.load] should transition through loading/success/error states as
+ * [ArtistRepository.observeArtist] emits, and it should guard against redundant reloads for the
+ * same artist id via the `loadedArtistId` cache while still reloading for a different id.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+class ArtistDetailViewModelTest {
+    private val dispatcher = UnconfinedTestDispatcher()
+
+    @BeforeTest
+    fun setUp() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun load_success_transitionsFromLoadingToSuccessWithArtist() =
+        runTest {
+            val fakeDao = FakeArtistDao()
+            val viewModel = ArtistDetailViewModel(repository(fakeDao))
+
+            viewModel.uiState.test {
+                assertEquals(ArtistDetailUiState(), awaitItem())
+
+                viewModel.load("artist-1")
+
+                fakeDao.emit("artist-1", entity("artist-1", "Artist One"))
+
+                val loaded = awaitItem()
+                assertIs<ArtistDetailUiState.Status.Success>(loaded.status)
+                assertEquals("artist-1", loaded.artist?.id)
+                assertEquals("Artist One", loaded.artist?.name)
+            }
+        }
+
+    @Test
+    fun load_sameIdAgain_isNoOpAndDoesNotRetrigger() =
+        runTest {
+            val fakeDao = FakeArtistDao()
+            var observeCallCount = 0
+            val trackingDao =
+                object : ArtistDao by fakeDao {
+                    override fun observeById(id: String): Flow<ArtistEntity?> {
+                        observeCallCount++
+                        return fakeDao.observeById(id)
+                    }
+                }
+            val viewModel = ArtistDetailViewModel(repository(trackingDao))
+
+            viewModel.uiState.test {
+                awaitItem() // initial
+
+                viewModel.load("artist-1")
+                fakeDao.emit("artist-1", entity("artist-1", "Artist One"))
+                awaitItem() // success
+
+                assertEquals(1, observeCallCount)
+
+                viewModel.load("artist-1")
+
+                // no further emission from the no-op call
+                expectNoEvents()
+                assertEquals(1, observeCallCount)
+            }
+        }
+
+    @Test
+    fun load_differentId_retriggersLoad() =
+        runTest {
+            val fakeDao = FakeArtistDao()
+            val viewModel = ArtistDetailViewModel(repository(fakeDao))
+
+            viewModel.uiState.test {
+                awaitItem() // initial
+
+                viewModel.load("artist-1")
+                fakeDao.emit("artist-1", entity("artist-1", "Artist One"))
+                val first = awaitItem()
+                assertEquals("artist-1", first.artist?.id)
+
+                viewModel.load("artist-2")
+                fakeDao.emit("artist-2", entity("artist-2", "Artist Two"))
+                val second = awaitItem()
+                assertEquals("artist-2", second.artist?.id)
+                assertEquals("Artist Two", second.artist?.name)
+            }
+        }
+
+    @Test
+    fun load_repositoryThrows_setsErrorState() =
+        runTest {
+            val throwingDao =
+                object : ArtistDao by FakeArtistDao() {
+                    override fun observeById(id: String): Flow<ArtistEntity?> =
+                        kotlinx.coroutines.flow.flow { throw IllegalStateException("boom") }
+                }
+            val viewModel = ArtistDetailViewModel(repository(throwingDao))
+
+            viewModel.uiState.test {
+                assertEquals(ArtistDetailUiState(), awaitItem())
+
+                viewModel.load("artist-1")
+
+                val errored = awaitItem()
+                val status = assertIs<ArtistDetailUiState.Status.Error>(errored.status)
+                assertEquals("boom", status.message)
+                assertNull(errored.artist)
+            }
+        }
+
+    private fun entity(
+        id: String,
+        name: String,
+    ) = ArtistEntity(
+        id = id,
+        name = name,
+        bio = null,
+        imageUrl = null,
+        isFavorited = false,
+        tags = null,
+    )
+
+    private fun repository(dao: ArtistDao): ArtistRepository {
+        val api =
+            SzigetApiService(
+                client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+                baseUrl = "https://unused.test",
+            )
+        return ArtistRepository(api = api, dao = dao, settings = MapSettings())
+    }
+
+    /**
+     * Fake [ArtistDao] whose [observeById] emissions are driven per-id via [emit]. Uses a
+     * no-replay [MutableSharedFlow] (rather than a [kotlinx.coroutines.flow.MutableStateFlow])
+     * so that subscribing via `observeById` does not itself produce an initial `null` emission -
+     * tests only see emissions they explicitly trigger via [emit].
+     */
+    private class FakeArtistDao : ArtistDao {
+        private val flows = mutableMapOf<String, MutableSharedFlow<ArtistEntity?>>()
+
+        suspend fun emit(
+            id: String,
+            entity: ArtistEntity?,
+        ) {
+            flowFor(id).emit(entity)
+        }
+
+        private fun flowFor(id: String) = flows.getOrPut(id) { MutableSharedFlow(replay = 0, extraBufferCapacity = 1) }
+
+        override fun observeAll(): Flow<List<ArtistEntity>> = flowOf(emptyList())
+
+        override fun observeById(id: String): Flow<ArtistEntity?> = flowFor(id)
+
+        override fun observeFavorites(): Flow<List<ArtistEntity>> = flowOf(emptyList())
+
+        override suspend fun upsertAll(artists: List<ArtistEntity>) {}
+
+        override suspend fun setFavorited(
+            id: String,
+            isFavorited: Boolean,
+        ) {}
+
+        override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
+
+        override suspend fun deleteAll() {}
+    }
+}

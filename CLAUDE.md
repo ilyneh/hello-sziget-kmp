@@ -26,6 +26,8 @@ Lint/format:
 - Check formatting only: `./gradlew spotlessCheck`
 - Static analysis: `./gradlew detekt` (config at `config/detekt/detekt.yml`, applied to every subproject; baselines are per-project `detekt-baseline.xml` files).
 
+**Do not run `./gradlew spotlessApply` repo-wide as part of a routine fix.** `spotlessCheck` currently fails across 60+ pre-existing files due to a known Spotless/ktlint integration gap (see the comments in `shared/build.gradle.kts` and `.editorconfig`): the `ktlint_standard_multiline-expression-wrapping = disabled` override works via the raw ktlint CLI but Spotless silently ignores it, so a full `spotlessApply` reformats files into the wrapped style the codebase does *not* want, and additionally fails outright on ~20 pre-existing non-autocorrectable `compose:*` lint violations unrelated to formatting. If a change you're making trips `spotlessCheck`, format only the files you touched (or fix by hand to match the surrounding style) rather than running `spotlessApply` across the whole repo — a mass reformat is a separate, deliberate cleanup task, not a side effect of an unrelated fix.
+
 ## Architecture
 
 ### Layering (commonMain)

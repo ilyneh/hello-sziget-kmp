@@ -11,7 +11,6 @@ import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
@@ -254,7 +253,7 @@ class GetSetTimeDaysUseCaseTest {
                 isFavorited: Boolean,
             ) {}
 
-            override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
+            override suspend fun deleteAll() {}
         }
         val api = SzigetApiService(
             client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
@@ -367,7 +366,5 @@ class GetSetTimeDaysUseCaseTest {
         ): Boolean = map[key] as? Boolean ?: defaultValue
 
         override fun getBooleanOrNull(key: String): Boolean? = map[key] as? Boolean
-            settings = MapSettings(),
-        )
     }
 }

@@ -18,6 +18,7 @@ private const val KEY_PREFIX = "SoftRefreshGate_lastFetchedAt_"
 class SoftRefreshGate(
     private val settings: Settings,
     key: String,
+    private val clock: Clock = Clock.System,
 ) {
     private val lastFetchedKey = KEY_PREFIX + key
 
@@ -34,12 +35,12 @@ class SoftRefreshGate(
     ) {
         if (!force && !isStale(threshold)) return
         fetch()
-        settings.putLong(lastFetchedKey, Clock.System.now().toEpochMilliseconds())
+        settings.putLong(lastFetchedKey, clock.now().toEpochMilliseconds())
     }
 
     private fun isStale(threshold: Duration): Boolean {
         val lastFetchedAt = settings.getLongOrNull(lastFetchedKey) ?: return true
-        val elapsed = Clock.System.now().toEpochMilliseconds() - lastFetchedAt
+        val elapsed = clock.now().toEpochMilliseconds() - lastFetchedAt
         return elapsed >= threshold.inWholeMilliseconds
     }
 
