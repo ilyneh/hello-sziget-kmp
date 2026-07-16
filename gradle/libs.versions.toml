@@ -28,7 +28,7 @@ credentials = "1.6.0"
 googleid = "1.2.0"
 security-crypto = "1.1.0"
 kotlinx-coroutines = "1.11.0"
-turbine = "1.2.0"
+turbine = "1.2.1"
 spotless = "8.8.0"
 detekt = "1.23.8"
 # Pinned below 0.5.0: compose-rules switched its detekt module to the dev.detekt
