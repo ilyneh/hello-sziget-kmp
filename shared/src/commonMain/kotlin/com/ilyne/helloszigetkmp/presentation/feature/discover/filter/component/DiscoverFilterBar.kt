@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 
 data class DiscoverFilterBarData(
@@ -35,7 +34,7 @@ fun DiscoverFilterBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = SzigetPalette.Navy)
+            .background(color = AppTheme.colors.navy)
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically

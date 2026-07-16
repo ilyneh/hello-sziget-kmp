@@ -50,7 +50,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBar
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBarData
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -153,6 +153,8 @@ private fun ArtistCard(
     onFavoriteToggle: () -> Unit,
     onClick: () -> Unit = {},
 ) {
+    val coral = AppTheme.colors.coral
+    val gradientEnd = MaterialTheme.colorScheme.primary
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -162,7 +164,7 @@ private fun ArtistCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = SzigetPalette.Coral)
+                .background(color = coral)
                 .padding(6.dp)
         ) {
             AsyncImage(
@@ -177,7 +179,7 @@ private fun ArtistCard(
                         drawContent()
                         drawRect(
                             brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, SzigetPalette.PrimaryBlue),
+                                colors = listOf(Color.Transparent, gradientEnd),
                                 startY = size.height * 0.5f, // Adjust where the shadow begins fading in
                                 endY = size.height        // Ends perfectly at the bottom edge
                             )
@@ -194,7 +196,7 @@ private fun ArtistCard(
                     text = artist.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SzigetPalette.Coral,
+                    color = coral,
                     maxLines = 2,
                     lineHeight = 14.sp,
                     overflow = TextOverflow.Ellipsis,

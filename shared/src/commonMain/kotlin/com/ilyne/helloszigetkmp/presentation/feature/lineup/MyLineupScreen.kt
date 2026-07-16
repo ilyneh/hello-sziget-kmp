@@ -11,7 +11,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,7 +21,7 @@ import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -94,13 +93,13 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                                         modifier = Modifier
                                             .matchParentSize()
                                             .offset(x = 6.dp, y = 6.dp) // The 3D offset effect
-                                            .background(color = SzigetPalette.RedOrange, shape = itemShape)
+                                            .background(color = AppTheme.colors.redOrange, shape = itemShape)
                                     )
 
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .background(color = SzigetPalette.WarmOrange, shape = itemShape)
+                                            .background(color = AppTheme.colors.warmOrange, shape = itemShape)
                                             .clickable { onArtistClick(setTime.artistId) }
                                             .padding(horizontal = 16.dp, vertical = 12.dp),
                                         verticalAlignment = Alignment.CenterVertically,
@@ -111,7 +110,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                                             Text(
                                                 text = setTime.artistName,
                                                 fontWeight = FontWeight.ExtraBold,
-                                                color = Color.White
+                                                color = AppTheme.colors.onAccent
                                             )
 
                                             Row(
@@ -162,7 +161,7 @@ private fun SubtitleText(
     Text(
         text = text,
         fontSize = 12.sp,
-        color = Color.White,
+        color = AppTheme.colors.onAccent,
         fontWeight = FontWeight.SemiBold,
         lineHeight = 1.2.sp,
         maxLines = 1,

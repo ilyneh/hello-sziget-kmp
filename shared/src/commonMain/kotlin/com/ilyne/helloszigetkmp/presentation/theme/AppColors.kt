@@ -28,6 +28,38 @@ data class AppColorScheme(
     val outlineVariant: Color,
     val error: Color,
     val onError: Color,
+
+    /** Text/icon color for content drawn on a saturated accent surface (e.g. stage/genre chips, artist cards), independent of light/dark theme. */
+    val onAccent: Color,
+
+    // --- Fixed brand accents ---
+    // These carry the same value in both LightAppColors and DarkAppColors: they're used as
+    // flat, sticker-like brand chrome (nav bar, headers, cards, list rows) that's meant to
+    // read the same regardless of the system's light/dark setting, the same way
+    // [WelcomeBackground]'s hero gradient is theme-invariant by design. Each is reused across
+    // several unrelated surfaces (background, border, text) rather than a single fixed role,
+    // so they're named after the brand color itself rather than a specific role.
+    val navy: Color,
+    val highlightYellow: Color,
+    val highlightMagenta: Color,
+    val coral: Color,
+    val tealGreen: Color,
+    /** Label text drawn on a [tealGreen] surface (e.g. engagement-count card). */
+    val onTealGreen: Color,
+    val lightBlue: Color,
+    val mediumBlue: Color,
+    val warmOrange: Color,
+    val redOrange: Color,
+    /** Text-field border tone (unfocused state). */
+    val fieldBorder: Color,
+    /** Muted content color for text/icons drawn on [navy] (e.g. unselected bottom-nav item). */
+    val mutedOnNavy: Color,
+    /** Faint divider/muted-icon tone, and disabled-content color for [ActionButtonDefaults]-style chrome. */
+    val hairline: Color,
+    /** Disabled-container fill for [ActionButtonDefaults]-style chrome. */
+    val creamCanvas: Color,
+    /** Fallback color when a real data-driven color (e.g. an artist's stage color) is unavailable. */
+    val fallbackGray: Color,
 )
 
 val LightAppColors = AppColorScheme(
@@ -49,6 +81,22 @@ val LightAppColors = AppColorScheme(
     outlineVariant = SzigetPalette.CreamCanvas,
     error = SzigetPalette.Coral,
     onError = SzigetPalette.CardSurface,
+    onAccent = Color.White,
+    navy = SzigetPalette.Navy,
+    highlightYellow = SzigetPalette.SunshineYellow,
+    highlightMagenta = SzigetPalette.Magenta,
+    coral = SzigetPalette.Coral,
+    tealGreen = SzigetPalette.TealGreen,
+    onTealGreen = SzigetPalette.CardSurface,
+    lightBlue = SzigetPalette.LightBlue,
+    mediumBlue = SzigetPalette.MediumBlue,
+    warmOrange = SzigetPalette.WarmOrange,
+    redOrange = SzigetPalette.RedOrange,
+    fieldBorder = SzigetPalette.DarkTeal,
+    mutedOnNavy = SzigetPalette.FaintText,
+    hairline = SzigetPalette.Hairline,
+    creamCanvas = SzigetPalette.CreamCanvas,
+    fallbackGray = SzigetPalette.FallbackGray,
 )
 
 val DarkAppColors = AppColorScheme(
@@ -70,6 +118,22 @@ val DarkAppColors = AppColorScheme(
     outlineVariant = SzigetPalette.MutedText,
     error = SzigetPalette.Coral,
     onError = SzigetPalette.Ink,
+    onAccent = Color.White,
+    navy = SzigetPalette.Navy,
+    highlightYellow = SzigetPalette.SunshineYellow,
+    highlightMagenta = SzigetPalette.Magenta,
+    coral = SzigetPalette.Coral,
+    tealGreen = SzigetPalette.TealGreen,
+    onTealGreen = SzigetPalette.CardSurface,
+    lightBlue = SzigetPalette.LightBlue,
+    mediumBlue = SzigetPalette.MediumBlue,
+    warmOrange = SzigetPalette.WarmOrange,
+    redOrange = SzigetPalette.RedOrange,
+    fieldBorder = SzigetPalette.DarkTeal,
+    mutedOnNavy = SzigetPalette.FaintText,
+    hairline = SzigetPalette.Hairline,
+    creamCanvas = SzigetPalette.CreamCanvas,
+    fallbackGray = SzigetPalette.FallbackGray,
 )
 
 val LocalAppColors = staticCompositionLocalOf { LightAppColors }

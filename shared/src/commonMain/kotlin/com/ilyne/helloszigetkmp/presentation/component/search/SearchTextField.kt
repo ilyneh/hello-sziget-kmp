@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import org.jetbrains.compose.resources.painterResource
@@ -43,8 +42,8 @@ fun SearchTextField(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedTextColor = MaterialTheme.colorScheme.primary,
             focusedTextColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = SzigetPalette.DarkTeal,
-            focusedBorderColor = SzigetPalette.Magenta
+            unfocusedBorderColor = AppTheme.colors.fieldBorder,
+            focusedBorderColor = AppTheme.colors.highlightMagenta
         ),
     )
 }

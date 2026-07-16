@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
 @Composable
@@ -28,7 +28,7 @@ fun ProfileEngagementCountCard(
 ) {
     Card(
         modifier = modifier.height(IntrinsicSize.Min),
-        colors = CardDefaults.cardColors(containerColor = SzigetPalette.TealGreen),
+        colors = CardDefaults.cardColors(containerColor = AppTheme.colors.tealGreen),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
@@ -41,7 +41,7 @@ fun ProfileEngagementCountCard(
             )
 
             for (item in items.drop(1)) {
-                VerticalDivider(modifier = Modifier.fillMaxHeight().background(color = SzigetPalette.Navy))
+                VerticalDivider(modifier = Modifier.fillMaxHeight().background(color = AppTheme.colors.navy))
                 ProfileEngagementCountItem(
                     item = item,
                     modifier = Modifier.weight(1f)
@@ -70,12 +70,12 @@ fun ProfileEngagementCountItem(
             text = item.count.toString(),
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = SzigetPalette.SunshineYellow
+            color = AppTheme.colors.highlightYellow
         )
         Text(
             text = item.label,
             fontSize = 12.sp,
-            color = SzigetPalette.CardSurface,
+            color = AppTheme.colors.onTealGreen,
             fontWeight = FontWeight.SemiBold
         )
     }

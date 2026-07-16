@@ -32,4 +32,8 @@ object SzigetPalette {
     val CardSurface = Color(0xFFFFFDF7)
     val ControlFill = Color(0xFFF1EADF)
     val Hairline = Color(0xFFE7DFD0)
+
+    // Fallback swatches used when a real data-driven color (stage, artist) is unavailable.
+    val FallbackGray = Color.Gray
+    val UnknownStageGray = Color.DarkGray
 }

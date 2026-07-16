@@ -28,6 +28,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Screen-specific overlay tones for the welcome hero. This screen intentionally renders a
+ * fixed dark gradient regardless of the app's light/dark theme, so these colors live here
+ * rather than in [com.ilyne.helloszigetkmp.presentation.theme.AppColorScheme] or
+ * [com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette] — they're exclusive to this screen.
+ */
+private object WelcomeColors {
+    val GradientStart = Color(0xFFFF4958)
+    val GradientMid = Color(0xFFB83DD8)
+    val GradientEnd = Color(0xFF3B00DD)
+    val AmbientCircleLarge = Color.White.copy(alpha = 0.06f)
+    val AmbientCircleSmall = Color.White.copy(alpha = 0.04f)
+    val AmbientGlow = Color(0xFFFFDC00).copy(alpha = 0.22f)
+    val PillBackground = Color.White.copy(alpha = 0.18f)
+    val PillBorder = Color.White.copy(alpha = 0.28f)
+    val HeadlineShadow = Color.Black.copy(alpha = 0.25f)
+    val YearLabelText = Color.White.copy(alpha = 0.82f)
+    val SubtitleText = Color.White.copy(alpha = 0.55f)
+    val BadgeBackground = Color.White.copy(alpha = 0.14f)
+    val BadgeBorder = Color.White.copy(alpha = 0.2f)
+    val TextPrimary = Color.White
+}
+
 @Composable
 fun WelcomeBackground(modifier: Modifier = Modifier) {
     Box(
@@ -40,9 +63,9 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFFFF4958), // rgb(255, 73, 88)
-                            Color(0xFFB83DD8), // rgb(184, 61, 216)
-                            Color(0xFF3B00DD), // rgb(59, 0, 221)
+                            WelcomeColors.GradientStart,
+                            WelcomeColors.GradientMid,
+                            WelcomeColors.GradientEnd,
                         ),
                         start = Offset(0f, 0f),
                         end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
@@ -56,7 +79,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     .offset(x = 60.dp, y = (-80).dp)
                     .size(260.dp)
                     .align(Alignment.TopEnd)
-                    .background(Color.White.copy(alpha = 0.06f), shape = CircleShape),
+                    .background(WelcomeColors.AmbientCircleLarge, shape = CircleShape),
             )
 
             // Middle-left background circle
@@ -65,7 +88,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     .offset(x = (-80).dp, y = 350.dp)
                     .size(200.dp)
                     .align(Alignment.TopStart)
-                    .background(Color.White.copy(alpha = 0.04f), shape = CircleShape),
+                    .background(WelcomeColors.AmbientCircleSmall, shape = CircleShape),
             )
 
             // Lower-right ambient circle (yellow tone)
@@ -74,7 +97,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     .offset(x = 30.dp, y = 195.dp)
                     .size(86.dp)
                     .align(Alignment.CenterEnd)
-                    .background(Color(0xFFFFDC00).copy(alpha = 0.22f), shape = CircleShape),
+                    .background(WelcomeColors.AmbientGlow, shape = CircleShape),
             )
 
             // --- MAIN SCREEN CONTENT SCROLL ---
@@ -97,13 +120,13 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     // Pill Label: Date and Location
                     Box(
                         modifier = Modifier
-                            .background(Color.White.copy(alpha = 0.18f), shape = CircleShape)
-                            .border(1.dp, Color.White.copy(alpha = 0.28f), shape = CircleShape)
+                            .background(WelcomeColors.PillBackground, shape = CircleShape)
+                            .border(1.dp, WelcomeColors.PillBorder, shape = CircleShape)
                             .padding(horizontal = 18.dp, vertical = 5.dp),
                     ) {
                         Text(
                             text = "AUG 6–11 · BUDAPEST",
-                            color = Color.White,
+                            color = WelcomeColors.TextPrimary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 2.sp,
@@ -115,12 +138,12 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     // Big Headline Text with Soft drop-shadow
                     Text(
                         text = "SZIGET",
-                        color = Color.White,
+                        color = WelcomeColors.TextPrimary,
                         fontSize = 96.sp,
                         fontWeight = FontWeight.ExtraBold,
                         style = TextStyle(
                             shadow = Shadow(
-                                color = Color.Black.copy(alpha = 0.25f),
+                                color = WelcomeColors.HeadlineShadow,
                                 offset = Offset(0f, 6f),
                                 blurRadius = 40f,
                             ),
@@ -132,7 +155,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     // Year Label
                     Text(
                         text = "2026",
-                        color = Color.White.copy(alpha = 0.82f),
+                        color = WelcomeColors.YearLabelText,
                         fontSize = 38.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 8.sp,
@@ -142,7 +165,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                     // Subtitle Slogan
                     Text(
                         text = "Island of Freedom",
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = WelcomeColors.SubtitleText,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 3.sp,
@@ -173,13 +196,13 @@ fun FestivalBadge(
 ) {
     Box(
         modifier = modifier
-            .background(Color.White.copy(alpha = 0.14f), shape = CircleShape)
-            .border(1.dp, Color.White.copy(alpha = 0.2f), shape = CircleShape)
+            .background(WelcomeColors.BadgeBackground, shape = CircleShape)
+            .border(1.dp, WelcomeColors.BadgeBorder, shape = CircleShape)
             .padding(horizontal = 14.dp, vertical = 6.dp),
     ) {
         Text(
             text = text,
-            color = Color.White,
+            color = WelcomeColors.TextPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
         )

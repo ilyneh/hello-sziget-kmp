@@ -32,7 +32,6 @@ import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
@@ -49,7 +48,7 @@ fun SetTimeListItem(
     val stageColor = stageColor(stageId = setTime.stageId)
     Row(
         modifier = modifier
-            .background(color = SzigetPalette.LightBlue)
+            .background(color = AppTheme.colors.lightBlue)
             .clickable(enabled = setTime.artistId != null) {
                 setTime.artistId?.let(onArtistClick)
             }

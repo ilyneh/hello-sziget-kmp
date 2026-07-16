@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_check
 import org.jetbrains.compose.resources.painterResource
@@ -33,11 +32,16 @@ object ActionButtonDefaults {
     val Size: Dp = 48.dp
     val BorderWidth: Dp = 2.dp
     val Shape: Shape = RoundedCornerShape(16.dp)
-    val ContainerColor: Color = SzigetPalette.SunshineYellow
-    val BorderColor: Color = SzigetPalette.Navy
-    val ContentColor: Color = SzigetPalette.Navy
-    val DisabledContainerColor = SzigetPalette.CreamCanvas
-    val DisabledContentColor = SzigetPalette.Hairline
+    val ContainerColor: Color
+        @Composable get() = AppTheme.colors.highlightYellow
+    val BorderColor: Color
+        @Composable get() = AppTheme.colors.navy
+    val ContentColor: Color
+        @Composable get() = AppTheme.colors.navy
+    val DisabledContainerColor: Color
+        @Composable get() = AppTheme.colors.creamCanvas
+    val DisabledContentColor: Color
+        @Composable get() = AppTheme.colors.hairline
 }
 
 /**

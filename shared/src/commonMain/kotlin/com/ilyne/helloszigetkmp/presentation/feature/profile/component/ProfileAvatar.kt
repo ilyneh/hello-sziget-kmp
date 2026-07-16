@@ -14,13 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
 @Composable
@@ -52,7 +52,7 @@ fun ProfileAvatar(
                     .align(Alignment.Center)
                     .padding(4.dp),
                 text = avatarText,
-                color = Color.White,
+                color = AppTheme.colors.onAccent,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
                 autoSize = TextAutoSize.StepBased(

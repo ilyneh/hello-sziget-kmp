@@ -48,7 +48,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.lineup.MyLineupScreen
 import com.ilyne.helloszigetkmp.presentation.feature.profile.ProfileScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import hello_sziget_kmp.shared.generated.resources.ic_heart_outline
@@ -58,6 +58,8 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
 val LocalBottomBarPadding = staticCompositionLocalOf { 0.dp }
+
+private val BottomNavShadowColor = Color.White
 
 @Serializable object ScheduleTab
 
@@ -130,7 +132,7 @@ fun MainScaffold(
     )
 
     Scaffold(
-        containerColor = SzigetPalette.Navy,
+        containerColor = AppTheme.colors.navy,
         bottomBar = {
             Surface(
                 modifier = modifier
@@ -144,11 +146,11 @@ fun MainScaffold(
                         clip = false
 
                         // Lower the intensity by reducing the alpha (opacity) of the shadow colors
-                        ambientShadowColor = Color.White // Ultra soft ambient glow
-                        spotShadowColor = Color.White // Softer directional shadow
+                        ambientShadowColor = BottomNavShadowColor // Ultra soft ambient glow
+                        spotShadowColor = BottomNavShadowColor // Softer directional shadow
                     },
                 shape = RoundedCornerShape(20.dp),
-                color = SzigetPalette.Navy,
+                color = AppTheme.colors.navy,
                 tonalElevation = 0.25.dp,
             ) {
                 Row(
@@ -261,7 +263,7 @@ private fun BottomTabItem(
     val contentColor = if (selected) {
         MaterialTheme.colorScheme.onSecondary
     } else {
-        SzigetPalette.FaintText
+        AppTheme.colors.mutedOnNavy
     }
 
     Column(

@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
@@ -40,11 +40,11 @@ fun SetTimeListView(
     }
 
     Column(modifier = modifier
-        .background(color = SzigetPalette.LightBlue)
+        .background(color = AppTheme.colors.lightBlue)
     ) {
         HorizontalDivider(
             thickness = 4.dp,
-            color = SzigetPalette.Magenta
+            color = AppTheme.colors.highlightMagenta
         )
 
         LazyColumn(
@@ -74,7 +74,7 @@ fun SetTimeListView(
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         thickness = 4.dp,
-                        color = SzigetPalette.MediumBlue
+                        color = AppTheme.colors.mediumBlue
                     )
                 }
             }

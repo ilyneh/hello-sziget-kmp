@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ViewMode
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_grid
 import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_list
@@ -36,8 +35,8 @@ fun ViewModeToggle(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(9.dp))
-            .background(SzigetPalette.Navy)
-            .border(width = 2.dp, color = SzigetPalette.Magenta, shape = RoundedCornerShape(9.dp))
+            .background(AppTheme.colors.navy)
+            .border(width = 2.dp, color = AppTheme.colors.highlightMagenta, shape = RoundedCornerShape(9.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
@@ -46,7 +45,7 @@ fun ViewModeToggle(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
-                    .background(if (selected) SzigetPalette.Magenta else Color.Transparent)
+                    .background(if (selected) AppTheme.colors.highlightMagenta else Color.Transparent)
                     .clickable { onChange(mode) }
                     .padding(horizontal = 6.dp, vertical = 9.dp),
                 contentAlignment = Alignment.Center,
@@ -59,7 +58,7 @@ fun ViewModeToggle(
                 Icon(
                     painter = painterResource(resource),
                     contentDescription = contentDescription,
-                    tint = if (selected) SzigetPalette.SunshineYellow else SzigetPalette.Hairline,
+                    tint = if (selected) AppTheme.colors.highlightYellow else AppTheme.colors.hairline,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -72,7 +71,7 @@ fun ViewModeToggle(
 fun ViewModelTogglePreview() {
     AppTheme {
         Box(modifier = Modifier
-            .background(SzigetPalette.Navy)
+            .background(AppTheme.colors.navy)
             .padding(16.dp)
         ) {
             ViewModeToggle(

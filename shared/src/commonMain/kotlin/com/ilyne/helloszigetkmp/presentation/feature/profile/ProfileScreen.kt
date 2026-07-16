@@ -26,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +43,6 @@ import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEn
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_logout
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
@@ -85,7 +83,7 @@ fun ProfileScreen(
     ) {
         Column(
             modifier = modifier.fillMaxSize()
-                .background(color = SzigetPalette.Peach)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
             MainHeader(
                 text = "Profile",
@@ -96,7 +94,7 @@ fun ProfileScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
                             contentDescription = "Log out",
-                            tint = SzigetPalette.SunshineYellow,
+                            tint = AppTheme.colors.highlightYellow,
                         )
                     }
                 }
@@ -156,7 +154,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                         text = "No friends",
                         textAlign = TextAlign.Center,
-                        color = SzigetPalette.Navy,
+                        color = AppTheme.colors.navy,
                     )
                 }
 
@@ -262,14 +260,14 @@ fun ProfileAvatarAndName(
                 modifier = Modifier.size(100.dp)
             )
             if (isUploading) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = AppTheme.colors.onAccent)
             }
         }
         Text(
             text = name,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = SzigetPalette.PrimaryBlue
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

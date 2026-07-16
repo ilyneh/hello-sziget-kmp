@@ -53,5 +53,5 @@ fun stageColor(stageId: String?): Color =
     if (stageId != null) {
         stagePalette[StageColorAssignments.indexFor(stageId)]
     } else {
-        Color.DarkGray
+        SzigetPalette.UnknownStageGray
     }

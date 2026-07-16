@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.util.TableInfo
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
 @Composable
 fun MainHeader(
@@ -38,19 +37,19 @@ fun MainHeader(
     Row(
         modifier = modifier.fillMaxWidth()
             .height(72.dp)
-            .background(color = SzigetPalette.Navy)
+            .background(color = AppTheme.colors.navy)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val offset = Offset(x = 8.0f, y = 6.0f)
         Text(
             text = text,
-            color = SzigetPalette.SunshineYellow,
+            color = AppTheme.colors.highlightYellow,
             fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold,
             style = MaterialTheme.typography.headlineLarge.copy(
                 shadow = Shadow(
-                    color = SzigetPalette.Magenta,
+                    color = AppTheme.colors.highlightMagenta,
                     offset = offset
                 )
             ),
@@ -76,15 +75,16 @@ fun ModalHeader(
                 text = text,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = SzigetPalette.Magenta,
+                color = AppTheme.colors.highlightMagenta,
             )
+            val primaryLineColor = MaterialTheme.colorScheme.primary
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
                 // Match canvas height to line width for layout pacing
             ) {
                 drawLine(
-                    color = SzigetPalette.PrimaryBlue,
+                    color = primaryLineColor,
                     start = Offset(x = 0f, y = size.height / 2),
                     end = Offset(x = size.width, y = size.height / 2),
                     strokeWidth = 5.dp.toPx(),

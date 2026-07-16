@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,6 +21,7 @@ import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendA
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.artistColor
+import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 
 
@@ -40,7 +40,7 @@ fun SetTimeCard(
     onClick: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
 ) {
-    val color = setTime.artist?.let(::artistColor) ?: Color.Gray
+    val color = setTime.artist?.let(::artistColor) ?: AppTheme.colors.fallbackGray
     val backgroundAlpha = if (setTime.isInThePast) 0.55f else 1f
     val isFavorited = setTime.artist?.isFavorited == true
     Box(
@@ -63,13 +63,13 @@ fun SetTimeCard(
                 fontSize = 13.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = Color.White,
+                color = AppTheme.colors.onAccent,
                 lineHeight = 18.sp,
             )
             Text(
                 text = formatTime(setTime.startTime),
                 fontSize = 11.sp,
-                color = Color.White,
+                color = AppTheme.colors.onAccent,
             )
 
             if (hasFriendsFavorited && viewMode == SetTimeCardViewMode.TIMELINE) {
