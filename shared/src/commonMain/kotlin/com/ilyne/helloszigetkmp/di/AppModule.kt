@@ -18,6 +18,7 @@ import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.settings.createSecureSettings
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModeStorage
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
 import com.russhwolf.settings.Settings
 import org.koin.core.context.startKoin
@@ -47,6 +48,7 @@ val appModule = module {
     single<GoogleAuthProviding> { GoogleAuthProvider() }
     single { TokenStorage(settings = get(secureSettingsQualifier)) }
     single { ScheduleFilterStorage(settings = get()) }
+    single { ScheduleViewModeStorage(settings = get()) }
     single { CurrentUserProvider() }
     single { createBaseHttpClient(isDebug = get<AppConfiguring>().isDebug()) }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
