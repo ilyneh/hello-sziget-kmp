@@ -43,6 +43,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEn
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.util.text.initials
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_logout
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
@@ -108,10 +109,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 ProfileAvatarAndName(
                     name = uiState.name.orEmpty(),
-                    avatarText = uiState.name.orEmpty()
-                        .split(" ")
-                        .mapNotNull { it.firstOrNull()?.uppercase() }
-                        .joinToString(separator = ""),
+                    avatarText = uiState.name.orEmpty().initials(),
                     imageUrl = uiState.pendingImageUrl ?: uiState.imageUrl,
                     isUploading = uiState.isUploadingImage,
                     onAvatarClick = launchImagePicker,
