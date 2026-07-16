@@ -216,6 +216,38 @@ class FriendRepositoryTest {
         }
 
     @Test
+    fun sendFriendRequest_localCacheWriteFails_stillCallsApiAndSucceeds() =
+        runTest {
+            // friendId isn't cached in the local users table yet (e.g. it came from a search
+            // result before UserRepository's own sync caught up), so the optimistic local
+            // write hits a simulated FK violation. That must not block the actual request from
+            // being sent to the server.
+            val fakeFriendDao = FakeFriendDao().apply { throwOnUpsertFor(friendId) }
+            var apiRequestCount = 0
+            val repository = repository(fakeFriendDao, apiSucceeds = true, onApiRequest = { apiRequestCount++ })
+
+            repository.sendFriendRequest(currentUserId, friendId)
+
+            assertEquals(1, apiRequestCount)
+            assertTrue(fakeFriendDao.calls.isEmpty())
+        }
+
+    @Test
+    fun sendFriendRequest_localCacheWriteFails_apiAlsoFails_rethrowsApiFailureWithoutRevertAttempt() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao().apply { throwOnUpsertFor(friendId) }
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
+
+            // The API failure (not the local FK violation) is what the caller should see.
+            assertFailsWith<ApiFailureException> {
+                repository.sendFriendRequest(currentUserId, friendId)
+            }
+
+            // Nothing was ever cached locally, so there's nothing to revert.
+            assertTrue(fakeFriendDao.calls.isEmpty())
+        }
+
+    @Test
     fun removeFriend_success_deletesLocallyAndCallsApi() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
@@ -283,7 +315,36 @@ class FriendRepositoryTest {
             )
         }
 
+    @Test
+    fun acceptFriendRequest_localCacheWriteFails_stillCallsApiAndSucceeds() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao().apply { throwOnUpsertFor(friendId) }
+            var apiRequestCount = 0
+            val repository = repository(fakeFriendDao, apiSucceeds = true, onApiRequest = { apiRequestCount++ })
+
+            repository.acceptFriendRequest(currentUserId, friendId)
+
+            assertEquals(1, apiRequestCount)
+            assertTrue(fakeFriendDao.calls.isEmpty())
+        }
+
+    @Test
+    fun acceptFriendRequest_localCacheWriteFails_apiAlsoFails_rethrowsApiFailureWithoutRevertAttempt() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao().apply { throwOnUpsertFor(friendId) }
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<ApiFailureException> {
+                repository.acceptFriendRequest(currentUserId, friendId)
+            }
+
+            assertTrue(fakeFriendDao.calls.isEmpty())
+        }
+
     private class ApiFailureException : Exception("simulated api failure")
+
+    /** Simulates the Room FK-constraint exception thrown when [friendId] isn't cached in the local users table yet. */
+    private class FakeForeignKeyViolation(friendId: String) : Exception("simulated FK violation for $friendId")
 
     private fun userDto(id: String) = UserDto(id = id, name = id, imageUrl = null)
 
@@ -341,8 +402,10 @@ class FriendRepositoryTest {
     private fun repository(
         friendDao: FriendDao,
         apiSucceeds: Boolean,
+        onApiRequest: () -> Unit = {},
     ): FriendRepository {
         val engine = MockEngine {
+            onApiRequest()
             if (apiSucceeds) {
                 respondOk()
             } else {
@@ -375,9 +438,18 @@ class FriendRepositoryTest {
         val calls = mutableListOf<String>()
         val friendships = mutableListOf<UserFriendEntity>()
         val artistFriendFavorites = mutableListOf<ArtistFriendFavoritedEntity>()
+        private val throwOnUpsertFor = mutableSetOf<String>()
+
+        /** Simulates a Room foreign-key constraint violation for [friendId] not yet being cached locally. */
+        fun throwOnUpsertFor(friendId: String) {
+            throwOnUpsertFor.add(friendId)
+        }
 
         override suspend fun upsertFriendships(friendships: List<UserFriendEntity>) {
             friendships.forEach { new ->
+                if (new.friendId in throwOnUpsertFor) {
+                    throw FakeForeignKeyViolation(new.friendId)
+                }
                 calls.add("upsert(${new.userId}, ${new.friendId}, ${new.status})")
                 this.friendships.removeAll { it.userId == new.userId && it.friendId == new.friendId }
                 this.friendships.add(new)
