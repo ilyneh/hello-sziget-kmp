@@ -11,6 +11,7 @@
     <ID>LongMethod:SignInCard.kt$@Composable fun SignInCard( isLoading: Boolean, error: String?, onSignIn: () -&gt; Unit, onContinueAsGuest: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>LongMethod:WelcomeBackground.kt$@Composable fun WelcomeBackground(modifier: Modifier = Modifier)</ID>
     <ID>LongParameterList:ScheduleUiModel.kt$ScheduleUiModel.SetTime$( val id: String, val artistId: String, val stageId: String?, val startTime: Long, // epoch millis val endTime: Long, // epoch millis val hideEndTime: Boolean, val artist: Artist? = null, val stage: Stage? = null, val isInThePast: Boolean, val startHourFraction: Double, val endHourFraction: Double, )</ID>
+    <ID>LongParameterList:ScheduleViewModel.kt$ScheduleViewModel$(scheduleRepository: ScheduleRepository, artistRepository: ArtistRepository, friendRepository: FriendRepository, getSetTimeDaysUseCase: GetSetTimeDaysUseCase, getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase, getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase, scheduleFilterStorage: ScheduleFilterStorage, backgroundDispatcher: CoroutineDispatcher)</ID>
     <ID>MagicNumber:AppColors.kt$0xFF121212</ID>
     <ID>MagicNumber:AppColors.kt$0xFF1A1A1A</ID>
     <ID>MagicNumber:AppColors.kt$0xFF2A2A2E</ID>

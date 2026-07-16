@@ -7,6 +7,8 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.passesGenreFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -51,6 +54,7 @@ sealed class DiscoverEffect {
 class DiscoverViewModel(
     private val artistRepository: ArtistRepository,
     private val getActiveDiscoverFiltersTextUseCase: GetActiveDiscoverFiltersTextUseCase,
+    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState = _uiState.asStateFlow()
@@ -143,9 +147,21 @@ class DiscoverViewModel(
                 }
             }.combine(filter) { artists, discoverFilter ->
                 artists.filter { passesGenreFilter(it.tags, discoverFilter.selectedGenreGroups) }
-            }.collect { artists ->
-                _uiState.update { it.copy(artists = artists, status = DiscoverUiState.Status.Success) }
-            }
+            }.flowOn(backgroundDispatcher)
+                .collect { artists ->
+                    // Offloading this filtering onto backgroundDispatcher means the resulting emission
+                    // can now land after a concurrent operation (e.g. toggleFavorite) has already
+                    // set an Error status; don't let a routine list refresh silently clobber it.
+                    _uiState.update {
+                        val nextStatus =
+                            if (it.status is DiscoverUiState.Status.Error) {
+                                it.status
+                            } else {
+                                DiscoverUiState.Status.Success
+                            }
+                        it.copy(artists = artists, status = nextStatus)
+                    }
+                }
         }
     }
 }

@@ -286,6 +286,7 @@ class AddFriendViewModelTest {
             friendRepository = friendRepository,
             userRepository = userRepository,
             currentUserProvider = currentUserProvider,
+            backgroundDispatcher = Dispatchers.Main,
         )
     }
 
