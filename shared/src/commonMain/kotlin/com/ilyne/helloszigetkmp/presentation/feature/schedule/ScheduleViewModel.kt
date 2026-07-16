@@ -165,8 +165,11 @@ class ScheduleViewModel(
 
             is ScheduleIntent.ToggleFavorite -> {
                 if (intent.artistId == null) {
-                    Logger.e("findme", "Clicked on item with null artist id")
-                    throw IllegalStateException("item with null artistId")
+                    // Can happen legitimately: a set time's artist hasn't synced locally yet
+                    // (schedule sync finished before artist sync), so there's nothing to
+                    // favorite yet. Log and ignore the tap rather than crashing.
+                    Logger.e(TAG, "onIntent(): ignoring favorite toggle for item with null artistId")
+                    return
                 }
                 viewModelScope.launch {
                     try {
