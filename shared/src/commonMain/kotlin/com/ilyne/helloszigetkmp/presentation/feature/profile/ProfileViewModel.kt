@@ -94,8 +94,8 @@ class ProfileViewModel(
 
                 if (usersSyncService.awaitSuccessfulSync()) {
                     _uiState.update { it.copy(isLoading = true) }
-                    friendRepository.refresh(force = false)
                     artistRepository.refresh(force = false)
+                    friendRepository.refresh(force = false)
                     _uiState.update { it.copy(isLoading = false) }
                 } else {
                     Logger.e("ProfileViewModel", "init: users sync failed, skipping friends refresh")
