@@ -71,21 +71,8 @@ class DiscoverViewModel(
         refreshArtists(force = false)
     }
 
-    /** Called from pull-to-refresh: always forces a fresh API fetch. */
     fun refresh() {
         refreshArtists(force = true)
-    }
-
-    private fun refreshArtists(force: Boolean) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
-            try {
-                artistRepository.refresh(force = force)
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
-            }
-        }
     }
 
     fun onIntent(intent: DiscoverIntent) {
@@ -107,8 +94,6 @@ class DiscoverViewModel(
         }
     }
 
-
-
     fun toggleFavorite(
         artistId: String,
         current: Boolean,
@@ -117,7 +102,7 @@ class DiscoverViewModel(
             try {
                 artistRepository.toggleFavorite(artistId, !current)
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
+               // silently fail here, do not disrupt the view with error screen
             }
         }
     }
@@ -153,15 +138,22 @@ class DiscoverViewModel(
                     // can now land after a concurrent operation (e.g. toggleFavorite) has already
                     // set an Error status; don't let a routine list refresh silently clobber it.
                     _uiState.update {
-                        val nextStatus =
-                            if (it.status is DiscoverUiState.Status.Error) {
-                                it.status
-                            } else {
-                                DiscoverUiState.Status.Success
-                            }
+                        val nextStatus = it.status as? DiscoverUiState.Status.Error ?: DiscoverUiState.Status.Success
                         it.copy(artists = artists, status = nextStatus)
                     }
                 }
+        }
+    }
+
+    private fun refreshArtists(force: Boolean) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
+            try {
+                artistRepository.refresh(force = force)
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
+            }
         }
     }
 }
