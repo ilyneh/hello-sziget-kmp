@@ -449,6 +449,28 @@ class ScheduleViewModelTest {
         }
 
     @Test
+    fun changeViewMode_persistsSelectionViaScheduleViewModeStorage() =
+        runTest {
+            val settings = freshSettings()
+            val viewModel = newViewModel(settings = settings)
+
+            viewModel.onIntent(ScheduleIntent.ChangeViewMode(ViewMode.LIST))
+
+            assertEquals(ViewMode.LIST, ScheduleViewModeStorage(settings).read())
+        }
+
+    @Test
+    fun init_seedsViewModeFromPersistedStorage() =
+        runTest {
+            val settings = freshSettings()
+            ScheduleViewModeStorage(settings).save(ViewMode.SWIMLANE)
+
+            val viewModel = newViewModel(settings = settings)
+
+            assertEquals(ViewMode.SWIMLANE, viewModel.uiState.value.viewMode)
+        }
+
+    @Test
     fun init_seedsFilterFromPersistedStorage() =
         runTest {
             val settings = freshSettings()
@@ -513,6 +535,7 @@ class ScheduleViewModelTest {
             getFilteredScheduleContentUseCase = GetFilteredScheduleContentUseCase(),
             getActiveFiltersTextUseCase = GetActiveFiltersTextUseCase(),
             scheduleFilterStorage = ScheduleFilterStorage(settings),
+            scheduleViewModeStorage = ScheduleViewModeStorage(settings),
             backgroundDispatcher = Dispatchers.Main,
         )
     }
