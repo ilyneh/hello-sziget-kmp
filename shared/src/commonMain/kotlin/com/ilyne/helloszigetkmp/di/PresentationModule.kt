@@ -51,21 +51,22 @@ val presentationModule = module {
     viewModel {
         MyLineupViewModel(
             artistRepository = get(),
-            scheduleRepository = get()
+            scheduleRepository = get(),
         )
     }
-    viewModel { ProfileViewModel(
-        friendRepository = get(),
-        userRepository = get(),
-        usersSyncService = get(),
-        artistRepository = get(),
-        getLikedArtistCountUseCase = get(),
-        api = get(),
-        currentUserProvider = get(),
-    ) }
+    viewModel {
+        ProfileViewModel(
+            friendRepository = get(),
+            userRepository = get(),
+            usersSyncService = get(),
+            artistRepository = get(),
+            getLikedArtistCountUseCase = get(),
+            api = get(),
+            currentUserProvider = get(),
+        )
+    }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get(), currentUserProvider = get()) }
     viewModel {
         ArtistDetailViewModel(artistRepository = get(), friendRepository = get(), scheduleRepository = get())
     }
-
 }
