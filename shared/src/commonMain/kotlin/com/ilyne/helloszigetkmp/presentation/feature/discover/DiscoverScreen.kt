@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,11 +15,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,11 +39,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
-import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBarData
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
+import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
+import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
@@ -67,10 +65,10 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         }
     }
 
-    PullToRefreshBox(
+    PullToRefreshContent(
         isRefreshing = uiState.status == DiscoverUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             MainHeader(text = "Discover")
@@ -93,22 +91,14 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
 
             when (val status = uiState.status) {
                 is DiscoverUiState.Status.Loading if uiState.artists.isEmpty() -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingBox()
                 }
 
                 is DiscoverUiState.Status.Error -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = status.message ?: "Something went wrong",
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ActionButton(text = "Retry", onClick = { viewModel.refresh() })
-                        }
-                    }
+                    ErrorState(
+                        message = status.message ?: "Something went wrong",
+                        onRetry = { viewModel.refresh() },
+                    )
                 }
 
                 else -> {

@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,8 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
-import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
+import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
+import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
@@ -30,10 +31,10 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     val viewModel = koinViewModel<MyLineupViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    PullToRefreshBox(
+    PullToRefreshContent(
         isRefreshing = uiState.status == MyLineupUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             MainHeader(text = "My Lineup")
@@ -41,22 +42,14 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             val status = uiState.status
             when {
                 status == MyLineupUiState.Status.Loading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingBox()
                 }
 
                 status is MyLineupUiState.Status.Error -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = status.message ?: "Something went wrong",
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ActionButton(text = "Retry", onClick = { viewModel.refresh() })
-                        }
-                    }
+                    ErrorState(
+                        message = status.message ?: "Something went wrong",
+                        onRetry = { viewModel.refresh() },
+                    )
                 }
 
                 uiState.favoritesGroupedByDay.isEmpty() -> EmptyView(modifier = Modifier.fillMaxSize())
