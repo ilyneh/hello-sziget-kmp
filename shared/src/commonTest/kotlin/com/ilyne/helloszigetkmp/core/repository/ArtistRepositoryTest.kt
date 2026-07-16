@@ -6,9 +6,14 @@ import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respondOk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,6 +24,7 @@ import kotlin.test.assertTrue
  * [ArtistRepository.toggleFavorite] applies the favorite/unfavorite state optimistically to the local DAO before the
  * network call, then rolls the DAO back to its prior state (and rethrows) if the API call fails.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class ArtistRepositoryTest {
     @Test
     fun toggleFavorite_success_updatesDaoOptimisticallyAndDoesNotRollBack() =
@@ -81,6 +87,58 @@ class ArtistRepositoryTest {
             )
             assertEquals(dao.setFavoritedCalls.size, 2)
         }
+
+    @Test
+    fun toggleFavorite_concurrentCallsForSameArtist_areSerialized() {
+        // A rapid double-tap on the same artist shouldn't let the two calls' optimistic-
+        // write/revert cycles interleave: the second tap's optimistic write must not land
+        // until the first tap's entire cycle (including any revert) has finished.
+        val testDispatcher = UnconfinedTestDispatcher()
+        runTest(testDispatcher) {
+            val dao = FakeArtistDao()
+            val firstCallStarted = CompletableDeferred<Unit>()
+            val releaseFirstCall = CompletableDeferred<Unit>()
+
+            // MockEngine hops onto a real background dispatcher unless given one explicitly, which
+            // would defeat the deterministic ordering this test relies on - pin it to the same
+            // dispatcher the test itself runs on.
+            val engine = MockEngine(
+                MockEngineConfig().apply {
+                    dispatcher = testDispatcher
+                    reuseHandlers = false
+                    addHandler {
+                        firstCallStarted.complete(Unit)
+                        releaseFirstCall.await()
+                        respondOk()
+                    }
+                    addHandler { respondOk() }
+                },
+            )
+            val api = SzigetApiService(client = HttpClient(engine), baseUrl = "https://unused.test")
+            val repository = ArtistRepository(api = api, dao = dao, settings = MapSettings())
+
+            val firstCall = launch { repository.toggleFavorite(artistId = "artist-1", isFavorited = true) }
+            firstCallStarted.await()
+
+            val secondCall = launch { repository.toggleFavorite(artistId = "artist-1", isFavorited = false) }
+
+            // The second call should be blocked acquiring artist-1's lock, so only the first
+            // call's optimistic write should be visible yet.
+            assertEquals(listOf(FakeArtistDao.SetFavoritedCall("artist-1", true)), dao.setFavoritedCalls)
+
+            releaseFirstCall.complete(Unit)
+            firstCall.join()
+            secondCall.join()
+
+            assertEquals(
+                listOf(
+                    FakeArtistDao.SetFavoritedCall("artist-1", true),
+                    FakeArtistDao.SetFavoritedCall("artist-1", false),
+                ),
+                dao.setFavoritedCalls,
+            )
+        }
+    }
 
     private fun repository(
         dao: ArtistDao,
