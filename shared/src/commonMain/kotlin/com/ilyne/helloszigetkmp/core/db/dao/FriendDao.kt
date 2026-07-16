@@ -23,8 +23,11 @@ interface FriendDao {
         friendId: String,
     )
 
-    @Query("DELETE FROM users_friends WHERE friendId NOT IN (:friendIds)")
-    suspend fun deleteFriendshipsNotIn(friendIds: List<String>)
+    @Query("DELETE FROM users_friends WHERE userId = :userId AND friendId NOT IN (:friendIds)")
+    suspend fun deleteFriendshipsNotIn(
+        userId: String,
+        friendIds: List<String>,
+    )
 
     @Query("DELETE FROM users_friends")
     suspend fun deleteAllFriendships()
@@ -38,6 +41,27 @@ interface FriendDao {
     @Upsert
     suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>)
 
+    @Query("DELETE FROM artist_friend_favorites WHERE friendId IN (:friendIds)")
+    suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>)
+
+    /**
+     * Replaces every favorited-artist pair for [friendIds] with [artistsFriendFavorited] in one
+     * transaction. Callers must only invoke this once [friendIds] is a complete, freshly-fetched
+     * set of friends (not a partial/stale one) — otherwise a friend who's temporarily missing
+     * from [friendIds] due to an unrelated fetch failure would have their real favorites wiped.
+     */
+    @Transaction
+    suspend fun replaceArtistFriendFavoritesForFriends(
+        friendIds: List<String>,
+        artistsFriendFavorited: List<ArtistFriendFavoritedEntity>,
+    ) {
+        deleteArtistFriendFavoritesForFriends(friendIds)
+        upsertArtistFriendFavorited(artistsFriendFavorited)
+    }
+
+    @Query("DELETE FROM artist_friend_favorites WHERE friendId NOT IN (:friendIds)")
+    suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>)
+    
     @Query("DELETE FROM artist_friend_favorites")
     suspend fun deleteAllArtistFriendFavorited()
 

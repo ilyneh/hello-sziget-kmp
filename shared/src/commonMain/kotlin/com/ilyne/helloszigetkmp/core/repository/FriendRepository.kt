@@ -158,8 +158,10 @@ class FriendRepository(
                 }
 
                 if (artistsFriendsFavoritedResult.isSuccess) {
-                    friendDao.upsertAndPruneArtistFriendFavorited(
-                        artistsFriendFavorited = artistsFriendsFavorited.toArtistsFriendsFavoritedEntity(),
+                    persistArtistsFriendsFavorited(
+                        artistsFriendsFavorited = artistsFriendsFavorited,
+                        friends = friends,
+                        friendsFetchSucceeded = friendsResult.isSuccess,
                     )
                 }
 
@@ -167,30 +169,90 @@ class FriendRepository(
                 // all three friend-list calls succeeded, otherwise a failed call's empty result
                 // would wipe out relationships whose source list just didn't load this time.
                 if (friendsResult.isSuccess && friendRequestsResult.isSuccess && sentFriendRequestsResult.isSuccess) {
-                    val existingFriendships = (friends + friendRequests + sentFriendRequests)
-                        .map { it.id }
-                        .distinct()
-                    friendDao.deleteFriendshipsNotIn(friendIds = existingFriendships)
+                    pruneRemovedFriendships(currentUserId, friends, friendRequests, sentFriendRequests)
                 }
 
-                val failures = listOfNotNull(
-                    friendsResult.exceptionOrNull()?.let { "getFriends" to it },
-                    friendRequestsResult.exceptionOrNull()?.let { "getFriendRequests" to it },
-                    sentFriendRequestsResult.exceptionOrNull()?.let { "getSentFriendRequests" to it },
-                    artistsFriendsFavoritedResult.exceptionOrNull()?.let { "getArtistsFriendsFavorited" to it },
+                throwIfAnyFailed(
+                    friendsResult,
+                    friendRequestsResult,
+                    sentFriendRequestsResult,
+                    artistsFriendsFavoritedResult,
                 )
-
-                failures.forEach { (name, throwable) ->
-                    Logger.e("FriendRepository", "refresh(): $name failed", throwable)
-                }
-
-                // Surface a failure to the caller so it can stop spinners / show an error,
-                // even though whichever calls succeeded above were still persisted to the DB.
-                if (failures.isNotEmpty()) {
-                    throw failures.first().second
-                }
             }
         }
+    }
+
+    /**
+     * Logs every failed call from this round, then — if any failed — rethrows the first one so
+     * the caller can stop spinners / show an error, even though whichever calls succeeded were
+     * still persisted to the DB above.
+     */
+    private fun throwIfAnyFailed(
+        friendsResult: Result<List<UserDto>>,
+        friendRequestsResult: Result<List<UserDto>>,
+        sentFriendRequestsResult: Result<List<UserDto>>,
+        artistsFriendsFavoritedResult: Result<List<ArtistFriendsFavoritedDto>>,
+    ) {
+        val failures = listOfNotNull(
+            friendsResult.exceptionOrNull()?.let { "getFriends" to it },
+            friendRequestsResult.exceptionOrNull()?.let { "getFriendRequests" to it },
+            sentFriendRequestsResult.exceptionOrNull()?.let { "getSentFriendRequests" to it },
+            artistsFriendsFavoritedResult.exceptionOrNull()?.let { "getArtistsFriendsFavorited" to it },
+        )
+        failures.forEach { (name, throwable) ->
+            Logger.e("FriendRepository", "refresh(): $name failed", throwable)
+        }
+        if (failures.isNotEmpty()) {
+            throw failures.first().second
+        }
+    }
+
+    /**
+     * Persists this round's favorited-artist pairs, pruning stale ones when it's safe to do so.
+     * Only called once [artistsFriendsFavorited] itself loaded successfully; [friendsFetchSucceeded]
+     * gates whether [friends] is a complete-enough set to safely scope a prune against — see
+     * [FriendDao.replaceArtistFriendFavoritesForFriends] for why a partial/stale friend list must
+     * not be used to prune.
+     */
+    private suspend fun persistArtistsFriendsFavorited(
+        artistsFriendsFavorited: List<ArtistFriendsFavoritedDto>,
+        friends: List<UserDto>,
+        friendsFetchSucceeded: Boolean,
+    ) {
+        val entities = artistsFriendsFavorited.toArtistsFriendsFavoritedEntity()
+        if (friendsFetchSucceeded) {
+            // We have both a fresh favorited-artists fetch and a fresh, complete friends list, so
+            // it's safe to prune: any (artist, friend) pair that was cached before but isn't in
+            // this fetch means that friend actually un-favorited that artist.
+            friendDao.replaceArtistFriendFavoritesForFriends(friendIds = friends.map { it.id }, artistsFriendFavorited = entities)
+        } else {
+            // The friend list itself failed to load this round, so we don't have a reliable
+            // "current friends" set to scope a prune against — upsert only, to avoid wiping cached
+            // favorites for a friend we can't currently confirm is still on the list.
+            friendDao.upsertArtistFriendFavorited(entities)
+        }
+    }
+
+    /**
+     * Deletes friendships (and their cached favorited-artist rows) that no longer appear in any
+     * of the three freshly-fetched friend lists. Only called once all three have succeeded — see
+     * the call site in [refresh].
+     */
+    private suspend fun pruneRemovedFriendships(
+        currentUserId: String,
+        friends: List<UserDto>,
+        friendRequests: List<UserDto>,
+        sentFriendRequests: List<UserDto>,
+    ) {
+        val existingFriendships = (friends + friendRequests + sentFriendRequests)
+            .map { it.id }
+            .distinct()
+        friendDao.deleteFriendshipsNotIn(userId = currentUserId, friendIds = existingFriendships)
+        // A friendship ending (unfriend/decline) doesn't cascade-delete that former friend's
+        // cached favorited-artist rows (the FK cascade is keyed off deleting the UserEntity
+        // itself, which we never do here) — prune them explicitly so a removed friend doesn't
+        // keep showing up as having favorited artists forever.
+        friendDao.deleteArtistFriendFavoritesNotIn(friendIds = existingFriendships)
     }
 
     private fun List<UserDto>.toUserFriends(

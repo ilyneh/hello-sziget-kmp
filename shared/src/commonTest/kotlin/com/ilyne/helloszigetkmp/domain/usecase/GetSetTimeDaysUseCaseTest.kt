@@ -10,7 +10,7 @@ import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
-import com.russhwolf.settings.MapSettings
+import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
@@ -244,14 +244,14 @@ class GetSetTimeDaysUseCaseTest {
 
             override fun observeFavorites(): Flow<List<ArtistEntity>> = flowOf(emptyList())
 
+            override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
+
             override suspend fun upsertAll(artists: List<ArtistEntity>) {}
 
             override suspend fun setFavorited(
                 id: String,
                 isFavorited: Boolean,
             ) {}
-
-            override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
 
             override suspend fun deleteAll() {}
         }
@@ -264,7 +264,107 @@ class GetSetTimeDaysUseCaseTest {
             setTimeDao = setTimeDao,
             stageDao = stageDao,
             artistDao = artistDao,
-            settings = MapSettings(),
+            settings = FakeSettings(),
         )
+    }
+
+    /** Minimal in-memory [Settings] fake — [ScheduleRepository]'s [SoftRefreshGate] only needs put/get-long. */
+    private class FakeSettings : Settings {
+        private val map = mutableMapOf<String, Any>()
+
+        override val keys: Set<String> get() = map.keys
+        override val size: Int get() = map.size
+
+        override fun clear() = map.clear()
+
+        override fun remove(key: String) {
+            map.remove(key)
+        }
+
+        override fun hasKey(key: String): Boolean = map.containsKey(key)
+
+        override fun putInt(
+            key: String,
+            value: Int,
+        ) {
+            map[key] = value
+        }
+
+        override fun getInt(
+            key: String,
+            defaultValue: Int,
+        ): Int = map[key] as? Int ?: defaultValue
+
+        override fun getIntOrNull(key: String): Int? = map[key] as? Int
+
+        override fun putLong(
+            key: String,
+            value: Long,
+        ) {
+            map[key] = value
+        }
+
+        override fun getLong(
+            key: String,
+            defaultValue: Long,
+        ): Long = map[key] as? Long ?: defaultValue
+
+        override fun getLongOrNull(key: String): Long? = map[key] as? Long
+
+        override fun putString(
+            key: String,
+            value: String,
+        ) {
+            map[key] = value
+        }
+
+        override fun getString(
+            key: String,
+            defaultValue: String,
+        ): String = map[key] as? String ?: defaultValue
+
+        override fun getStringOrNull(key: String): String? = map[key] as? String
+
+        override fun putFloat(
+            key: String,
+            value: Float,
+        ) {
+            map[key] = value
+        }
+
+        override fun getFloat(
+            key: String,
+            defaultValue: Float,
+        ): Float = map[key] as? Float ?: defaultValue
+
+        override fun getFloatOrNull(key: String): Float? = map[key] as? Float
+
+        override fun putDouble(
+            key: String,
+            value: Double,
+        ) {
+            map[key] = value
+        }
+
+        override fun getDouble(
+            key: String,
+            defaultValue: Double,
+        ): Double = map[key] as? Double ?: defaultValue
+
+        override fun getDoubleOrNull(key: String): Double? = map[key] as? Double
+
+        override fun putBoolean(
+            key: String,
+            value: Boolean,
+        ) {
+            map[key] = value
+        }
+
+        override fun getBoolean(
+            key: String,
+            defaultValue: Boolean,
+        ): Boolean = map[key] as? Boolean ?: defaultValue
+
+        override fun getBooleanOrNull(key: String): Boolean? = map[key] as? Boolean
     }
 }

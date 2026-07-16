@@ -45,7 +45,12 @@ class ArtistRepositoryTest {
                 assertFailsWith<RuntimeException> {
                     repository.toggleFavorite(artistId = "artist-1", isFavorited = true)
                 }
-            assertEquals(failure, thrown)
+            // kotlinx.coroutines' stack-trace recovery copies exceptions that cross a suspend
+            // boundary, preserving the original as `.cause` — so `thrown` isn't reference-equal
+            // to `failure` even though it's the same underlying failure. Compare by message
+            // (and confirm the original survives as the cause) rather than by instance identity.
+            assertEquals(failure.message, thrown.message)
+            assertTrue(thrown === failure || thrown.cause === failure)
 
             // Optimistic update happened first, then rollback to the opposite value.
             assertEquals(
