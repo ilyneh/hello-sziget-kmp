@@ -7,9 +7,12 @@ import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -41,6 +44,7 @@ class AddFriendViewModel(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
     currentUserProvider: CurrentUserProvider,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
@@ -125,9 +129,10 @@ class AddFriendViewModel(
                         AddFriendUserItem(user = user, status = status)
                     }
                     .toList()
-            }.collect { results ->
-                _uiState.update { it.copy(results = results) }
-            }
+            }.flowOn(ioDispatcher)
+                .collect { results ->
+                    _uiState.update { it.copy(results = results) }
+                }
         }
     }
 }

@@ -15,6 +15,8 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -100,6 +103,7 @@ class ScheduleViewModel(
     private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
     private val getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase,
     private val scheduleFilterStorage: ScheduleFilterStorage,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
     private companion object {
@@ -213,23 +217,25 @@ class ScheduleViewModel(
                     flow3 = artistsFriendsFavorited,
                 ) { filter, setTimesForDay, favoritedByArtistId ->
                     CombinedData(filter, setTimesForDay, favoritedByArtistId)
-                }.collect { data ->
-                    val filteredData = getFilteredScheduleContentUseCase(
+                }.map { data ->
+                    getFilteredScheduleContentUseCase(
                         data.filter,
                         data.setTimesForDay.setTimes,
                         data.favoritedByArtistId,
                         data.setTimesForDay.stages,
                     )
-                    _uiState.update {
-                        it.copy(
-                            setTimes = filteredData.setTimes,
-                            stages = filteredData.stages,
-                            gridMinHour = filteredData.gridMinHour,
-                            gridMaxHour = filteredData.gridMaxHour,
-                            status = ScheduleUiState.Status.Success
-                        )
+                }.flowOn(ioDispatcher)
+                    .collect { filteredData ->
+                        _uiState.update {
+                            it.copy(
+                                setTimes = filteredData.setTimes,
+                                stages = filteredData.stages,
+                                gridMinHour = filteredData.gridMinHour,
+                                gridMaxHour = filteredData.gridMaxHour,
+                                status = ScheduleUiState.Status.Success
+                            )
+                        }
                     }
-                }
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSelectedDay(): failed to load schedule for the selected day", e)
                 val message = "Couldn't load the schedule for this day."
@@ -263,7 +269,8 @@ class ScheduleViewModel(
                     } else {
                         setTimeDays.days.filterNot { it.isExtraDay }
                     }
-                }.collect { filteredDays ->
+                }.flowOn(ioDispatcher)
+                    .collect { filteredDays ->
                     _uiState.update { it.copy(days = filteredDays) }
                     if (selectedDay.value == null || selectedDay.value !in filteredDays) {
                         selectedDay.update { filteredDays.firstOrNull() }

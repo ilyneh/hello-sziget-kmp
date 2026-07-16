@@ -160,6 +160,7 @@ class DiscoverViewModelTest {
         val viewModel = DiscoverViewModel(
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+            ioDispatcher = Dispatchers.Main,
         )
 
         viewModel.toggleFavorite(artistId = "artist-1", current = false)
@@ -191,6 +192,7 @@ class DiscoverViewModelTest {
         val viewModel = DiscoverViewModel(
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+            ioDispatcher = Dispatchers.Main,
         )
 
         viewModel.uiState.test {
@@ -225,6 +227,7 @@ class DiscoverViewModelTest {
         val viewModel = DiscoverViewModel(
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+            ioDispatcher = Dispatchers.Main,
         )
 
         viewModel.uiState.test {
@@ -293,6 +296,7 @@ class DiscoverViewModelTest {
         return DiscoverViewModel(
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+            ioDispatcher = Dispatchers.Main,
         )
     }
 
