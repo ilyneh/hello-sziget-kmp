@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,7 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.core.media.rememberProfileImagePicker
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
+import com.ilyne.helloszigetkmp.presentation.component.dialog.ConfirmationDialog
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountCard
@@ -43,6 +43,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEn
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendRequestsSection
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileFriendsSection
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.util.text.initials
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_logout
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
@@ -76,10 +77,10 @@ fun ProfileScreen(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefreshContent(
         isRefreshing = uiState.isLoading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         Column(
             modifier = modifier.fillMaxSize()
@@ -108,10 +109,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 ProfileAvatarAndName(
                     name = uiState.name.orEmpty(),
-                    avatarText = uiState.name.orEmpty()
-                        .split(" ")
-                        .mapNotNull { it.firstOrNull()?.uppercase() }
-                        .joinToString(separator = ""),
+                    avatarText = uiState.name.orEmpty().initials(),
                     imageUrl = uiState.pendingImageUrl ?: uiState.imageUrl,
                     isUploading = uiState.isUploadingImage,
                     onAvatarClick = launchImagePicker,
@@ -185,54 +183,22 @@ fun ProfileScreen(
     }
 
     uiState.removeFriendAlert?.let { friend ->
-        AlertDialog(
-            onDismissRequest = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) },
-            title = { Text(text = friend.name) },
-            text = { Text(text = "Remove ${friend.name} as a friend?") },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.onIntent(ProfileIntent.RemoveFriendClicked) }
-                ) {
-                    Text(
-                        text = "Remove friend",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) }
-                ) {
-                    Text(text = "Cancel")
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface
+        ConfirmationDialog(
+            title = friend.name,
+            message = "Remove ${friend.name} as a friend?",
+            confirmText = "Remove friend",
+            onConfirm = { viewModel.onIntent(ProfileIntent.RemoveFriendClicked) },
+            onDismiss = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) },
         )
     }
 
     if (uiState.showLogoutAlert) {
-        AlertDialog(
-            onDismissRequest = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) },
-            title = { Text(text = "Log out?") },
-            text = { Text(text = "Are you sure you want to log out?") },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.onIntent(ProfileIntent.ConfirmLogout) }
-                ) {
-                    Text(
-                        text = "Log out",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) }
-                ) {
-                    Text(text = "Cancel")
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface
+        ConfirmationDialog(
+            title = "Log out?",
+            message = "Are you sure you want to log out?",
+            confirmText = "Log out",
+            onConfirm = { viewModel.onIntent(ProfileIntent.ConfirmLogout) },
+            onDismiss = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) },
         )
     }
 }
