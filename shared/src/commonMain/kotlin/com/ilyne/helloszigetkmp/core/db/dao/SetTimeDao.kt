@@ -27,7 +27,7 @@ interface SetTimeDao {
         INNER JOIN artists ON set_times.artistId = artists.id
         INNER JOIN stages ON set_times.stageId = stages.id
         WHERE artists.isFavorited = 1
-        """
+        """,
     )
     fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>>
 

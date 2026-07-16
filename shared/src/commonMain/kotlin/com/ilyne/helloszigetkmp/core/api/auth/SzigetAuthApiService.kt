@@ -17,24 +17,31 @@ class SzigetAuthApiService(
 ) {
     private val baseUrl = "${appConfig.baseUrlLocal()}/auth"
 
-    suspend fun googleLogin(googleToken: String): TokenDto {
-        return client.post(urlString = "$baseUrl/google/mobile") {
-            contentType(ContentType.Application.Json)
-            setBody(LoginRequestDto(googleToken))
-        }.body()
-    }
+    suspend fun googleLogin(googleToken: String): TokenDto =
+        client
+            .post(urlString = "$baseUrl/google/mobile") {
+                contentType(ContentType.Application.Json)
+                setBody(LoginRequestDto(googleToken))
+            }.body()
 
-    suspend fun logout(accessToken: String, refreshToken: String) {
-        return client.post(urlString = "$baseUrl/logout") {
-            bearerAuth(accessToken)
-            contentType(ContentType.Application.Json)
-            setBody(LogoutRequestDto(refreshToken))
-        }.body()
-    }
+    suspend fun logout(
+        accessToken: String,
+        refreshToken: String,
+    ): Unit =
+        client
+            .post(urlString = "$baseUrl/logout") {
+                bearerAuth(accessToken)
+                contentType(ContentType.Application.Json)
+                setBody(LogoutRequestDto(refreshToken))
+            }.body()
 }
 
 @Serializable
-data class LoginRequestDto(@SerialName("id_token") val googleToken: String)
+data class LoginRequestDto(
+    @SerialName("id_token") val googleToken: String,
+)
 
 @Serializable
-data class LogoutRequestDto(@SerialName("refresh_token") val refreshToken: String)
+data class LogoutRequestDto(
+    @SerialName("refresh_token") val refreshToken: String,
+)

@@ -2,8 +2,8 @@ package com.ilyne.helloszigetkmp.core.repository
 
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.api.dto.UserDto
-import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
+import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.domain.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,7 +30,11 @@ class UserRepository(
         return user.toEntity().toDomain()
     }
 
-    suspend fun uploadProfilePicture(api: SzigetApiService, bytes: ByteArray, contentType: String): User {
+    suspend fun uploadProfilePicture(
+        api: SzigetApiService,
+        bytes: ByteArray,
+        contentType: String,
+    ): User {
         val dto = api.uploadProfileImage(bytes = bytes, contentType = contentType)
         return syncCurrentUser(dto)
     }

@@ -22,11 +22,15 @@ class SzigetApiService(
 
     suspend fun getUsers(): List<UserDto> = client.get("$baseUrl/users").body()
 
-    suspend fun uploadProfileImage(bytes: ByteArray, contentType: String): UserDto =
-        client.post("$baseUrl/users/me/image") {
-            contentType(ContentType.parse(contentType))
-            setBody(bytes)
-        }.body()
+    suspend fun uploadProfileImage(
+        bytes: ByteArray,
+        contentType: String,
+    ): UserDto =
+        client
+            .post("$baseUrl/users/me/image") {
+                contentType(ContentType.parse(contentType))
+                setBody(bytes)
+            }.body()
 
     suspend fun getArtists(): List<ArtistDto> = client.get("$baseUrl/artists").body()
 
@@ -38,13 +42,9 @@ class SzigetApiService(
 
     suspend fun getSetTimes(): List<SetTimeDto> = client.get("$baseUrl/set_times").body()
 
-    suspend fun favoriteArtist(
-        artistId: String,
-    ) = client.post(urlString = "$baseUrl/artists/$artistId/favorite")
+    suspend fun favoriteArtist(artistId: String) = client.post(urlString = "$baseUrl/artists/$artistId/favorite")
 
-    suspend fun unfavoriteArtist(
-        artistId: String,
-    ) = client.delete(urlString = "$baseUrl/artists/$artistId/favorite")
+    suspend fun unfavoriteArtist(artistId: String) = client.delete(urlString = "$baseUrl/artists/$artistId/favorite")
 
     suspend fun getFriends(): List<UserDto> = client.get("$baseUrl/friends").body()
 
@@ -58,6 +58,5 @@ class SzigetApiService(
 
     suspend fun removeFriend(userId: String) = client.delete(urlString = "$baseUrl/friends/$userId")
 
-    suspend fun getArtistsFriendsFavorited(): List<ArtistFriendsFavoritedDto> =
-        client.get(urlString = "$baseUrl/friends/favorites").body()
+    suspend fun getArtistsFriendsFavorited(): List<ArtistFriendsFavoritedDto> = client.get(urlString = "$baseUrl/friends/favorites").body()
 }

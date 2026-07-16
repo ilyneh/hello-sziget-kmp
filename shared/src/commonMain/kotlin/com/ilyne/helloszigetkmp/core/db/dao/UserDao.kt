@@ -32,7 +32,7 @@ interface UserDao {
         SELECT users.* FROM users
         INNER JOIN current_user ON users.id = current_user.userId
         LIMIT 1
-        """
+        """,
     )
     suspend fun getCurrentUser(): UserEntity?
 
@@ -41,7 +41,7 @@ interface UserDao {
         SELECT users.* FROM users
         INNER JOIN current_user ON users.id = current_user.userId
         LIMIT 1
-        """
+        """,
     )
     fun observeCurrentUser(): Flow<UserEntity?>
 

@@ -56,8 +56,7 @@ class ArtistRepository(
         }
     }
 
-    private suspend fun lockFor(artistId: String): Mutex =
-        toggleLocksGate.withLock { toggleLocks.getOrPut(artistId) { Mutex() } }
+    private suspend fun lockFor(artistId: String): Mutex = toggleLocksGate.withLock { toggleLocks.getOrPut(artistId) { Mutex() } }
 }
 
 private fun ArtistDto.toEntity() =
