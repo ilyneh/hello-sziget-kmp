@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component
+package com.ilyne.helloszigetkmp.presentation.component.filter
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +28,7 @@ import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
-fun DiscoverFilterButtonChip(
+fun FilterButtonChip(
     filterCount: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -103,9 +103,9 @@ private fun FilterCountLabel(
 
 @Preview
 @Composable
-private fun DiscoverFilterButtonChipPreview() {
+private fun FilterButtonChipPreview() {
     AppTheme {
-        DiscoverFilterButtonChip(
+        FilterButtonChip(
             filterCount = 5,
             onClick = {},
         )
