@@ -65,6 +65,11 @@ kotlin {
         }
         withHostTest {
             isIncludeAndroidResources = true
+            // Unmocked android.util.Log throws by default under this host-test runner (there's
+            // no Robolectric shadow installed) — any code path that calls Logger.e (which is
+            // most of the app's catch blocks) would otherwise crash the test instead of letting
+            // it assert on the resulting UI state.
+            isReturnDefaultValues = true
         }
     }
 
