@@ -44,12 +44,12 @@ import coil3.compose.AsyncImage
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
+import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
+import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBarData
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
-import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBar
-import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.component.DiscoverFilterBarData
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -82,8 +82,8 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             )
-            DiscoverFilterBar(
-                data = DiscoverFilterBarData(
+            FilterBar(
+                data = FilterBarData(
                     filterCount = uiState.filterCount,
                     filterTexts = uiState.filterTexts,
                 ),

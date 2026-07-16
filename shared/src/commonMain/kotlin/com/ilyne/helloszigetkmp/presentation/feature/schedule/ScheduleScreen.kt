@@ -21,12 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
+import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
+import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBarData
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.DaySelector
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.ViewModeToggle
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBar
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component.ScheduleFilterBarData
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline.TimelineGridView
@@ -106,14 +106,15 @@ private fun ScheduleContent(
                 onDaySelect = onDaySelected,
             )
 
-            ScheduleFilterBar(
-                data = ScheduleFilterBarData(
+            FilterBar(
+                data = FilterBarData(
                     filterCount = uiState.activeFilterCount,
-                    setCount = uiState.setTimes.size,
                     filterTexts = uiState.activeFilterItemsText,
+                    trailingText = if (uiState.setTimes.isNotEmpty()) "${uiState.setTimes.size} Sets" else null,
                 ),
                 onFilterButtonClicked = onFilterButtonClicked,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                backgroundColor = MaterialTheme.colorScheme.surface
             )
 
             // Content
