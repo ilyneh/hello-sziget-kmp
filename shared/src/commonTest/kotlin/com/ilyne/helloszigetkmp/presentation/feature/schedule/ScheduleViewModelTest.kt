@@ -48,7 +48,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -325,13 +324,17 @@ class ScheduleViewModelTest {
         }
 
     @Test
-    fun toggleFavorite_nullArtistId_throws() =
+    fun toggleFavorite_nullArtistId_ignoresIntentWithoutThrowing() =
         runTest {
+            // A null artistId happens legitimately when a set time's artist hasn't synced
+            // locally yet (schedule sync finished before artist sync); tapping favorite on it
+            // should be a no-op, not a crash.
             val viewModel = newViewModel()
+            val statusBeforeIntent = viewModel.uiState.value.status
 
-            assertFailsWith<IllegalStateException> {
-                viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId = null, current = false))
-            }
+            viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId = null, current = false))
+
+            assertEquals(statusBeforeIntent, viewModel.uiState.value.status)
         }
 
     @Test

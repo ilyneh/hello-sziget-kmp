@@ -16,6 +16,7 @@ import com.ilyne.helloszigetkmp.domain.model.User
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respondOk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -270,9 +271,19 @@ class AddFriendViewModelTest {
         friendDao: FakeFriendDao,
         apiSucceeds: Boolean = true,
     ): AddFriendViewModel {
-        val engine = MockEngine {
-            if (apiSucceeds) respondOk() else throw ApiFailureException()
-        }
+        // MockEngine hops requests onto its own dispatcher (real Dispatchers.IO by default) rather
+        // than running on the caller's dispatcher, so a fire-and-forget viewModelScope.launch that
+        // awaits a request (see refreshFriendsFavoritedInBackground) can still be in flight on that
+        // real thread after this test method returns and tearDown() calls Dispatchers.resetMain(),
+        // crashing with "Dispatchers.Main ... test dispatcher was unset" - misattributed to
+        // whichever test runs next. Pin it to this test's Main dispatcher so requests resolve
+        // synchronously within the test instead of on a real background thread.
+        val engine = MockEngine(
+            MockEngineConfig().apply {
+                this.dispatcher = this@AddFriendViewModelTest.dispatcher
+                requestHandlers.add { if (apiSucceeds) respondOk() else throw ApiFailureException() }
+            },
+        )
         val api = SzigetApiService(client = HttpClient(engine), baseUrl = "https://unused.test")
         val friendRepository = FriendRepository(
             api = api,
