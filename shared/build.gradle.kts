@@ -156,14 +156,15 @@ spotless {
         // exception for @Composable). no-wildcard-imports is disabled because Compose
         // files intentionally wildcard-import androidx.compose.* packages.
         //
-        // We'd also like multiline-expression-wrapping disabled (keep the callee on the
-        // same line as `=`, e.g. `val x = listOf(` with only the argument list wrapping
-        // below it) — confirmed via the raw ktlint CLI that disabling this rule via
-        // .editorconfig works correctly and produces exactly that output. But Spotless's
-        // ktlint integration silently drops this specific property no matter how it's
-        // supplied (editorConfigOverride map, or an explicit editorConfigPath pointing at
-        // this exact file) — every other override here takes effect except this one, so
-        // it appears to be a gap in Spotless's property bridge, not a ktlint limitation.
+        // multiline-expression-wrapping is disabled so the callee stays on the same line
+        // as `=` (e.g. `val x = listOf(` with only the argument list wrapping below it).
+        // This previously had a comment here claiming Spotless silently ignored this
+        // override even though the raw ktlint CLI respected it. Re-tested 2026-07 against
+        // Spotless 8.8.0 / ktlint 1.8.0 with several representative cases (val assignments
+        // to constructor/function calls, when/if-else expressions, elvis chains, boolean
+        // chains) and could not reproduce that — the override works correctly here now.
+        // Leaving the property set is still correct either way; if re-wrapping shows up
+        // again, verify in an isolated `git worktree` before re-adding a workaround.
         ktlint("1.8.0")
             .customRuleSets(
                 listOf(
