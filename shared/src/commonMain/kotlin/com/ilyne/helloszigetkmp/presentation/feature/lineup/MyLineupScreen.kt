@@ -39,6 +39,8 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.Set
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Composable
 fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {
@@ -50,117 +52,158 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         onRefresh = { viewModel.refresh() },
         modifier = modifier
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            MainHeader(text = "My Lineup")
+        MyLineupScreenContent(
+            uiState = uiState,
+            viewModel = viewModel,
+            onArtistClick = onArtistClick,
+            modifier = modifier
+        )
+    }
+}
 
-            val status = uiState.status
-            when {
-                status == MyLineupUiState.Status.Loading -> {
-                    LoadingBox()
-                }
 
-                status is MyLineupUiState.Status.Error -> {
-                    ErrorState(
-                        message = status.message ?: "Something went wrong",
-                        onRetry = { viewModel.refresh() },
+@Composable
+private fun MyLineupScreenContent(
+    uiState: MyLineupUiState,
+    viewModel: MyLineupViewModel,
+    onArtistClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        MainHeader(text = "My Lineup")
+
+        when (val status = uiState.status) {
+            MyLineupUiState.Status.Loading -> LoadingBox()
+
+            is MyLineupUiState.Status.Error -> ErrorState(
+                message = status.message ?: "Something went wrong",
+                onRetry = { viewModel.refresh() },
+            )
+
+            else -> {
+                if (uiState.favoritesGroupedByDay.isEmpty()) {
+                    EmptyView(modifier = Modifier.fillMaxSize())
+                } else {
+                    MyLineupScreenList(
+                        uiState = uiState,
+                        onArtistClick = onArtistClick,
+                        onRemoveFavorite = { viewModel.removeFavorite(artistId = it) }
                     )
                 }
+            }
+        }
+    }
+}
 
-                uiState.favoritesGroupedByDay.isEmpty() -> EmptyView(modifier = Modifier.fillMaxSize())
+@Composable
+private fun MyLineupScreenList(
+    uiState: MyLineupUiState,
+    onArtistClick: (String) -> Unit,
+    onRemoveFavorite: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.surface),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = LocalBottomBarPadding.contentBottomInset,
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        val itemShape = RoundedCornerShape(size = 8.dp)
 
-                else -> {
-                    LazyColumn(
+        uiState.favoritesGroupedByDay.forEach { (day, setTimes) ->
+            stickyHeader {
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    SetTimeListHeader(text = day)
+                }
+            }
+
+            items(setTimes, key = { it.id }) { setTime ->
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    // 1. The Shadow Background Layer
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = MaterialTheme.colorScheme.surface),
-                        contentPadding = PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 16.dp,
-                            bottom = LocalBottomBarPadding.contentBottomInset,
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .matchParentSize()
+                            .offset(x = 6.dp, y = 6.dp) // The 3D offset effect
+                            .background(color = AppTheme.colors.redOrange, shape = itemShape)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = AppTheme.colors.warmOrange, shape = itemShape)
+                            .clickable { onArtistClick(setTime.artistId) }
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        val itemShape = RoundedCornerShape(size = 8.dp)
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = setTime.artistName,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = AppTheme.colors.onAccent
+                            )
 
-                        uiState.favoritesGroupedByDay.forEach { (day, setTimes) ->
-                            stickyHeader {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(top = 8.dp)
-                                ) {
-                                    SetTimeListHeader(text = day,)
-                                }
-                            }
-
-                            items(setTimes, key = { it.id }) { setTime ->
-                                Box(modifier = Modifier.fillMaxWidth()) {
-                                    // 1. The Shadow Background Layer
-                                    Box(
-                                        modifier = Modifier
-                                            .matchParentSize()
-                                            .offset(x = 6.dp, y = 6.dp) // The 3D offset effect
-                                            .background(color = AppTheme.colors.redOrange, shape = itemShape)
-                                    )
-
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(color = AppTheme.colors.warmOrange, shape = itemShape)
-                                            .clickable { onArtistClick(setTime.artistId) }
-                                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Column(
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Text(
-                                                text = setTime.artistName,
-                                                fontWeight = FontWeight.ExtraBold,
-                                                color = AppTheme.colors.onAccent
-                                            )
-
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                SubtitleText(
-                                                    text = setTime.stageName ?: "TBA",
-                                                    color = AppTheme.colors.onAccent,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    modifier = Modifier
-                                                        .weight(weight = 2f, fill = false)
-                                                )
-
-                                                SubtitleText(
-                                                    text = "·",
-                                                    color = AppTheme.colors.onAccent,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    modifier = Modifier
-                                                        .padding(horizontal = 4.dp)
-                                                        .weight(weight = 1f, fill = false)
-                                                )
-
-                                                SubtitleText(
-                                                    text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
-                                                    color = AppTheme.colors.onAccent,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    modifier = Modifier.wrapContentWidth()
-                                                )
-                                            }
-                                        }
-
-                                        FavoriteIconButton(
-                                            enabled = true,
-                                            onClick = { viewModel.removeFavorite(setTime.artistId) },
-                                        )
-                                    }
-                                }
-                            }
+                            StageSetTimeRow(
+                                stageName = setTime.stageName ?: "TBA",
+                                startTime = formatTime(setTime.startTime),
+                                endTime = formatTime(setTime.endTime),
+                            )
                         }
+
+                        FavoriteIconButton(
+                            enabled = true,
+                            onClick = { onRemoveFavorite(setTime.artistId) },
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StageSetTimeRow(
+    stageName: String,
+    startTime: String,
+    endTime: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        SubtitleText(
+            text = stageName,
+            color = AppTheme.colors.onAccent,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .weight(weight = 2f, fill = false)
+        )
+
+        SubtitleText(
+            text = "·",
+            color = AppTheme.colors.onAccent,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .weight(weight = 1f, fill = false)
+        )
+
+        SubtitleText(
+            text = "$startTime - $endTime",
+            color = AppTheme.colors.onAccent,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.wrapContentWidth()
+        )
     }
 }
 
