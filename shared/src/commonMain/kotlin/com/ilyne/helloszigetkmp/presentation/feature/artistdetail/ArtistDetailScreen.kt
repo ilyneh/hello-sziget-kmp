@@ -1,13 +1,11 @@
 package com.ilyne.helloszigetkmp.presentation.feature.artistdetail
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,7 +16,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.header.ModalHeader
+import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
+import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.text.htmlToAnnotatedString
 import hello_sziget_kmp.shared.generated.resources.Res
@@ -83,19 +82,13 @@ private fun ArtistDetailContent(
 
         when (val status = uiState.status) {
             is ArtistDetailUiState.Status.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingBox(modifier = Modifier.fillMaxWidth().height(120.dp))
             }
 
             is ArtistDetailUiState.Status.Error -> {
-                Text(
-                    text = status.message ?: "Something went wrong",
+                ErrorState(
+                    message = status.message ?: "Something went wrong",
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    color = MaterialTheme.colorScheme.error,
                 )
             }
 

@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.core.media.rememberProfileImagePicker
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountCard
@@ -76,10 +76,10 @@ fun ProfileScreen(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefreshContent(
         isRefreshing = uiState.isLoading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         Column(
             modifier = modifier.fillMaxSize()

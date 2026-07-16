@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +22,9 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBarData
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
+import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
+import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
+import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.DaySelector
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.ViewModeToggle
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
@@ -84,10 +85,10 @@ private fun ScheduleContent(
     onRefresh: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    PullToRefreshBox(
+    PullToRefreshContent(
         isRefreshing = uiState.status == ScheduleUiState.Status.Loading,
         onRefresh = onRefresh,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -123,9 +124,7 @@ private fun ScheduleContent(
             // data underneath PullToRefreshBox's own refresh indicator instead of flashing empty.
             when (val status = uiState.status) {
                 is ScheduleUiState.Status.Loading -> if (uiState.setTimes.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingBox()
                 } else {
                     ScheduleSetTimesContent(
                         uiState = uiState,
@@ -135,12 +134,10 @@ private fun ScheduleContent(
                 }
 
                 is ScheduleUiState.Status.Error -> {
-                    Box(
-                        Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(status.message, color = MaterialTheme.colorScheme.error)
-                    }
+                    ErrorState(
+                        message = status.message,
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                    )
                 }
 
                 else -> if (uiState.setTimes.isEmpty()) {
