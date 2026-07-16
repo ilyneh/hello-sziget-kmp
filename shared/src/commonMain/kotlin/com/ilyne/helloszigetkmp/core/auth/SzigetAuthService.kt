@@ -2,7 +2,7 @@ package com.ilyne.helloszigetkmp.core.auth
 
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
-import com.ilyne.helloszigetkmp.core.config.AppConfig
+import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
@@ -23,8 +23,8 @@ import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
 
 class SzigetAuthService(
-    private val appConfig: AppConfig,
-    private val authProvider: GoogleAuthProvider,
+    private val appConfig: AppConfiguring,
+    private val authProvider: GoogleAuthProviding,
     private val tokenStorage: TokenStorage,
     private val szigetAuthApiService: SzigetAuthApiService,
     private val userRepository: UserRepository,
