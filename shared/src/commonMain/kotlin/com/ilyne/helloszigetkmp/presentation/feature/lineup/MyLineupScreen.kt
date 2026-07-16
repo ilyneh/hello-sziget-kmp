@@ -34,6 +34,7 @@ import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefre
 import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
 import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
+import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
@@ -76,7 +77,7 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                             start = 16.dp,
                             end = 16.dp,
                             top = 16.dp,
-                            bottom = LocalBottomBarPadding.current + 48.dp,
+                            bottom = LocalBottomBarPadding.contentBottomInset,
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {

@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
@@ -58,6 +60,14 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
 
 val LocalBottomBarPadding = staticCompositionLocalOf { 0.dp }
+
+// Extra clearance beyond the bottom bar's own height so scrollable content doesn't sit
+// flush under the floating bottom nav/FAB.
+private val BottomBarExtraClearance = 48.dp
+
+/** Bottom inset scrollable content should reserve to clear the floating bottom nav/FAB. */
+val ProvidableCompositionLocal<Dp>.contentBottomInset: Dp
+    @Composable get() = current + BottomBarExtraClearance
 
 private val BottomNavShadowColor = Color.White
 

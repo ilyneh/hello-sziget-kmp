@@ -46,6 +46,7 @@ import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
 import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
+import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
@@ -106,7 +107,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                         contentPadding = PaddingValues(
                             start = 16.dp,
                             end = 16.dp,
-                            bottom = LocalBottomBarPadding.current + 48.dp,
+                            bottom = LocalBottomBarPadding.contentBottomInset,
                         ),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
