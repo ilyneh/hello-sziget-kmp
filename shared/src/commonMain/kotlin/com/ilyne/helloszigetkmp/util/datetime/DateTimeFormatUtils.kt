@@ -10,6 +10,15 @@ import kotlinx.datetime.format.Padding
 
 fun formatTime(epochMillis: Long): String = epochMillis.toLocalDateTime().formatTime()
 
+fun formatDayAndTime(startTimeMillis: Long, endTimeMillis: Long): String {
+    val startTime = startTimeMillis.toLocalDateTime()
+    val endTime = endTimeMillis.toLocalDateTime()
+    val dayFormat = LocalDateTime.Format {
+        dayOfWeek(names = DayOfWeekNames.ENGLISH_FULL)
+    }
+    return "${startTime.format(dayFormat)}, ${startTime.formatTime()} - ${endTime.formatTime()}"
+}
+
 
 fun LocalDateTime.formatTime(): String {
     val timeFormat = LocalDateTime.Format {

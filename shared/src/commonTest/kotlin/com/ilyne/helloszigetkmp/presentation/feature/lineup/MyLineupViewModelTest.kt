@@ -259,6 +259,10 @@ class MyLineupViewModelTest {
             dayEndMillis: Long,
         ): Flow<List<com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity>> = flowOf(emptyList())
 
+        override fun observeByArtist(
+            artistId: String,
+        ): Flow<List<com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity>> = flowOf(emptyList())
+
         override suspend fun upsertAll(setTimes: List<com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity>) {}
 
         override fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = flowOf(SetTimeDao.SetTimeRange(0L, 0L))

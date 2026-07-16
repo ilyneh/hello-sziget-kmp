@@ -64,6 +64,8 @@ val presentationModule = module {
         currentUserProvider = get(),
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get(), currentUserProvider = get()) }
-    viewModel { ArtistDetailViewModel(artistRepository = get(), friendRepository = get()) }
+    viewModel {
+        ArtistDetailViewModel(artistRepository = get(), friendRepository = get(), scheduleRepository = get())
+    }
 
 }

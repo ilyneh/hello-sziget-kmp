@@ -4,15 +4,21 @@ import app.cash.turbine.test
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
+import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
+import com.ilyne.helloszigetkmp.core.db.dao.StageDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistEntity
 import com.ilyne.helloszigetkmp.core.db.entity.ArtistFriendFavoritedEntity
 import com.ilyne.helloszigetkmp.core.db.entity.CurrentUserEntity
+import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
+import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity
 import com.ilyne.helloszigetkmp.core.db.model.ArtistFriendsFavoritedSummary
+import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -57,7 +63,7 @@ class ArtistDetailViewModelTest {
     fun load_success_transitionsFromLoadingToSuccessWithArtist() =
         runTest {
             val fakeDao = FakeArtistDao()
-            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository())
+            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository(), scheduleRepository())
 
             viewModel.uiState.test {
                 assertEquals(ArtistDetailUiState(), awaitItem())
@@ -85,7 +91,7 @@ class ArtistDetailViewModelTest {
                         return fakeDao.observeById(id)
                     }
                 }
-            val viewModel = ArtistDetailViewModel(artistRepository(trackingDao), friendRepository())
+            val viewModel = ArtistDetailViewModel(artistRepository(trackingDao), friendRepository(), scheduleRepository())
 
             viewModel.uiState.test {
                 awaitItem() // initial
@@ -108,7 +114,7 @@ class ArtistDetailViewModelTest {
     fun load_differentId_retriggersLoad() =
         runTest {
             val fakeDao = FakeArtistDao()
-            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository())
+            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository(), scheduleRepository())
 
             viewModel.uiState.test {
                 awaitItem() // initial
@@ -134,7 +140,7 @@ class ArtistDetailViewModelTest {
                     override fun observeById(id: String): Flow<ArtistEntity?> =
                         kotlinx.coroutines.flow.flow { throw IllegalStateException("boom") }
                 }
-            val viewModel = ArtistDetailViewModel(artistRepository(throwingDao), friendRepository())
+            val viewModel = ArtistDetailViewModel(artistRepository(throwingDao), friendRepository(), scheduleRepository())
 
             viewModel.uiState.test {
                 assertEquals(ArtistDetailUiState(), awaitItem())
@@ -165,6 +171,7 @@ class ArtistDetailViewModelTest {
                 ArtistDetailViewModel(
                     artistRepository(fakeDao),
                     friendRepository(friendsFavoritedFlow),
+                    scheduleRepository(),
                 )
 
             viewModel.uiState.test {
@@ -182,7 +189,7 @@ class ArtistDetailViewModelTest {
     fun toggleFavorite_togglesThroughArtistRepository() =
         runTest {
             val fakeDao = FakeArtistDao()
-            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository())
+            val viewModel = ArtistDetailViewModel(artistRepository(fakeDao), friendRepository(), scheduleRepository())
 
             viewModel.uiState.test {
                 awaitItem() // initial
@@ -235,6 +242,44 @@ class ArtistDetailViewModelTest {
             userDao = FakeUserDao(),
             settings = MapSettings(),
         )
+    }
+
+    private fun scheduleRepository(): ScheduleRepository {
+        val api =
+            SzigetApiService(
+                client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+                baseUrl = "https://unused.test",
+            )
+        return ScheduleRepository(
+            api = api,
+            setTimeDao = FakeSetTimeDao(),
+            stageDao = FakeStageDao(),
+            artistDao = FakeArtistDao(),
+            settings = MapSettings(),
+        )
+    }
+
+    private class FakeSetTimeDao : SetTimeDao {
+        override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(emptyList())
+
+        override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = flowOf(emptyList())
+
+        override fun observeByDay(
+            dayStartMillis: Long,
+            dayEndMillis: Long,
+        ): Flow<List<SetTimeEntity>> = flowOf(emptyList())
+
+        override fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>> = flowOf(emptyList())
+
+        override suspend fun upsertAll(setTimes: List<SetTimeEntity>) {}
+
+        override fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = flowOf(SetTimeDao.SetTimeRange(0L, 0L))
+    }
+
+    private class FakeStageDao : StageDao {
+        override fun observeAll(): Flow<List<StageEntity>> = flowOf(emptyList())
+
+        override suspend fun upsertAll(stages: List<StageEntity>) {}
     }
 
     /**

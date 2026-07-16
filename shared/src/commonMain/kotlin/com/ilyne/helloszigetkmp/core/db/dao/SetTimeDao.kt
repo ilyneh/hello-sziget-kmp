@@ -37,6 +37,9 @@ interface SetTimeDao {
         dayEndMillis: Long,
     ): Flow<List<SetTimeEntity>>
 
+    @Query("SELECT * FROM set_times WHERE artistId = :artistId ORDER BY startTime ASC")
+    fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>>
+
     @Upsert
     suspend fun upsertAll(setTimes: List<SetTimeEntity>)
 

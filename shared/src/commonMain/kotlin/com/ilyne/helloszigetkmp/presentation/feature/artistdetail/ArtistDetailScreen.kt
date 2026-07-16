@@ -2,16 +2,15 @@ package com.ilyne.helloszigetkmp.presentation.feature.artistdetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.domain.model.Artist
+import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.presentation.component.FavoriteIconButton
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarRow
@@ -34,10 +34,8 @@ import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
 import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.util.datetime.formatDayAndTime
 import com.ilyne.helloszigetkmp.util.text.htmlToAnnotatedString
-import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.ic_cancel
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -59,7 +57,6 @@ fun ArtistDetailScreen(
     ) {
         ArtistDetailContent(
             uiState = uiState,
-            onDismiss = onDismiss,
             onFavoriteToggle = viewModel::toggleFavorite,
         )
     }
@@ -68,29 +65,19 @@ fun ArtistDetailScreen(
 @Composable
 private fun ArtistDetailContent(
     uiState: ArtistDetailUiState,
-    onDismiss: () -> Unit,
     onFavoriteToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         ModalHeader(
-            text = uiState.artist?.name ?: "Artist",
+            text = uiState.artist?.name ?: "(no name)",
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (uiState.artist != null) {
-                    FavoriteIconButton(
-                        enabled = uiState.artist.isFavorited,
-                        onClick = onFavoriteToggle,
-                    )
-                }
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_cancel),
-                        contentDescription = "Close",
-                        tint = MaterialTheme.colorScheme.outline,
-                    )
-                }
+            if (uiState.artist != null) {
+                FavoriteIconButton(
+                    enabled = uiState.artist.isFavorited,
+                    onClick = onFavoriteToggle,
+                )
             }
         }
 
@@ -121,9 +108,10 @@ private fun ArtistDetailContent(
                             .verticalScroll(rememberScrollState())
                             .padding(horizontal = 16.dp),
                     ) {
-                        if (!artist.tags.isNullOrEmpty()) {
+                        val chips = artist.toChips(uiState.nextSetTime)
+                        if (chips.isNotEmpty()) {
                             GenreChips(
-                                genres = artist.tags,
+                                chips = chips,
                                 modifier = Modifier.padding(bottom = 16.dp),
                             )
                         }
@@ -151,22 +139,42 @@ private fun ArtistDetailContent(
 
 @Composable
 private fun GenreChips(
-    genres: List<String>,
+    chips: List<String>,
     modifier: Modifier = Modifier,
 ) {
-    val scrollState = rememberScrollState()
-    Row(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        genres.forEach { genre ->
+        chips.forEach { chip ->
             TextPill(
-                text = genre,
+                text = chip,
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
             )
         }
     }
 }
+
+private val includedTagPrefixes = listOf("genre-", "tag-")
+
+private fun formatTag(rawTag: String): String {
+    val stripped = when {
+        rawTag.startsWith("genre-") -> rawTag.removePrefix("genre-")
+        rawTag.startsWith("tag-") -> rawTag.removePrefix("tag-")
+        else -> rawTag
+    }
+    return stripped.replaceFirstChar(Char::uppercaseChar)
+}
+
+private fun Artist.toChips(nextSetTime: SetTime?): List<String> =
+    buildList {
+        nextSetTime?.let { add(formatDayAndTime(it.startTime, it.endTime)) }
+        tags
+            ?.filter { tag -> includedTagPrefixes.any { tag.startsWith(it) } }
+            ?.map(::formatTag)
+            ?.let { addAll(it) }
+    }
 
 private fun User.toAvatarData() = FriendAvatarStackData(id = id, name = name, imageUrl = imageUrl)
 
@@ -183,16 +191,31 @@ private fun ArtistDetailContentPreview() {
                         "<ul><li>Multiple festival closes</li><li>Genre-bending style</li></ul>",
                     imageUrl = null,
                     isFavorited = true,
-                    tags = listOf("Electronic", "Dubstep", "Bass"),
+                    tags = listOf(
+                        "tag-music",
+                        "genre-electronic",
+                        "day-saturday",
+                        "country-be",
+                        "genre-hip-hop",
+                        "country-hu",
+                        "genre-rap",
+                    ),
                 ),
                 friendsFavorited = listOf(
                     User(id = "1", name = "Zack", imageUrl = null),
                     User(id = "2", name = "owen", imageUrl = null),
                     User(id = "3", name = "Zaira", imageUrl = null),
                 ),
+                nextSetTime = SetTime(
+                    id = "st-1",
+                    artistId = "1",
+                    stageId = null,
+                    startTime = 1_723_708_800_000L,
+                    endTime = 1_723_712_400_000L,
+                    hideEndTime = false,
+                ),
                 status = ArtistDetailUiState.Status.Success,
             ),
-            onDismiss = {},
             onFavoriteToggle = {},
         )
     }

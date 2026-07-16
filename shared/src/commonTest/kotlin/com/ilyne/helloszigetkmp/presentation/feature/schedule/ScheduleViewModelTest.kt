@@ -554,6 +554,9 @@ class ScheduleViewModelTest {
             dayEndMillis: Long,
         ): Flow<List<SetTimeEntity>> = flowOf(setTimesFlow.value.filter { it.startTime >= dayStartMillis && it.startTime < dayEndMillis })
 
+        override fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>> =
+            flowOf(setTimesFlow.value.filter { it.artistId == artistId })
+
         override suspend fun upsertAll(setTimes: List<SetTimeEntity>) {}
 
         override fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = rangeFlow

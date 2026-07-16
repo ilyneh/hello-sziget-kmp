@@ -4,17 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
+import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
+import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 data class ArtistDetailUiState(
     val artist: Artist? = null,
     val friendsFavorited: List<User> = emptyList(),
+    val nextSetTime: SetTime? = null,
     val status: Status = Status.Loading,
 ) {
     sealed class Status {
@@ -27,6 +31,7 @@ data class ArtistDetailUiState(
 class ArtistDetailViewModel(
     private val artistRepository: ArtistRepository,
     private val friendRepository: FriendRepository,
+    private val scheduleRepository: ScheduleRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ArtistDetailUiState())
@@ -42,13 +47,22 @@ class ArtistDetailViewModel(
                 combine(
                     artistRepository.observeArtist(artistId),
                     friendRepository.observeArtistsFriendsFavorited(),
-                ) { artist, artistsFriendsFavorited ->
-                    artist to (artistsFriendsFavorited.find { it.artist.id == artistId }?.friendsFavorited ?: emptyList())
-                }.collect { (artist, friendsFavorited) ->
+                    scheduleRepository.observeSetTimesForArtist(artistId),
+                ) { artist, artistsFriendsFavorited, setTimes ->
+                    val friendsFavorited =
+                        artistsFriendsFavorited.find { it.artist.id == artistId }?.friendsFavorited ?: emptyList()
+                    val now = Clock.System.now().toEpochMilliseconds()
+                    val nextSetTime = setTimes
+                        .filter { it.endTime >= now }
+                        .minByOrNull { it.startTime }
+                        ?: setTimes.maxByOrNull { it.startTime }
+                    Triple(artist, friendsFavorited, nextSetTime)
+                }.collect { (artist, friendsFavorited, nextSetTime) ->
                     _uiState.update {
                         it.copy(
                             artist = artist,
                             friendsFavorited = friendsFavorited,
+                            nextSetTime = nextSetTime,
                             status = ArtistDetailUiState.Status.Success,
                         )
                     }

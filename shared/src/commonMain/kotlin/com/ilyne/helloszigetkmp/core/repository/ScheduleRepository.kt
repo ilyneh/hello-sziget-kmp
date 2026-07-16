@@ -66,6 +66,25 @@ class ScheduleRepository(
         }
 
 
+    fun observeSetTimesForArtist(artistId: String): Flow<List<SetTime>> =
+        combine(
+            setTimeDao.observeByArtist(artistId),
+            stageDao.observeAll(),
+        ) { setTimes, stageEntities ->
+            val stageMap = stageEntities.associate { it.id to Stage(it.id, it.name, it.description) }
+            setTimes.map { st ->
+                SetTime(
+                    id = st.id,
+                    artistId = st.artistId,
+                    stageId = st.stageId,
+                    startTime = st.startTime,
+                    endTime = st.endTime,
+                    hideEndTime = st.hideEndTime,
+                    stage = stageMap[st.stageId],
+                )
+            }
+        }
+
     fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> =
         setTimeDao.observeSetTimeRange()
 
