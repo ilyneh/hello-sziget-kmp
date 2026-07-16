@@ -30,14 +30,25 @@ data class AddFriendUiState(
 ) {
     sealed class Status {
         data object Idle : Status()
-        data class Error(val message: String) : Status()
+
+        data class Error(
+            val message: String,
+        ) : Status()
     }
 }
 
 sealed class AddFriendIntent {
-    data class SearchQueryChanged(val query: String) : AddFriendIntent()
-    data class SendFriendRequest(val userId: String) : AddFriendIntent()
-    data class AcceptFriendRequest(val userId: String) : AddFriendIntent()
+    data class SearchQueryChanged(
+        val query: String,
+    ) : AddFriendIntent()
+
+    data class SendFriendRequest(
+        val userId: String,
+    ) : AddFriendIntent()
+
+    data class AcceptFriendRequest(
+        val userId: String,
+    ) : AddFriendIntent()
 }
 
 class AddFriendViewModel(
@@ -46,7 +57,6 @@ class AddFriendViewModel(
     currentUserProvider: CurrentUserProvider,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
-
     private val searchQuery = MutableStateFlow("")
 
     private val _uiState = MutableStateFlow(AddFriendUiState())
@@ -72,27 +82,33 @@ class AddFriendViewModel(
                 searchQuery.value = intent.query
                 _uiState.update { it.copy(searchQuery = intent.query) }
             }
-            is AddFriendIntent.SendFriendRequest -> viewModelScope.launch {
-                val userId = currentUserId ?: return@launch
-                try {
-                    friendRepository.sendFriendRequest(userId, intent.userId)
-                    _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
-                    refreshFriendsFavoritedInBackground()
-                } catch (e: Exception) {
-                    _uiState.update {
-                        it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
+
+            is AddFriendIntent.SendFriendRequest -> {
+                viewModelScope.launch {
+                    val userId = currentUserId ?: return@launch
+                    try {
+                        friendRepository.sendFriendRequest(userId, intent.userId)
+                        _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                        refreshFriendsFavoritedInBackground()
+                    } catch (e: Exception) {
+                        _uiState.update {
+                            it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
+                        }
                     }
                 }
             }
-            is AddFriendIntent.AcceptFriendRequest -> viewModelScope.launch {
-                val userId = currentUserId ?: return@launch
-                try {
-                    friendRepository.acceptFriendRequest(userId, intent.userId)
-                    _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
-                    refreshFriendsFavoritedInBackground()
-                } catch (e: Exception) {
-                    _uiState.update {
-                        it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
+
+            is AddFriendIntent.AcceptFriendRequest -> {
+                viewModelScope.launch {
+                    val userId = currentUserId ?: return@launch
+                    try {
+                        friendRepository.acceptFriendRequest(userId, intent.userId)
+                        _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
+                        refreshFriendsFavoritedInBackground()
+                    } catch (e: Exception) {
+                        _uiState.update {
+                            it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
+                        }
                     }
                 }
             }
@@ -137,8 +153,7 @@ class AddFriendViewModel(
                             else -> FriendshipStatus.NONE
                         }
                         AddFriendUserItem(user = user, status = status)
-                    }
-                    .toList()
+                    }.toList()
             }.flowOn(backgroundDispatcher)
                 .collect { results ->
                     _uiState.update { it.copy(results = results) }

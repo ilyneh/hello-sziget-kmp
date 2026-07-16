@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 data class ScheduleFilterUiState(
     val showFavoritesOnly: Boolean = false,
     val showFriendsGoing: Boolean = false,
@@ -36,25 +35,48 @@ data class GenreUiState(
 
 sealed class FilterEffect {
     data class UpdateFilter(
-        val filter: ScheduleFilter
+        val filter: ScheduleFilter,
     ) : FilterEffect()
 }
 
 sealed class FilterIntent {
-    data class Initialize(val filter: ScheduleFilter) : FilterIntent()
-    data class ToggleFavoritesOnly(val value: Boolean) : FilterIntent()
-    data class ToggleFriendsGoing(val value: Boolean) : FilterIntent()
-    data class ToggleHideEmptyStages(val value: Boolean) : FilterIntent()
-    data class ToggleShowExtraDays(val value: Boolean) : FilterIntent()
-    data class TogglePerformanceType(val type: PerformanceType) : FilterIntent()
-    data class ToggleGenreGroup(val group: GenreGroup, val value: Boolean) : FilterIntent()
-    data class ToggleGenreDropdown(val type: PerformanceType) : FilterIntent()
+    data class Initialize(
+        val filter: ScheduleFilter,
+    ) : FilterIntent()
+
+    data class ToggleFavoritesOnly(
+        val value: Boolean,
+    ) : FilterIntent()
+
+    data class ToggleFriendsGoing(
+        val value: Boolean,
+    ) : FilterIntent()
+
+    data class ToggleHideEmptyStages(
+        val value: Boolean,
+    ) : FilterIntent()
+
+    data class ToggleShowExtraDays(
+        val value: Boolean,
+    ) : FilterIntent()
+
+    data class TogglePerformanceType(
+        val type: PerformanceType,
+    ) : FilterIntent()
+
+    data class ToggleGenreGroup(
+        val group: GenreGroup,
+        val value: Boolean,
+    ) : FilterIntent()
+
+    data class ToggleGenreDropdown(
+        val type: PerformanceType,
+    ) : FilterIntent()
+
     object Save : FilterIntent()
 }
 
-
 class ScheduleFilterViewModel : ViewModel() {
-
     private val _uiState = MutableStateFlow(ScheduleFilterUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -74,22 +96,27 @@ class ScheduleFilterViewModel : ViewModel() {
                 filter = intent.filter
                 updateUiState()
             }
+
             is FilterIntent.ToggleFavoritesOnly -> {
                 filter = filter.copy(showFavorites = intent.value)
                 updateUiState()
             }
+
             is FilterIntent.ToggleFriendsGoing -> {
                 filter = filter.copy(showFriendsGoing = intent.value)
                 updateUiState()
             }
+
             is FilterIntent.ToggleHideEmptyStages -> {
                 filter = filter.copy(hideEmptyStages = intent.value)
                 updateUiState()
             }
+
             is FilterIntent.ToggleShowExtraDays -> {
                 filter = filter.copy(showExtraDays = intent.value)
                 updateUiState()
             }
+
             is FilterIntent.TogglePerformanceType -> {
                 val typeGenres = genreGroupsFor(intent.type).toSet()
                 val allSelected = typeGenres.isNotEmpty() && filter.selectedGenreGroups.containsAll(typeGenres)
@@ -100,20 +127,22 @@ class ScheduleFilterViewModel : ViewModel() {
                     } else {
                         // Off or partially checked -> select all of the type's genres.
                         filter.selectedGenreGroups + typeGenres
-                    }
+                    },
                 )
                 updateUiState()
             }
+
             is FilterIntent.ToggleGenreGroup -> {
                 filter = filter.copy(
                     selectedGenreGroups = if (intent.value) {
                         filter.selectedGenreGroups + intent.group
                     } else {
                         filter.selectedGenreGroups - intent.group
-                    }
+                    },
                 )
                 updateUiState()
             }
+
             is FilterIntent.ToggleGenreDropdown -> {
                 expandedTypes = if (intent.type in expandedTypes) {
                     expandedTypes - intent.type
@@ -122,6 +151,7 @@ class ScheduleFilterViewModel : ViewModel() {
                 }
                 updateUiState()
             }
+
             FilterIntent.Save -> {
                 viewModelScope.launch {
                     val effect = FilterEffect.UpdateFilter(filter)

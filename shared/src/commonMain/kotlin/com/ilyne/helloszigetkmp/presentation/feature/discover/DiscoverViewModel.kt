@@ -30,8 +30,12 @@ data class DiscoverUiState(
 ) {
     sealed class Status {
         object Success : Status()
+
         object Loading : Status()
-        data class Error(val message: String?) : Status()
+
+        data class Error(
+            val message: String?,
+        ) : Status()
     }
 }
 
@@ -102,10 +106,10 @@ class DiscoverViewModel(
             try {
                 artistRepository.toggleFavorite(
                     artistId = artistId,
-                    isFavorited = !current
+                    isFavorited = !current,
                 )
             } catch (e: Exception) {
-               // silently fail here, do not disrupt the view with error screen
+                // silently fail here, do not disrupt the view with error screen
             }
         }
     }
@@ -127,15 +131,16 @@ class DiscoverViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeArtists() {
         viewModelScope.launch {
-            searchQuery.flatMapLatest { query ->
-                if (query.isBlank()) {
-                    artistRepository.observeArtists()
-                } else {
-                    artistRepository.searchArtists(query)
-                }
-            }.combine(filter) { artists, discoverFilter ->
-                artists.filter { passesGenreFilter(it.tags, discoverFilter.selectedGenreGroups) }
-            }.flowOn(backgroundDispatcher)
+            searchQuery
+                .flatMapLatest { query ->
+                    if (query.isBlank()) {
+                        artistRepository.observeArtists()
+                    } else {
+                        artistRepository.searchArtists(query)
+                    }
+                }.combine(filter) { artists, discoverFilter ->
+                    artists.filter { passesGenreFilter(it.tags, discoverFilter.selectedGenreGroups) }
+                }.flowOn(backgroundDispatcher)
                 .collect { artists ->
                     // Offloading this filtering onto backgroundDispatcher means the resulting emission
                     // can now land after a concurrent operation (e.g. toggleFavorite) has already

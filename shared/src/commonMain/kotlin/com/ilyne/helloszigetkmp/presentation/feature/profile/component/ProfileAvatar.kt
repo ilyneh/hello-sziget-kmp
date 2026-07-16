@@ -15,14 +15,13 @@ import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.component.avatar.InitialsAvatar
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 @Composable
 fun ProfileAvatar(
     avatarText: String,
     imageUrl: String? = null,
     elevated: Boolean = false,
     onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     InitialsAvatar(
         imageUrl = imageUrl,
@@ -42,11 +41,11 @@ fun ProfileAvatar(
             maxLines = 1,
             textAlign = TextAlign.Center,
             autoSize = TextAutoSize.StepBased(
-                minFontSize = 16.sp,        // Minimum allowable size
-                maxFontSize = 80.sp,        // Maximum allowable size
-                stepSize = 1.sp             // Granularity of adjustment
+                minFontSize = 16.sp, // Minimum allowable size
+                maxFontSize = 80.sp, // Maximum allowable size
+                stepSize = 1.sp, // Granularity of adjustment
             ),
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
         )
     }
 }

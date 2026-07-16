@@ -12,12 +12,10 @@ data class AppColorScheme(
     val onPrimary: Color,
     val primaryContainer: Color,
     val onPrimaryContainer: Color,
-
     val secondary: Color,
     val onSecondary: Color,
     val secondaryContainer: Color,
     val onSecondaryContainer: Color,
-
     val background: Color,
     val onBackground: Color,
     val surface: Color,
@@ -28,10 +26,8 @@ data class AppColorScheme(
     val outlineVariant: Color,
     val error: Color,
     val onError: Color,
-
     /** Text/icon color for content drawn on a saturated accent surface (e.g. stage/genre chips, artist cards), independent of light/dark theme. */
     val onAccent: Color,
-
     // --- Fixed brand accents ---
     // These carry the same value in both LightAppColors and DarkAppColors: they're used as
     // flat, sticker-like brand chrome (nav bar, headers, cards, list rows) that's meant to

@@ -16,7 +16,6 @@ import hello_sziget_kmp.shared.generated.resources.ic_cancel
 import hello_sziget_kmp.shared.generated.resources.ic_check
 import org.jetbrains.compose.resources.painterResource
 
-
 data class ProfileFriendRequestItemState(
     val name: String,
     val avatarText: String,
@@ -28,7 +27,7 @@ fun ProfileFriendRequestItem(
     item: ProfileFriendRequestItemState,
     onAccept: () -> Unit,
     onDecline: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FriendListItem(
         onClick = {},
@@ -42,11 +41,11 @@ fun ProfileFriendRequestItem(
         ) {
             ActionIconButton(
                 onClick = onAccept,
-                shape = IconButtonDefaults.mediumSquareShape
+                shape = IconButtonDefaults.mediumSquareShape,
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_check),
-                    contentDescription = "Accept Friend Request"
+                    contentDescription = "Accept Friend Request",
                 )
             }
             FilledIconButton(
@@ -54,12 +53,12 @@ fun ProfileFriendRequestItem(
                 shape = IconButtonDefaults.mediumSquareShape,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.outline
-                )
+                    contentColor = MaterialTheme.colorScheme.outline,
+                ),
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_cancel),
-                    contentDescription = "Decline Friend Request"
+                    contentDescription = "Decline Friend Request",
                 )
             }
         }
@@ -68,15 +67,15 @@ fun ProfileFriendRequestItem(
 
 @Preview
 @Composable
-fun ProfileFriendRequestItemPreview() {
+private fun ProfileFriendRequestItemPreview() {
     AppTheme {
         ProfileFriendRequestItem(
             item = ProfileFriendRequestItemState(
                 name = "Zaira Tomayeva",
-                avatarText = "ZT"
+                avatarText = "ZT",
             ),
             onAccept = {},
-            onDecline = {}
+            onDecline = {},
         )
     }
 }

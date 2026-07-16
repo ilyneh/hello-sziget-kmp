@@ -36,25 +36,22 @@ import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 
-
 @Composable
 fun SetTimeListItem(
     setTime: ScheduleUiState.SetTime,
     onToggleFavorite: (artistId: String?, current: Boolean) -> Unit,
     onArtistClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     val stageColor = stageColor(stageId = setTime.stageId)
     Row(
         modifier = modifier
             .background(color = AppTheme.colors.lightBlue)
             .clickable(enabled = setTime.artistId != null) {
                 setTime.artistId?.let(onArtistClick)
-            }
-            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+            }.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
@@ -67,7 +64,6 @@ fun SetTimeListItem(
                 .fillMaxWidth()
                 .weight(1f),
         ) {
-
             Text(
                 text = setTime.artist?.name.orEmpty(),
                 color = MaterialTheme.colorScheme.primary,
@@ -79,24 +75,24 @@ fun SetTimeListItem(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 SubtitleText(
                     text = setTime.stage?.name ?: "TBA",
                     modifier = Modifier
-                        .weight(weight = 2f, fill = false)
+                        .weight(weight = 2f, fill = false),
                 )
 
                 SubtitleText(
                     text = "·",
                     modifier = Modifier
                         .padding(start = 4.dp, end = 4.dp)
-                        .weight(weight = 1f, fill = false)
+                        .weight(weight = 1f, fill = false),
                 )
 
                 SubtitleText(
                     text = "${formatTime(setTime.startTime)} - ${formatTime(setTime.endTime)}",
-                    modifier = Modifier.wrapContentWidth()
+                    modifier = Modifier.wrapContentWidth(),
                 )
             }
         }
@@ -119,7 +115,7 @@ fun SetTimeListItem(
             onClick = {
                 onToggleFavorite(
                     setTime.artistId,
-                    setTime.artist?.isFavorited ?: false
+                    setTime.artist?.isFavorited ?: false,
                 )
             },
         )
@@ -129,7 +125,7 @@ fun SetTimeListItem(
 @Composable
 fun SetTimeListHeader(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TextPill(
         text = text,
@@ -137,19 +133,22 @@ fun SetTimeListHeader(
         style = TextPillDefaults.style.copy(
             fontSize = 16.sp,
         ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
     )
 }
 
 @Preview
 @Composable
-fun SetTimeListItemPreview() {
+private fun SetTimeListItemPreview() {
     AppTheme {
         SetTimeListItem(
             setTime = ScheduleUiState.SetTime(
                 id = "1",
                 startTime = Clock.System.now().toEpochMilliseconds(),
-                endTime = Clock.System.now().plus(duration = 1.hours).toEpochMilliseconds(),
+                endTime = Clock.System
+                    .now()
+                    .plus(duration = 1.hours)
+                    .toEpochMilliseconds(),
                 hideEndTime = false,
                 isInThePast = false,
                 startHourFraction = 0.0,
@@ -160,17 +159,17 @@ fun SetTimeListItemPreview() {
                     bio = null,
                     imageUrl = null,
                     isFavorited = true,
-                    tags = null
-                )
+                    tags = null,
+                ),
             ),
-            onToggleFavorite = { _, _ -> }
+            onToggleFavorite = { _, _ -> },
         )
     }
 }
 
 @Preview
 @Composable
-fun SetTimeListHeaderPreview() {
+private fun SetTimeListHeaderPreview() {
     AppTheme {
         SetTimeListHeader(text = "17:30")
     }

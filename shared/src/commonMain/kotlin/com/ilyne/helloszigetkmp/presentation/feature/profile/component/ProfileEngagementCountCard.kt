@@ -20,11 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 @Composable
 fun ProfileEngagementCountCard(
     items: List<ProfileEngagementCountItemState>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -37,14 +36,14 @@ fun ProfileEngagementCountCard(
         ) {
             ProfileEngagementCountItem(
                 item = items[0],
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             for (item in items.drop(1)) {
                 VerticalDivider(modifier = Modifier.fillMaxHeight().background(color = AppTheme.colors.navy))
                 ProfileEngagementCountItem(
                     item = item,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -53,13 +52,13 @@ fun ProfileEngagementCountCard(
 
 data class ProfileEngagementCountItemState(
     val count: Int,
-    val label: String
+    val label: String,
 )
 
 @Composable
 fun ProfileEngagementCountItem(
     item: ProfileEngagementCountItemState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
@@ -70,13 +69,13 @@ fun ProfileEngagementCountItem(
             text = item.count.toString(),
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = AppTheme.colors.highlightYellow
+            color = AppTheme.colors.highlightYellow,
         )
         Text(
             text = item.label,
             fontSize = 12.sp,
             color = AppTheme.colors.onTealGreen,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }

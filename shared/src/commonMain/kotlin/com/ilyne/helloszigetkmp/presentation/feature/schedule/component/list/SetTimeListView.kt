@@ -26,7 +26,6 @@ import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import com.ilyne.helloszigetkmp.util.datetime.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
 
-
 // ── List View ─────────────────────────────────────────────────────────────────
 
 @Composable
@@ -40,12 +39,13 @@ fun SetTimeListView(
         formatTimeForHeader(epochMillis = setTime.startTime)
     }
 
-    Column(modifier = modifier
-        .background(color = AppTheme.colors.lightBlue)
+    Column(
+        modifier = modifier
+            .background(color = AppTheme.colors.lightBlue),
     ) {
         HorizontalDivider(
             thickness = 4.dp,
-            color = AppTheme.colors.highlightMagenta
+            color = AppTheme.colors.highlightMagenta,
         )
 
         LazyColumn(
@@ -54,28 +54,29 @@ fun SetTimeListView(
             grouped.forEach { (header, setTimes) ->
                 stickyHeader {
                     Box(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp)
-                            .padding(top = 16.dp)
+                            .padding(top = 16.dp),
                     ) {
-                        SetTimeListHeader(text = header,)
+                        SetTimeListHeader(text = header)
                     }
                 }
 
                 items(
                     items = setTimes,
-                    key = { it.id }
+                    key = { it.id },
                 ) { setTime ->
                     SetTimeListItem(
                         setTime = setTime,
                         onToggleFavorite = onToggleFavorite,
                         onArtistClick = onArtistClick,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         thickness = 4.dp,
-                        color = AppTheme.colors.mediumBlue
+                        color = AppTheme.colors.mediumBlue,
                     )
                 }
             }

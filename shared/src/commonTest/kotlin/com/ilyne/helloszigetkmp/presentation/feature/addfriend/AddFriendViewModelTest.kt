@@ -322,9 +322,7 @@ class AddFriendViewModelTest {
             // Background refresh path only - not asserted on in these tests.
         }
 
-        override suspend fun setCurrentUser(currentUser: CurrentUserEntity) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun setCurrentUser(currentUser: CurrentUserEntity): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun getCurrentUser(): UserEntity? = usersFlow.value.find { it.id == "me" }
 
@@ -332,13 +330,9 @@ class AddFriendViewModelTest {
 
         private fun getCurrentUserOrNull(): UserEntity? = usersFlow.value.find { it.id == "me" }
 
-        override suspend fun clearCurrentUser() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun clearCurrentUser(): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteAll() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteAll(): Unit = throw NotImplementedError("unused in this test")
     }
 
     /**
@@ -377,9 +371,7 @@ class AddFriendViewModelTest {
             // API-failure setup in this test file never reaches.
         }
 
-        override suspend fun deleteAllFriendships() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteAllFriendships(): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
 
@@ -397,20 +389,15 @@ class AddFriendViewModelTest {
             // Unused in this test.
         }
 
-        override suspend fun deleteAllArtistFriendFavorited() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteAllArtistFriendFavorited(): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun deleteStaleFavoritesForArtist(
             artistId: String,
             activeFriendIds: List<String>,
-        ) {
-            throw NotImplementedError("unused in this test")
-        }
+        ): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {
+        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>): Unit =
             throw NotImplementedError("unused in this test")
-        }
 
         override fun observeFriends(): Flow<List<UserEntity>> = friendsFlow
 

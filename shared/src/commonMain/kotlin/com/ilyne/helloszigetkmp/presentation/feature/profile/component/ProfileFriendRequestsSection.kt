@@ -11,7 +11,7 @@ fun ProfileFriendRequestsSection(
     friendRequests: List<User>,
     onAccept: (String) -> Unit,
     onDecline: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ListSection(
         title = "Requests - ${friendRequests.size}",
@@ -26,7 +26,7 @@ fun ProfileFriendRequestsSection(
                 imageUrl = friend.imageUrl,
             ),
             onAccept = { onAccept(friend.id) },
-            onDecline = { onDecline(friend.id) }
+            onDecline = { onDecline(friend.id) },
         )
     }
 }

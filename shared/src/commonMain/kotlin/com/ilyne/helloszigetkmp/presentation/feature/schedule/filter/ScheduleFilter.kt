@@ -18,7 +18,6 @@ data class ScheduleFilter(
     val showExtraDays: Boolean = false,
     val selectedGenreGroups: Set<GenreGroup> = DEFAULT_GENRE_GROUPS,
 ) {
-
     fun activeCount(): Int {
         var count = 0
 
@@ -30,5 +29,4 @@ data class ScheduleFilter(
 
         return count
     }
-
 }

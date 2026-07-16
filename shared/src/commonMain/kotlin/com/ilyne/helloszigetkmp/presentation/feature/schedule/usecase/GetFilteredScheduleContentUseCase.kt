@@ -12,7 +12,6 @@ import com.ilyne.helloszigetkmp.util.datetime.normalizedFestivalHourRange
 import kotlin.time.Clock
 
 class GetFilteredScheduleContentUseCase {
-
     data class Response(
         val setTimes: List<ScheduleUiState.SetTime>,
         val stages: List<Stage>,
@@ -50,7 +49,7 @@ class GetFilteredScheduleContentUseCase {
                         favoritedByArtistId[artist.id]
                             ?: ArtistFriendsFavorited(
                                 artist = artist,
-                                friendsFavorited = emptyList()
+                                friendsFavorited = emptyList(),
                             )
                     },
                     stage = setTime.stage,
@@ -66,17 +65,20 @@ class GetFilteredScheduleContentUseCase {
             setTimes = setTimesUiModel,
             stages = stages,
             gridMinHour = gridHourRange.minHour,
-            gridMaxHour = gridHourRange.maxHour
+            gridMaxHour = gridHourRange.maxHour,
         )
     }
 
     private fun List<SetTime>.filter(
         filter: ScheduleFilter,
-        favoritedByArtistId: Map<String, ArtistFriendsFavorited>
+        favoritedByArtistId: Map<String, ArtistFriendsFavorited>,
     ) = filter { setTime ->
         val hasFriendsFavorited = favoritedByArtistId[setTime.artistId]?.friendsFavorited?.isNotEmpty() == true
         val passesFavoritesFilter = when {
-            !filter.showFavorites && !filter.showFriendsGoing -> true
+            !filter.showFavorites && !filter.showFriendsGoing -> {
+                true
+            }
+
             else -> {
                 (filter.showFavorites && setTime.artist?.isFavorited == true) ||
                     (filter.showFriendsGoing && hasFriendsFavorited)
@@ -86,10 +88,15 @@ class GetFilteredScheduleContentUseCase {
         passesFavoritesFilter && passesPerformanceTypeFilter(setTime.artist, filter)
     }
 
-    private fun passesPerformanceTypeFilter(artist: Artist?, filter: ScheduleFilter): Boolean =
-        passesGenreFilter(artist?.tags, filter.selectedGenreGroups)
+    private fun passesPerformanceTypeFilter(
+        artist: Artist?,
+        filter: ScheduleFilter,
+    ): Boolean = passesGenreFilter(artist?.tags, filter.selectedGenreGroups)
 
-    private data class GridHourRange(val minHour: Int, val maxHour: Int)
+    private data class GridHourRange(
+        val minHour: Int,
+        val maxHour: Int,
+    )
 
     private fun getGridHourRange(setTimes: List<SetTime>): GridHourRange {
         if (setTimes.isEmpty()) return GridHourRange(minHour = 6, maxHour = 6)

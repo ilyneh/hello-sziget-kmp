@@ -71,7 +71,6 @@ import kotlin.test.assertTrue
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
-
     private val jsonHeaders = headersOf(HttpHeaders.ContentType, "application/json")
     private val json = Json { ignoreUnknownKeys = true }
     private val currentUser = User(id = "me", name = "Me", imageUrl = "https://cdn.test/me.png")
@@ -250,7 +249,11 @@ class ProfileViewModelTest {
 
             viewModel.onIntent(ProfileIntent.ViewFriend(friendId = "f1"))
 
-            assertEquals("f1", viewModel.uiState.value.removeFriendAlert?.id)
+            assertEquals(
+                "f1",
+                viewModel.uiState.value.removeFriendAlert
+                    ?.id,
+            )
         }
 
     @Test
@@ -397,14 +400,29 @@ class ProfileViewModelTest {
             MockEngine { request ->
                 val path = request.url.encodedPath
                 when {
-                    path.endsWith("/friends/requests") -> respond(json.encodeToString(friendRequests), headers = jsonHeaders)
-                    path.endsWith("/friends/sent") -> respond(json.encodeToString(emptyList<UserDto>()), headers = jsonHeaders)
-                    path.endsWith("/friends/favorites") ->
+                    path.endsWith("/friends/requests") -> {
+                        respond(json.encodeToString(friendRequests), headers = jsonHeaders)
+                    }
+
+                    path.endsWith("/friends/sent") -> {
+                        respond(json.encodeToString(emptyList<UserDto>()), headers = jsonHeaders)
+                    }
+
+                    path.endsWith("/friends/favorites") -> {
                         respond(json.encodeToString(emptyList<ArtistFriendsFavoritedDto>()), headers = jsonHeaders)
-                    path.endsWith("/friends") && request.method == HttpMethod.Get ->
+                    }
+
+                    path.endsWith("/friends") && request.method == HttpMethod.Get -> {
                         respond(json.encodeToString(friends), headers = jsonHeaders)
-                    actionsShouldFail -> respondError(HttpStatusCode.InternalServerError)
-                    else -> respondOk()
+                    }
+
+                    actionsShouldFail -> {
+                        respondError(HttpStatusCode.InternalServerError)
+                    }
+
+                    else -> {
+                        respondOk()
+                    }
                 }
             },
         )
@@ -550,8 +568,7 @@ class ProfileViewModelTest {
 
         override fun observeSentFriendRequests(): Flow<List<UserEntity>> = MutableStateFlow(emptyList())
 
-        override fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendsFavoritedSummary>> =
-            MutableStateFlow(emptyList())
+        override fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendsFavoritedSummary>> = MutableStateFlow(emptyList())
     }
 
     private class FakeProfileArtistDao(

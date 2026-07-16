@@ -31,20 +31,32 @@ data class DiscoverGenreUiState(
 
 sealed class DiscoverFilterEffect {
     data class UpdateFilter(
-        val filter: DiscoverFilter
+        val filter: DiscoverFilter,
     ) : DiscoverFilterEffect()
 }
 
 sealed class DiscoverFilterIntent {
-    data class Initialize(val filter: DiscoverFilter) : DiscoverFilterIntent()
-    data class TogglePerformanceType(val type: PerformanceType) : DiscoverFilterIntent()
-    data class ToggleGenreGroup(val group: GenreGroup, val value: Boolean) : DiscoverFilterIntent()
-    data class ToggleGenreDropdown(val type: PerformanceType) : DiscoverFilterIntent()
+    data class Initialize(
+        val filter: DiscoverFilter,
+    ) : DiscoverFilterIntent()
+
+    data class TogglePerformanceType(
+        val type: PerformanceType,
+    ) : DiscoverFilterIntent()
+
+    data class ToggleGenreGroup(
+        val group: GenreGroup,
+        val value: Boolean,
+    ) : DiscoverFilterIntent()
+
+    data class ToggleGenreDropdown(
+        val type: PerformanceType,
+    ) : DiscoverFilterIntent()
+
     object Save : DiscoverFilterIntent()
 }
 
 class DiscoverFilterViewModel : ViewModel() {
-
     private val _uiState = MutableStateFlow(DiscoverFilterUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -64,6 +76,7 @@ class DiscoverFilterViewModel : ViewModel() {
                 filter = intent.filter
                 updateUiState()
             }
+
             is DiscoverFilterIntent.TogglePerformanceType -> {
                 val typeGenres = genreGroupsFor(intent.type).toSet()
                 val allSelected = typeGenres.isNotEmpty() && filter.selectedGenreGroups.containsAll(typeGenres)
@@ -74,20 +87,22 @@ class DiscoverFilterViewModel : ViewModel() {
                     } else {
                         // Off or partially checked -> select all of the type's genres.
                         filter.selectedGenreGroups + typeGenres
-                    }
+                    },
                 )
                 updateUiState()
             }
+
             is DiscoverFilterIntent.ToggleGenreGroup -> {
                 filter = filter.copy(
                     selectedGenreGroups = if (intent.value) {
                         filter.selectedGenreGroups + intent.group
                     } else {
                         filter.selectedGenreGroups - intent.group
-                    }
+                    },
                 )
                 updateUiState()
             }
+
             is DiscoverFilterIntent.ToggleGenreDropdown -> {
                 expandedTypes = if (intent.type in expandedTypes) {
                     expandedTypes - intent.type
@@ -96,6 +111,7 @@ class DiscoverFilterViewModel : ViewModel() {
                 }
                 updateUiState()
             }
+
             DiscoverFilterIntent.Save -> {
                 viewModelScope.launch {
                     val effect = DiscoverFilterEffect.UpdateFilter(filter)

@@ -12,7 +12,6 @@ import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
 import org.jetbrains.compose.resources.painterResource
 
-
 data class ProfileFriendItemState(
     val name: String,
     val avatarText: String,
@@ -23,7 +22,7 @@ data class ProfileFriendItemState(
 fun ProfileFriendItem(
     item: ProfileFriendItemState,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FriendListItem(
         onClick = onClick,
@@ -37,7 +36,7 @@ fun ProfileFriendItem(
             Icon(
                 painter = painterResource(Res.drawable.ic_carat_right),
                 contentDescription = "View Friend",
-                tint = MaterialTheme.colorScheme.outline
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
     }
@@ -45,12 +44,12 @@ fun ProfileFriendItem(
 
 @Preview
 @Composable
-fun ProfileFriendItemPreview() {
+private fun ProfileFriendItemPreview() {
     AppTheme {
         ProfileFriendItem(
             item = ProfileFriendItemState(
                 name = "Zack Jones",
-                avatarText = "ZJ"
+                avatarText = "ZJ",
             ),
             onClick = {},
         )

@@ -11,7 +11,6 @@ private val DEFAULT_GENRE_GROUPS = GenreGroup.entries.toSet()
 data class DiscoverFilter(
     val selectedGenreGroups: Set<GenreGroup> = DEFAULT_GENRE_GROUPS,
 ) {
-
     fun activeCount(): Int {
         var count = 0
 
@@ -19,5 +18,4 @@ data class DiscoverFilter(
 
         return count
     }
-
 }

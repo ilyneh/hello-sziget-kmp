@@ -16,13 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 object TextPillDefaults {
     val style: TextStyle
         @Composable get() = MaterialTheme.typography.labelMedium.copy(
             color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 }
 
@@ -31,32 +30,32 @@ fun TextPill(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextPillDefaults.style,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp)
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
 ) {
     Box(
         modifier = modifier
             .background(
                 color = MaterialTheme.colorScheme.secondary,
-                shape = RoundedCornerShape(size = 6.dp)
-            )
+                shape = RoundedCornerShape(size = 6.dp),
+            ),
     ) {
         Text(
             text = text,
             style = style,
-            modifier = Modifier.padding(contentPadding)
+            modifier = Modifier.padding(contentPadding),
         )
     }
 }
 
 @Preview
 @Composable
-fun TextPillPreview() {
+private fun TextPillPreview() {
     AppTheme {
         TextPill(
             text = "12:00",
             style = TextPillDefaults.style.copy(
-                fontSize = 12.sp
-            )
+                fontSize = 12.sp,
+            ),
         )
     }
 }

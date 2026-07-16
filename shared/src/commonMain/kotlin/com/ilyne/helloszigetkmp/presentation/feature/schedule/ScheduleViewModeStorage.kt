@@ -4,8 +4,9 @@ import com.russhwolf.settings.Settings
 
 private const val KEY = "ScheduleViewModeStorage"
 
-class ScheduleViewModeStorage(private val settings: Settings) {
-
+class ScheduleViewModeStorage(
+    private val settings: Settings,
+) {
     fun save(viewMode: ViewMode) {
         settings.putString(KEY, viewMode.name)
     }

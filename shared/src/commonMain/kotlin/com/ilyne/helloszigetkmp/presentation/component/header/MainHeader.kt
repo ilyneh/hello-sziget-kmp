@@ -5,11 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +35,8 @@ fun MainHeader(
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .height(72.dp)
             .background(color = AppTheme.colors.navy)
             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -50,8 +51,8 @@ fun MainHeader(
             style = MaterialTheme.typography.headlineLarge.copy(
                 shadow = Shadow(
                     color = AppTheme.colors.highlightMagenta,
-                    offset = offset
-                )
+                    offset = offset,
+                ),
             ),
             modifier = Modifier.weight(1f),
         )
@@ -82,30 +83,28 @@ fun ModalHeader(
 
         val primaryLineColor = MaterialTheme.colorScheme.primary
         Canvas(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             drawLine(
                 color = primaryLineColor,
                 start = Offset(x = 0f, y = size.height / 2),
                 end = Offset(x = size.width, y = size.height / 2),
                 strokeWidth = 5.dp.toPx(),
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
         }
     }
 }
-
 
 @Preview
 @Composable
 private fun ModalHeaderPreview() {
     AppTheme {
         ModalHeader(
-            text = "Add Friends"
+            text = "Add Friends",
         )
     }
 }
-
 
 @Composable
 fun SubHeader2(
@@ -114,7 +113,8 @@ fun SubHeader2(
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

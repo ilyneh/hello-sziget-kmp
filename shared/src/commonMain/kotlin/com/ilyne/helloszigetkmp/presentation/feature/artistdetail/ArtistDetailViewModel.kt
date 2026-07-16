@@ -23,8 +23,12 @@ data class ArtistDetailUiState(
 ) {
     sealed class Status {
         data object Loading : Status()
+
         data object Success : Status()
-        data class Error(val message: String?) : Status()
+
+        data class Error(
+            val message: String?,
+        ) : Status()
     }
 }
 
@@ -33,7 +37,6 @@ class ArtistDetailViewModel(
     private val friendRepository: FriendRepository,
     private val scheduleRepository: ScheduleRepository,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(ArtistDetailUiState())
     val uiState = _uiState.asStateFlow()
 

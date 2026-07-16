@@ -48,7 +48,7 @@ fun PerformanceTypeSection(
             )
             Text(
                 text = type.displayName(),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             IconButton(onClick = onToggleDropdown) {
                 Icon(
@@ -62,7 +62,7 @@ fun PerformanceTypeSection(
         AnimatedVisibility(visible = isExpanded) {
             Column(
                 modifier = Modifier
-                    .padding(start = 32.dp)
+                    .padding(start = 32.dp),
             ) {
                 genres.forEach { genre ->
                     Row(verticalAlignment = Alignment.CenterVertically) {

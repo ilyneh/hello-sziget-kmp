@@ -24,6 +24,6 @@ fun SubtitleText(
         lineHeight = 1.2.sp,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
+        modifier = modifier,
     )
 }
