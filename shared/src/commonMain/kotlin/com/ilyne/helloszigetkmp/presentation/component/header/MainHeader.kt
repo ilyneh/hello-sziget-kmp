@@ -82,9 +82,7 @@ fun ModalHeader(
 
         val primaryLineColor = MaterialTheme.colorScheme.primary
         Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-            // Match canvas height to line width for layout pacing
+            modifier = Modifier.fillMaxWidth()
         ) {
             drawLine(
                 color = primaryLineColor,
