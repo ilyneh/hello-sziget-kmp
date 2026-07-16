@@ -16,6 +16,7 @@ import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendL
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.FriendshipStatus
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.util.text.initials
 
 @Composable
 fun AddFriendUserItem(
@@ -30,10 +31,7 @@ fun AddFriendUserItem(
         modifier = modifier
     ) {
         ProfileAvatar(
-            avatarText = name
-                .split(" ")
-                .filter { it.isNotBlank() }
-                .joinToString(separator = "") { it.first().uppercase() },
+            avatarText = name.initials(),
             modifier = Modifier.width(48.dp).height(48.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
