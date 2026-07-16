@@ -63,6 +63,6 @@ val presentationModule = module {
         currentUserProvider = get(),
     ) }
     viewModel { AddFriendViewModel(friendRepository = get(), userRepository = get(), currentUserProvider = get()) }
-    viewModel { ArtistDetailViewModel(artistRepository = get()) }
+    viewModel { ArtistDetailViewModel(artistRepository = get(), friendRepository = get()) }
 
 }

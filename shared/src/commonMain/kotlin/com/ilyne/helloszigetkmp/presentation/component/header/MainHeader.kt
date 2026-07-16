@@ -70,7 +70,10 @@ fun ModalHeader(
             .padding(bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f),
+        ) {
             Text(
                 text = text,
                 fontSize = 22.sp,
