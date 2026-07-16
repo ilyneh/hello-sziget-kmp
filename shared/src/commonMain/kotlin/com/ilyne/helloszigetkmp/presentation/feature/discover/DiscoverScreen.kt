@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -42,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.ilyne.helloszigetkmp.domain.model.Artist
-import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
+import com.ilyne.helloszigetkmp.presentation.component.FavoriteIconButton
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBarData
@@ -209,15 +208,11 @@ private fun ArtistCard(
                 )
             }
 
-            IconButton(
+            FavoriteIconButton(
+                enabled = artist.isFavorited,
                 onClick = onFavoriteToggle,
                 modifier = Modifier.align(Alignment.TopEnd),
-            ) {
-                HeartIcon(
-                    enabled = artist.isFavorited,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
+            )
         }
     }
 }

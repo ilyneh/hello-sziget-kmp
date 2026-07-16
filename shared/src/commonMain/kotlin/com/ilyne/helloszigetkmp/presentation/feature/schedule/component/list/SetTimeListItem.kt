@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Artist
-import com.ilyne.helloszigetkmp.presentation.component.HeartIcon
+import com.ilyne.helloszigetkmp.presentation.component.FavoriteIconButton
+import com.ilyne.helloszigetkmp.presentation.component.SubtitleText
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStack
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendAvatarStackData
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
@@ -114,38 +114,17 @@ fun SetTimeListItem(
             )
         }
 
-        IconButton(
+        FavoriteIconButton(
+            enabled = setTime.artist?.isFavorited ?: false,
             onClick = {
                 onToggleFavorite(
                     setTime.artistId,
                     setTime.artist?.isFavorited ?: false
                 )
             },
-        ) {
-            HeartIcon(
-                enabled = setTime.artist?.isFavorited ?: false,
-                modifier = Modifier.padding(8.dp)
-            )
-        }
+        )
     }
 }
-
-@Composable
-private fun SubtitleText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        fontSize = 12.sp,
-        color = MaterialTheme.colorScheme.primary,
-        lineHeight = 1.2.sp,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-}
-
 
 @Composable
 fun SetTimeListHeader(
