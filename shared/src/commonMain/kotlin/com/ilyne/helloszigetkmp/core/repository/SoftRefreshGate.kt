@@ -1,6 +1,8 @@
 package com.ilyne.helloszigetkmp.core.repository
 
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -22,6 +24,14 @@ class SoftRefreshGate(
 ) {
     private val lastFetchedKey = KEY_PREFIX + key
 
+    // Serializes refreshIfStale so callers race-free share one in-flight fetch instead of
+    // each independently seeing stale data and firing duplicate concurrent fetches (with
+    // their interleaved Room writes) - unlike UsersSyncService's fire-and-forget tryLock,
+    // callers here await refreshIfStale's completion, so a lost wakeup would leave them
+    // reading a cache another caller is still populating. Waiters re-check staleness once
+    // they acquire the lock so a fetch that just completed isn't repeated.
+    private val mutex = Mutex()
+
     /**
      * Runs [fetch] only if [force] is true or the last successful fetch is older than
      * [threshold] (or has never happened). On a skipped call, callers should rely on
@@ -34,8 +44,11 @@ class SoftRefreshGate(
         fetch: suspend () -> Unit,
     ) {
         if (!force && !isStale(threshold)) return
-        fetch()
-        settings.putLong(lastFetchedKey, clock.now().toEpochMilliseconds())
+        mutex.withLock {
+            if (!force && !isStale(threshold)) return@withLock
+            fetch()
+            settings.putLong(lastFetchedKey, clock.now().toEpochMilliseconds())
+        }
     }
 
     private fun isStale(threshold: Duration): Boolean {
