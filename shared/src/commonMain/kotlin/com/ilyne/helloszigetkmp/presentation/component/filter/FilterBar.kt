@@ -1,20 +1,17 @@
-package com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.component
+package com.ilyne.helloszigetkmp.presentation.component.filter
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,35 +21,36 @@ import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
 
-data class ScheduleFilterBarData (
+data class FilterBarData(
     val filterCount: Int = 0,
-    val setCount: Int = 0,
-    val filterTexts: List<String> = emptyList()
+    val filterTexts: List<String> = emptyList(),
+    val trailingText: String? = null
 )
 
 @Composable
-fun ScheduleFilterBar(
-    data: ScheduleFilterBarData,
+fun FilterBar(
+    data: FilterBarData,
     onFilterButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = AppTheme.colors.navy
 ) {
     val scrollState = rememberScrollState()
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+            .background(color = backgroundColor)
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ScheduleFilterButtonChip(
+        FilterButtonChip(
             filterCount = data.filterCount,
             onClick = onFilterButtonClicked
         )
 
-        if (data.setCount > 0) {
+        if (data.trailingText != null) {
             Text(
-                text = "${data.setCount} Sets",
+                text = data.trailingText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
             )
@@ -72,12 +70,30 @@ fun ScheduleFilterBar(
 
 @Preview
 @Composable
-private fun ScheduleFilterBarPreview() {
+private fun FilterBarPreview() {
     AppTheme {
-        ScheduleFilterBar(
-            data = ScheduleFilterBarData(
+        FilterBar(
+            data = FilterBarData(
                 filterCount = 100,
-                setCount = 1000,
+                filterTexts = listOf(
+                    "Electronic",
+                    "Techno",
+                    "Hip-Hop",
+                )
+            ),
+            onFilterButtonClicked = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FilterBarWithTrailingTextPreview() {
+    AppTheme {
+        FilterBar(
+            data = FilterBarData(
+                filterCount = 100,
+                trailingText = "1000 Sets",
                 filterTexts = listOf(
                     "Electronic",
                     "Techno",
