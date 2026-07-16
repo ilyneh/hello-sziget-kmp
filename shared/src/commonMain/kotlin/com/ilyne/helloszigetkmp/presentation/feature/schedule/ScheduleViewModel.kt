@@ -103,6 +103,7 @@ class ScheduleViewModel(
     private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
     private val getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase,
     private val scheduleFilterStorage: ScheduleFilterStorage,
+    private val scheduleViewModeStorage: ScheduleViewModeStorage,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
@@ -110,7 +111,9 @@ class ScheduleViewModel(
         const val TAG = "ScheduleViewModel"
     }
 
-    private val _uiState = MutableStateFlow(ScheduleUiState())
+    private val _uiState = MutableStateFlow(
+        ScheduleUiState(viewMode = scheduleViewModeStorage.read() ?: ViewMode.GRID),
+    )
     val uiState = _uiState.asStateFlow()
 
     private val _effects = MutableSharedFlow<ScheduleEffect>()
@@ -161,6 +164,7 @@ class ScheduleViewModel(
 
             is ScheduleIntent.ChangeViewMode -> {
                 _uiState.update { it.copy(viewMode = intent.mode) }
+                scheduleViewModeStorage.save(intent.mode)
             }
 
             is ScheduleIntent.ToggleFavorite -> {
