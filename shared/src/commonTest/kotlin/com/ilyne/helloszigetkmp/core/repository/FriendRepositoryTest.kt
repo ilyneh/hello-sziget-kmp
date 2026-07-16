@@ -12,9 +12,7 @@ import com.ilyne.helloszigetkmp.core.db.model.ArtistFriendsFavoritedSummary
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -26,6 +24,9 @@ import kotlin.test.assertTrue
 /**
  * [FriendRepository.declineFriendRequest] and [FriendRepository.removeFriend] both do an optimistic local write
  * before calling the API, then roll the local write back if the API call throws (and rethrow).
+ *
+ * [FriendRepository.sendFriendRequest] and [FriendRepository.acceptFriendRequest]: both do an optimistic local
+ * write, call the API, and roll the local write back (then rethrow) if the API call fails.
  */
 class FriendRepositoryTest {
     private val currentUserId = "user-1"
@@ -35,7 +36,7 @@ class FriendRepositoryTest {
     fun declineFriendRequest_success_deletesLocallyAndCallsApi() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
-            val repository = repository(fakeFriendDao, shouldFail = false)
+            val repository = repository(fakeFriendDao, apiSucceeds = true)
 
             repository.declineFriendRequest(currentUserId, friendId)
 
@@ -46,10 +47,45 @@ class FriendRepositoryTest {
         }
 
     @Test
+    fun sendFriendRequest_success_writesLocalAndCallsApi_withoutRollback() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = true)
+
+            repository.sendFriendRequest(currentUserId, friendId)
+
+            assertEquals(
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.SENT})",
+                ),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
+    fun sendFriendRequest_apiFailure_rollsBackLocalWriteAndRethrows() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<ApiFailureException> {
+                repository.sendFriendRequest(currentUserId, friendId)
+            }
+
+            assertEquals(
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.SENT})",
+                    "delete($currentUserId, $friendId)",
+                ),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
     fun declineFriendRequest_apiFailure_rollsBackToRequestedAndRethrows() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
-            val repository = repository(fakeFriendDao, shouldFail = true)
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
 
             assertFailsWith<Exception> {
                 repository.declineFriendRequest(currentUserId, friendId)
@@ -68,7 +104,7 @@ class FriendRepositoryTest {
     fun removeFriend_success_deletesLocallyAndCallsApi() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
-            val repository = repository(fakeFriendDao, shouldFail = false)
+            val repository = repository(fakeFriendDao, apiSucceeds = true)
 
             repository.removeFriend(currentUserId, friendId)
 
@@ -82,7 +118,7 @@ class FriendRepositoryTest {
     fun removeFriend_apiFailure_rollsBackToAcceptedAndRethrows() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
-            val repository = repository(fakeFriendDao, shouldFail = true)
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
 
             assertFailsWith<Exception> {
                 repository.removeFriend(currentUserId, friendId)
@@ -101,7 +137,7 @@ class FriendRepositoryTest {
     fun declineFriendRequest_apiFailure_lastCallIsRollbackUpsert() =
         runTest {
             val fakeFriendDao = FakeFriendDao()
-            val repository = repository(fakeFriendDao, shouldFail = true)
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
 
             assertFailsWith<Exception> {
                 repository.declineFriendRequest(currentUserId, friendId)
@@ -110,21 +146,61 @@ class FriendRepositoryTest {
             assertTrue(fakeFriendDao.calls.last().startsWith("upsert"))
         }
 
+    @Test
+    fun acceptFriendRequest_success_writesLocalAndCallsApi_withoutRollback() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = true)
+
+            repository.acceptFriendRequest(currentUserId, friendId)
+
+            assertEquals(
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.ACCEPTED})",
+                ),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
+    fun acceptFriendRequest_apiFailure_rollsBackToRequestedAndRethrows() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<ApiFailureException> {
+                repository.acceptFriendRequest(currentUserId, friendId)
+            }
+
+            assertEquals(
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.ACCEPTED})",
+                    "upsert($currentUserId, $friendId, ${Status.REQUESTED})",
+                ),
+                fakeFriendDao.calls,
+            )
+        }
+
+    private class ApiFailureException : Exception("simulated api failure")
+
     private fun repository(
         friendDao: FriendDao,
-        shouldFail: Boolean,
+        apiSucceeds: Boolean,
     ): FriendRepository {
+
+        val engine = MockEngine { request ->
+            if (apiSucceeds) {
+                respondOk()
+            } else {
+                throw ApiFailureException()
+            }
+        }
+
         val api = SzigetApiService(
-            client = HttpClient(MockEngine) {
-                expectSuccess = true
-                engine {
-                    addHandler {
-                        if (shouldFail) respondError(HttpStatusCode.InternalServerError) else respondOk()
-                    }
-                }
-            },
+            client = HttpClient(engine),
             baseUrl = "https://unused.test",
         )
+
         return FriendRepository(
             api = api,
             friendDao = friendDao,
