@@ -18,6 +18,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
@@ -35,6 +37,12 @@ class SzigetAuthService(
     private val settings: Settings,
 ) {
     private var authenticatedApiModule: Module? = null
+
+    // Guards authenticatedApiModule so a logout() racing a concurrent token-refresh-failure
+    // callback (see AuthenticatedApiModule's onSessionInvalidated, invoked from Ktor's Auth
+    // plugin on the client engine's dispatcher) can't both observe it non-null and each run
+    // teardown/Room deletes.
+    private val sessionMutex = Mutex()
 
     // Outlives any single screen/ViewModel so the best-effort server-side revoke below still
     // fires even if logout() itself returns (and its caller navigates away) before that
@@ -120,8 +128,11 @@ class SzigetAuthService(
     }
 
     suspend fun invalidateSession() {
-        val moduleToUnload = authenticatedApiModule ?: return
-        authenticatedApiModule = null
+        val moduleToUnload = sessionMutex.withLock {
+            val current = authenticatedApiModule ?: return@withLock null
+            authenticatedApiModule = null
+            current
+        } ?: return
 
         tokenStorage.clear()
         currentUserProvider.clear()
@@ -149,7 +160,7 @@ class SzigetAuthService(
         SoftRefreshGate.clearAll(settings)
     }
 
-    private fun loadAuthenticatedModules(token: TokenDto) {
+    private suspend fun loadAuthenticatedModules(token: TokenDto) {
         val apiModule = createAuthenticatedApiModule(
             baseUrl = appConfig.baseUrlLocal(),
             accessToken = token.accessToken,
@@ -158,7 +169,9 @@ class SzigetAuthService(
             onSessionInvalidated = ::invalidateSession,
             isDebug = appConfig.isDebug(),
         )
-        authenticatedApiModule = apiModule
+        sessionMutex.withLock {
+            authenticatedApiModule = apiModule
+        }
         loadKoinModules(apiModule)
         loadKoinModules(presentationModule)
     }
