@@ -35,11 +35,11 @@ class FriendRepository(
             friendId = friendId,
             status = Status.SENT,
         )
-        friendDao.upsertFriendship(userFriendEntity)
+        val cachedLocally = upsertFriendshipTolerantly(userFriendEntity)
         try {
             api.sendFriendRequest(friendId)
         } catch (e: Exception) {
-            friendDao.deleteFriendship(currentUserId, friendId)
+            if (cachedLocally) friendDao.deleteFriendship(currentUserId, friendId)
             throw e
         }
     }
@@ -53,11 +53,11 @@ class FriendRepository(
             friendId = friendId,
             status = Status.ACCEPTED,
         )
-        friendDao.upsertFriendship(userFriendEntity)
+        val cachedLocally = upsertFriendshipTolerantly(userFriendEntity)
         try {
             api.acceptFriendRequest(friendId)
         } catch (e: Exception) {
-            friendDao.upsertFriendship(userFriendEntity.copy(status = Status.REQUESTED))
+            if (cachedLocally) friendDao.upsertFriendship(userFriendEntity.copy(status = Status.REQUESTED))
             throw e
         }
     }
@@ -70,7 +70,7 @@ class FriendRepository(
         try {
             api.removeFriend(friendId)
         } catch (e: Exception) {
-            friendDao.upsertFriendship(
+            upsertFriendshipTolerantly(
                 UserFriendEntity(
                     userId = currentUserId,
                     friendId = friendId,
@@ -89,7 +89,7 @@ class FriendRepository(
         try {
             api.removeFriend(friendId)
         } catch (e: Exception) {
-            friendDao.upsertFriendship(
+            upsertFriendshipTolerantly(
                 UserFriendEntity(
                     userId = currentUserId,
                     friendId = friendId,
@@ -99,6 +99,24 @@ class FriendRepository(
             throw e
         }
     }
+
+    /**
+     * Best-effort local cache write: [UserFriendEntity.friendId] (and `.userId`) carry FKs to the
+     * local users table, which may not have that user cached yet - e.g. this friendId came from a
+     * search result or push notification that arrived before [UserRepository]'s own sync caught
+     * up (see the equivalent guard in [persistArtistsFriendsFavorited]). Don't let that FK
+     * violation block the actual server-side action (the caller still attempts the real API call
+     * regardless of this method's result) or mask a genuine API failure thrown from the caller's
+     * catch block; the next successful [refresh] upserts referenced users first and will pick this
+     * relationship back up. Returns whether the write actually landed, so callers know whether a
+     * subsequent revert-on-failure write has anything to revert.
+     */
+    private suspend fun upsertFriendshipTolerantly(entity: UserFriendEntity): Boolean =
+        runCatching { friendDao.upsertFriendship(entity) }
+            .onFailure { e ->
+                Logger.e("FriendRepository", "upsertFriendshipTolerantly(): failed to cache ${entity.friendId} locally", e)
+            }
+            .isSuccess
 
     fun observeFriends(): Flow<List<User>> = friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
 
