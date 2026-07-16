@@ -16,16 +16,14 @@ import kotlinx.datetime.toInstant
 import kotlin.time.Duration.Companion.hours
 
 class GetSetTimeDaysUseCase(
-    private val scheduleRepository: ScheduleRepository
+    private val scheduleRepository: ScheduleRepository,
 ) {
-
     private companion object {
         const val TAG = "GetSetTimeDaysUseCase"
-
     }
 
-    operator fun invoke(): Flow<SetTimeDays> {
-        return scheduleRepository.observeSetTimeRange().map { setTimeRange ->
+    operator fun invoke(): Flow<SetTimeDays> =
+        scheduleRepository.observeSetTimeRange().map { setTimeRange ->
             val startDate = setTimeRange.minStart.toFestivalDate()
             val endDate = setTimeRange.maxStart.toFestivalDate()
 
@@ -47,5 +45,4 @@ class GetSetTimeDaysUseCase(
 
             SetTimeDays(days = days)
         }
-    }
 }

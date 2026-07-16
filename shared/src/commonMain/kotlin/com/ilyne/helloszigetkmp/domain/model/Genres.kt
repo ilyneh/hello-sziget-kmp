@@ -60,6 +60,7 @@ enum class GenreGroup {
     COMEDY,
     WORKSHOP,
     VISUAL_ART,
+
     // Fallback for artists whose tags don't match any known genre group — not driven by any
     // tag itself, so it has no entry in `genreMapping`.
     UNKNOWN,
@@ -247,41 +248,46 @@ fun performanceTypeOf(genreGroup: GenreGroup): PerformanceType? = genreToPerform
 
 fun genreGroupsFor(performanceType: PerformanceType): List<GenreGroup> = performanceTypeMapping[performanceType].orEmpty()
 
-fun PerformanceType.displayName(): String = when (this) {
-    PerformanceType.MUSIC -> "Music"
-    PerformanceType.DANCE -> "Dance"
-    PerformanceType.ARTS_CULTURE -> "Arts & Culture"
-}
+fun PerformanceType.displayName(): String =
+    when (this) {
+        PerformanceType.MUSIC -> "Music"
+        PerformanceType.DANCE -> "Dance"
+        PerformanceType.ARTS_CULTURE -> "Arts & Culture"
+    }
 
 // Shared by Schedule and Discover filtering: an artist passes if any of its tags map to a
 // selected genre group, falling back to UNKNOWN when the artist has no recognized tags at all.
-fun passesGenreFilter(tags: List<String>?, selectedGenreGroups: Set<GenreGroup>): Boolean {
+fun passesGenreFilter(
+    tags: List<String>?,
+    selectedGenreGroups: Set<GenreGroup>,
+): Boolean {
     val genreGroups = tags?.mapNotNull { genreGroupOf(it) }.orEmpty()
     val effectiveGroups = genreGroups.ifEmpty { listOf(GenreGroup.UNKNOWN) }
 
     return effectiveGroups.any { it in selectedGenreGroups }
 }
 
-fun GenreGroup.displayName(): String = when (this) {
-    GenreGroup.ROCK -> "Rock"
-    GenreGroup.POP -> "Pop"
-    GenreGroup.INDIE -> "Indie"
-    GenreGroup.JAZZ -> "Jazz"
-    GenreGroup.ELECTRONIC -> "Electronic"
-    GenreGroup.TECHNO -> "Techno"
-    GenreGroup.HOUSE -> "House"
-    GenreGroup.RAP -> "Rap"
-    GenreGroup.HIP_HOP -> "Hip-Hop"
-    GenreGroup.EXPERIMENTAL -> "Experimental"
-    GenreGroup.FOLK -> "Folk"
-    GenreGroup.DISCO -> "Disco"
-    GenreGroup.TRANCE -> "Trance"
-    GenreGroup.BASS -> "Bass"
-    GenreGroup.WORLD -> "World"
-    GenreGroup.DANCE -> "Dance"
-    GenreGroup.PERFORMANCE -> "Performance"
-    GenreGroup.COMEDY -> "Comedy"
-    GenreGroup.WORKSHOP -> "Workshop"
-    GenreGroup.VISUAL_ART -> "Visual Art"
-    GenreGroup.UNKNOWN -> "Unknown"
-}
+fun GenreGroup.displayName(): String =
+    when (this) {
+        GenreGroup.ROCK -> "Rock"
+        GenreGroup.POP -> "Pop"
+        GenreGroup.INDIE -> "Indie"
+        GenreGroup.JAZZ -> "Jazz"
+        GenreGroup.ELECTRONIC -> "Electronic"
+        GenreGroup.TECHNO -> "Techno"
+        GenreGroup.HOUSE -> "House"
+        GenreGroup.RAP -> "Rap"
+        GenreGroup.HIP_HOP -> "Hip-Hop"
+        GenreGroup.EXPERIMENTAL -> "Experimental"
+        GenreGroup.FOLK -> "Folk"
+        GenreGroup.DISCO -> "Disco"
+        GenreGroup.TRANCE -> "Trance"
+        GenreGroup.BASS -> "Bass"
+        GenreGroup.WORLD -> "World"
+        GenreGroup.DANCE -> "Dance"
+        GenreGroup.PERFORMANCE -> "Performance"
+        GenreGroup.COMEDY -> "Comedy"
+        GenreGroup.WORKSHOP -> "Workshop"
+        GenreGroup.VISUAL_ART -> "Visual Art"
+        GenreGroup.UNKNOWN -> "Unknown"
+    }
