@@ -220,16 +220,24 @@ class FriendRepository(
         friendsFetchSucceeded: Boolean,
     ) {
         val entities = artistsFriendsFavorited.toArtistsFriendsFavoritedEntity()
-        if (friendsFetchSucceeded) {
-            // We have both a fresh favorited-artists fetch and a fresh, complete friends list, so
-            // it's safe to prune: any (artist, friend) pair that was cached before but isn't in
-            // this fetch means that friend actually un-favorited that artist.
-            friendDao.replaceArtistFriendFavoritesForFriends(friendIds = friends.map { it.id }, artistsFriendFavorited = entities)
-        } else {
-            // The friend list itself failed to load this round, so we don't have a reliable
-            // "current friends" set to scope a prune against — upsert only, to avoid wiping cached
-            // favorites for a friend we can't currently confirm is still on the list.
-            friendDao.upsertArtistFriendFavorited(entities)
+        // These rows carry a FK to the local artists table, which may not be populated yet
+        // (e.g. artists haven't synced on this device). Don't let that FK violation abort the
+        // rest of refresh() or crash the caller — it's just a favorited-artist row we couldn't
+        // cache this round; the next successful refresh (after artists sync) will pick it up.
+        runCatching {
+            if (friendsFetchSucceeded) {
+                // We have both a fresh favorited-artists fetch and a fresh, complete friends list,
+                // so it's safe to prune: any (artist, friend) pair that was cached before but isn't
+                // in this fetch means that friend actually un-favorited that artist.
+                friendDao.replaceArtistFriendFavoritesForFriends(friendIds = friends.map { it.id }, artistsFriendFavorited = entities)
+            } else {
+                // The friend list itself failed to load this round, so we don't have a reliable
+                // "current friends" set to scope a prune against — upsert only, to avoid wiping
+                // cached favorites for a friend we can't currently confirm is still on the list.
+                friendDao.upsertArtistFriendFavorited(entities)
+            }
+        }.onFailure { e ->
+            Logger.e("FriendRepository", "persistArtistsFriendsFavorited(): failed to persist favorited artists", e)
         }
     }
 
