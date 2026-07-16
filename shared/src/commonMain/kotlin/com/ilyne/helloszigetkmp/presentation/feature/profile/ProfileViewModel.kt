@@ -83,31 +83,42 @@ class ProfileViewModel(
     private val _effects = MutableSharedFlow<ProfileEffect>()
     val effects = _effects.asSharedFlow()
 
-    private val currentUser: User = currentUserProvider.currentUser
+    // Nullable rather than CurrentUserProvider.currentUser (which throws): this ViewModel can be
+    // constructed mid-navigation concurrently with a session invalidation clearing the provider
+    // (e.g. a background token refresh failing right as the user taps into Profile). In that
+    // case the screen is about to be replaced by Login anyway, so degrade gracefully instead of
+    // crashing on construction.
+    private val currentUser: User? = currentUserProvider.currentUserOrNull
 
     init {
-        viewModelScope.launch {
-            try {
-                _uiState.update {
-                    it.copy(name = currentUser.name, imageUrl = currentUser.imageUrl)
-                }
+        val user = currentUser
+        if (user == null) {
+            Logger.e("ProfileViewModel", "init: no current user, session was likely invalidated during navigation")
+            _uiState.update { it.copy(isLoading = false, error = "Session expired. Please log in again.") }
+        } else {
+            viewModelScope.launch {
+                try {
+                    _uiState.update {
+                        it.copy(name = user.name, imageUrl = user.imageUrl)
+                    }
 
-                if (usersSyncService.awaitSuccessfulSync()) {
-                    _uiState.update { it.copy(isLoading = true) }
-                    artistRepository.refresh(force = false)
-                    friendRepository.refresh(force = false)
-                    _uiState.update { it.copy(isLoading = false) }
-                } else {
-                    Logger.e("ProfileViewModel", "init: users sync failed, skipping friends refresh")
+                    if (usersSyncService.awaitSuccessfulSync()) {
+                        _uiState.update { it.copy(isLoading = true) }
+                        artistRepository.refresh(force = false)
+                        friendRepository.refresh(force = false)
+                        _uiState.update { it.copy(isLoading = false) }
+                    } else {
+                        Logger.e("ProfileViewModel", "init: users sync failed, skipping friends refresh")
+                    }
+                } catch (e: Exception) {
+                    Logger.e("ProfileViewModel", "init: failed to load profile", e)
+                    _uiState.update { it.copy(isLoading = false, error = "Failed to load profile") }
                 }
-            } catch (e: Exception) {
-                Logger.e("ProfileViewModel", "init: failed to load profile", e)
-                _uiState.update { it.copy(isLoading = false, error = "Failed to load profile") }
             }
+            observeFriends()
+            observeFriendRequests()
+            observeLikedArtists()
         }
-        observeFriends()
-        observeFriendRequests()
-        observeLikedArtists()
     }
 
     private fun observeLikedArtists() {
@@ -151,15 +162,17 @@ class ProfileViewModel(
             }
             is ProfileIntent.PhotoPicked -> intent.image?.let { uploadPhoto(it) }
             is ProfileIntent.AcceptFriendRequest -> viewModelScope.launch {
+                val userId = currentUser?.id ?: return@launch
                 try {
-                    friendRepository.acceptFriendRequest(currentUser.id, intent.friendId)
+                    friendRepository.acceptFriendRequest(userId, intent.friendId)
                 } catch (e: Exception) {
                     _uiState.update { it.copy(error = "Failed to accept friend request") }
                 }
             }
             is ProfileIntent.DeclineFriendRequest -> viewModelScope.launch {
+                val userId = currentUser?.id ?: return@launch
                 try {
-                    friendRepository.declineFriendRequest(currentUser.id, intent.friendId)
+                    friendRepository.declineFriendRequest(userId, intent.friendId)
                 } catch (e: Exception) {
                     _uiState.update { it.copy(error = "Failed to decline friend request") }
                 }
@@ -187,8 +200,9 @@ class ProfileViewModel(
                 val friend = _uiState.value.removeFriendAlert ?: return
                 _uiState.update { it.copy(removeFriendAlert = null) }
                 viewModelScope.launch {
+                    val userId = currentUser?.id ?: return@launch
                     try {
-                        friendRepository.removeFriend(currentUser.id, friend.id)
+                        friendRepository.removeFriend(userId, friend.id)
                     } catch (e: Exception) {
                         _uiState.update { it.copy(error = "Failed to remove friend") }
                     }
