@@ -37,6 +37,7 @@ import com.ilyne.helloszigetkmp.presentation.component.dialog.ConfirmationDialog
 import com.ilyne.helloszigetkmp.presentation.component.header.MainHeader
 import com.ilyne.helloszigetkmp.presentation.component.pulltorefresh.PullToRefreshContent
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
+import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileAvatar
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountCard
 import com.ilyne.helloszigetkmp.presentation.feature.profile.component.ProfileEngagementCountItemState
@@ -177,7 +178,7 @@ fun ProfileScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(LocalBottomBarPadding.current + 48.dp))
+                Spacer(modifier = Modifier.height(LocalBottomBarPadding.contentBottomInset))
             }
         }
     }

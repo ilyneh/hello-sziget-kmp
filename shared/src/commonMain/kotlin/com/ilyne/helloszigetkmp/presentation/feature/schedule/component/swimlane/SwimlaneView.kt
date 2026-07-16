@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.Stage
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
+import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HEADER_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEIGHT_DP
@@ -71,7 +72,7 @@ fun SwimLaneView(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = vertListState,
-            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 48.dp),
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.contentBottomInset),
         ) {
             items(stages, key = { it.id }) { stage ->
                 val stageSets = setTimes.filter { it.stageId == stage.id }

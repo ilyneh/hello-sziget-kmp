@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
+import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
@@ -48,7 +49,7 @@ fun SetTimeListView(
         )
 
         LazyColumn(
-            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.current + 48.dp),
+            contentPadding = PaddingValues(bottom = LocalBottomBarPadding.contentBottomInset),
         ) {
             grouped.forEach { (header, setTimes) ->
                 stickyHeader {
