@@ -510,7 +510,7 @@ class ScheduleViewModelTest {
             getFilteredScheduleContentUseCase = GetFilteredScheduleContentUseCase(),
             getActiveFiltersTextUseCase = GetActiveFiltersTextUseCase(),
             scheduleFilterStorage = ScheduleFilterStorage(settings),
-            ioDispatcher = Dispatchers.Main,
+            backgroundDispatcher = Dispatchers.Main,
         )
     }
 

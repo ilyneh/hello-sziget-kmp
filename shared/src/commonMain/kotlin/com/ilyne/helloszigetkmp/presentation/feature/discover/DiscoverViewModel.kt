@@ -54,7 +54,7 @@ sealed class DiscoverEffect {
 class DiscoverViewModel(
     private val artistRepository: ArtistRepository,
     private val getActiveDiscoverFiltersTextUseCase: GetActiveDiscoverFiltersTextUseCase,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState = _uiState.asStateFlow()
@@ -147,9 +147,9 @@ class DiscoverViewModel(
                 }
             }.combine(filter) { artists, discoverFilter ->
                 artists.filter { passesGenreFilter(it.tags, discoverFilter.selectedGenreGroups) }
-            }.flowOn(ioDispatcher)
+            }.flowOn(backgroundDispatcher)
                 .collect { artists ->
-                    // Offloading this filtering onto ioDispatcher means the resulting emission
+                    // Offloading this filtering onto backgroundDispatcher means the resulting emission
                     // can now land after a concurrent operation (e.g. toggleFavorite) has already
                     // set an Error status; don't let a routine list refresh silently clobber it.
                     _uiState.update {

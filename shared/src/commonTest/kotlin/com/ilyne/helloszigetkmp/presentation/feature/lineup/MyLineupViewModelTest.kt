@@ -241,7 +241,7 @@ class MyLineupViewModelTest {
         return MyLineupViewModel(
             artistRepository = artistRepository,
             scheduleRepository = scheduleRepository,
-            ioDispatcher = Dispatchers.Main,
+            backgroundDispatcher = Dispatchers.Main,
         )
     }
 

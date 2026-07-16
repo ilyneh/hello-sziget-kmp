@@ -44,7 +44,7 @@ class AddFriendViewModel(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
     currentUserProvider: CurrentUserProvider,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
@@ -129,7 +129,7 @@ class AddFriendViewModel(
                         AddFriendUserItem(user = user, status = status)
                     }
                     .toList()
-            }.flowOn(ioDispatcher)
+            }.flowOn(backgroundDispatcher)
                 .collect { results ->
                     _uiState.update { it.copy(results = results) }
                 }

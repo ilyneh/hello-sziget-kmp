@@ -32,7 +32,7 @@ data class MyLineupUiState(
 class MyLineupViewModel(
     private val artistRepository: ArtistRepository,
     private val scheduleRepository: ScheduleRepository,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MyLineupUiState())
     val uiState = _uiState.asStateFlow()
@@ -41,7 +41,7 @@ class MyLineupViewModel(
         viewModelScope.launch {
             scheduleRepository.observeFavoriteSetTimes()
                 .map { setTimes -> setTimes.groupByDay() }
-                .flowOn(ioDispatcher)
+                .flowOn(backgroundDispatcher)
                 .collect { groupedByDay ->
                     _uiState.update {
                         it.copy(

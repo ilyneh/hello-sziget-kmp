@@ -103,7 +103,7 @@ class ScheduleViewModel(
     private val getFilteredScheduleContentUseCase: GetFilteredScheduleContentUseCase,
     private val getActiveFiltersTextUseCase: GetActiveFiltersTextUseCase,
     private val scheduleFilterStorage: ScheduleFilterStorage,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private companion object {
@@ -224,7 +224,7 @@ class ScheduleViewModel(
                         data.favoritedByArtistId,
                         data.setTimesForDay.stages,
                     )
-                }.flowOn(ioDispatcher)
+                }.flowOn(backgroundDispatcher)
                     .collect { filteredData ->
                         _uiState.update {
                             it.copy(
@@ -269,7 +269,7 @@ class ScheduleViewModel(
                     } else {
                         setTimeDays.days.filterNot { it.isExtraDay }
                     }
-                }.flowOn(ioDispatcher)
+                }.flowOn(backgroundDispatcher)
                     .collect { filteredDays ->
                     _uiState.update { it.copy(days = filteredDays) }
                     if (selectedDay.value == null || selectedDay.value !in filteredDays) {
