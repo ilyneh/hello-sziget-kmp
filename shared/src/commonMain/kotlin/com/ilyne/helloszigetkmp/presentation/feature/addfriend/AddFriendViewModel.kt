@@ -52,9 +52,17 @@ class AddFriendViewModel(
     private val _uiState = MutableStateFlow(AddFriendUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val currentUserId: String = currentUserProvider.currentUser.id
+    // Nullable rather than CurrentUserProvider.currentUser (which throws): this ViewModel can be
+    // constructed mid-navigation concurrently with a session invalidation clearing the provider
+    // (e.g. a background token refresh failing right as the user taps into Add Friend). In that
+    // case the screen is about to be replaced by Login anyway, so degrade gracefully instead of
+    // crashing on construction.
+    private val currentUserId: String? = currentUserProvider.currentUserOrNull?.id
 
     init {
+        if (currentUserId == null) {
+            Logger.e("AddFriendViewModel", "init: no current user, session was likely invalidated during navigation")
+        }
         observeResults()
     }
 
@@ -65,8 +73,9 @@ class AddFriendViewModel(
                 _uiState.update { it.copy(searchQuery = intent.query) }
             }
             is AddFriendIntent.SendFriendRequest -> viewModelScope.launch {
+                val userId = currentUserId ?: return@launch
                 try {
-                    friendRepository.sendFriendRequest(currentUserId, intent.userId)
+                    friendRepository.sendFriendRequest(userId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
                     refreshFriendsFavoritedInBackground()
                 } catch (e: Exception) {
@@ -76,8 +85,9 @@ class AddFriendViewModel(
                 }
             }
             is AddFriendIntent.AcceptFriendRequest -> viewModelScope.launch {
+                val userId = currentUserId ?: return@launch
                 try {
-                    friendRepository.acceptFriendRequest(currentUserId, intent.userId)
+                    friendRepository.acceptFriendRequest(userId, intent.userId)
                     _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
                     refreshFriendsFavoritedInBackground()
                 } catch (e: Exception) {
