@@ -3,10 +3,12 @@ package com.ilyne.helloszigetkmp.di
 import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProvider
+import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProviding
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import com.ilyne.helloszigetkmp.core.config.AppConfig
+import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
@@ -34,7 +36,7 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 
 val appModule = module {
     // Auth
-    single { AppConfig() }
+    single<AppConfiguring> { AppConfig() }
     // Non-sensitive settings (e.g. soft-refresh timestamps, filter prefs): plain storage
     // (SharedPreferences / NSUserDefaults) that is wiped when the app is uninstalled.
     single { Settings() }
@@ -42,11 +44,11 @@ val appModule = module {
     // iOS deliberately survives app deletion - only use this for data that should persist
     // across a reinstall.
     single(secureSettingsQualifier) { createSecureSettings() }
-    single { GoogleAuthProvider() }
+    single<GoogleAuthProviding> { GoogleAuthProvider() }
     single { TokenStorage(settings = get(secureSettingsQualifier)) }
     single { ScheduleFilterStorage(settings = get()) }
     single { CurrentUserProvider() }
-    single { createBaseHttpClient(isDebug = get<AppConfig>().isDebug()) }
+    single { createBaseHttpClient(isDebug = get<AppConfiguring>().isDebug()) }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
     single {
         SzigetAuthService(

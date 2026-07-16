@@ -20,8 +20,19 @@ val BEARER_TOKEN_LOCALHOST: String = SzigetBuildConfig.LOCAL_BEARER_TOKEN
 // can never bypass Google sign-in in a release build.
 val SKIP_GOOGLE_SIGN_IN: Boolean = SzigetBuildConfig.SKIP_GOOGLE_SIGN_IN
 
-expect class AppConfig() {
+// Extracted so consumers (SzigetAuthService, SzigetAuthApiService) can depend on this interface
+// instead of the concrete expect/actual AppConfig - the Android actual injects an Android
+// Context via Koin the first time isDebug()/baseUrlLocal() is called, which makes it unusable
+// from commonTest without a running Koin instance. Fakes for tests implement this interface
+// directly instead.
+interface AppConfiguring {
     fun baseUrlLocal(): String
 
     fun isDebug(): Boolean
+}
+
+expect class AppConfig() : AppConfiguring {
+    override fun baseUrlLocal(): String
+
+    override fun isDebug(): Boolean
 }

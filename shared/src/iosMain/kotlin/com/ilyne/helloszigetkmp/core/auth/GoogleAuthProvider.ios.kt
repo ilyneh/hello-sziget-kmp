@@ -14,8 +14,8 @@ var googleSignInHandler: ((onResult: (AuthUser?, String?) -> Unit) -> Unit)? = n
 var googleSignOutHandler: (() -> Unit)? = null
 var googleCurrentUserHandler: (() -> AuthUser?)? = null
 
-actual class GoogleAuthProvider actual constructor() {
-    actual suspend fun signIn(): AuthUser {
+actual class GoogleAuthProvider actual constructor() : GoogleAuthProviding {
+    actual override suspend fun signIn(): AuthUser {
         val handler = googleSignInHandler
             ?: throw AuthException("Google Sign-In handler not configured on iOS")
         return suspendCancellableCoroutine { continuation ->
@@ -29,11 +29,11 @@ actual class GoogleAuthProvider actual constructor() {
         }
     }
 
-    actual fun signOut() {
+    actual override fun signOut() {
         googleSignOutHandler?.invoke()
     }
 
-    actual fun getCurrentUser(): AuthUser? = googleCurrentUserHandler?.invoke()
+    actual override fun getCurrentUser(): AuthUser? = googleCurrentUserHandler?.invoke()
 }
 
 class AuthException(

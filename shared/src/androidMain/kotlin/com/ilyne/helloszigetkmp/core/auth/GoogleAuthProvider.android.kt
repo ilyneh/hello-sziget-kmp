@@ -8,11 +8,11 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-actual class GoogleAuthProvider actual constructor() : KoinComponent {
+actual class GoogleAuthProvider actual constructor() : KoinComponent, GoogleAuthProviding {
     private val context: Context by inject()
     private val credentialManager by lazy { CredentialManager.create(context) }
 
-    actual suspend fun signIn(): AuthUser {
+    actual override suspend fun signIn(): AuthUser {
         val googleIdOption = GetGoogleIdOption
             .Builder()
             .setFilterByAuthorizedAccounts(false)
@@ -34,11 +34,11 @@ actual class GoogleAuthProvider actual constructor() : KoinComponent {
         }
     }
 
-    actual fun signOut() {
+    actual override fun signOut() {
         // CredentialManager sign-out is handled at the Google account level
     }
 
-    actual fun getCurrentUser(): AuthUser? = null
+    actual override fun getCurrentUser(): AuthUser? = null
 }
 
 class AuthException(
