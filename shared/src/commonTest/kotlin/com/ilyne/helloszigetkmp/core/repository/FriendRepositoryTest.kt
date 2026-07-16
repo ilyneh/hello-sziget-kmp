@@ -22,7 +22,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
- * Covers [FriendRepository.sendFriendRequest] and [FriendRepository.acceptFriendRequest]: both do an optimistic local
+ * [FriendRepository.declineFriendRequest] and [FriendRepository.removeFriend] both do an optimistic local write
+ * before calling the API, then roll the local write back if the API call throws (and rethrow).
+ *
+ * [FriendRepository.sendFriendRequest] and [FriendRepository.acceptFriendRequest]: both do an optimistic local
  * write, call the API, and roll the local write back (then rethrow) if the API call fails.
  */
 class FriendRepositoryTest {
@@ -30,73 +33,151 @@ class FriendRepositoryTest {
     private val friendId = "friend-1"
 
     @Test
+    fun declineFriendRequest_success_deletesLocallyAndCallsApi() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(fakeFriendDao, apiSucceeds = true)
+
+            repository.declineFriendRequest(currentUserId, friendId)
+
+            assertEquals(
+                listOf("delete($currentUserId, $friendId)"),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
     fun sendFriendRequest_success_writesLocalAndCallsApi_withoutRollback() =
         runTest {
-            val friendDao = FakeFriendDao()
-            val repository = repository(friendDao = friendDao, apiSucceeds = true)
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = true)
 
             repository.sendFriendRequest(currentUserId, friendId)
 
             assertEquals(
-                listOf(UserFriendEntity(currentUserId, friendId, Status.SENT)),
-                friendDao.upsertedFriendships,
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.SENT})",
+                ),
+                fakeFriendDao.calls,
             )
-            assertTrue(friendDao.deletedFriendships.isEmpty())
         }
 
     @Test
     fun sendFriendRequest_apiFailure_rollsBackLocalWriteAndRethrows() =
         runTest {
-            val friendDao = FakeFriendDao()
-            val repository = repository(friendDao = friendDao, apiSucceeds = false)
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = false)
 
             assertFailsWith<ApiFailureException> {
                 repository.sendFriendRequest(currentUserId, friendId)
             }
 
-            // Optimistic write happened first...
             assertEquals(
-                listOf(UserFriendEntity(currentUserId, friendId, Status.SENT)),
-                friendDao.upsertedFriendships,
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.SENT})",
+                    "delete($currentUserId, $friendId)",
+                ),
+                fakeFriendDao.calls,
             )
-            // ...then rolled back via a delete on failure.
+        }
+
+    @Test
+    fun declineFriendRequest_apiFailure_rollsBackToRequestedAndRethrows() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<Exception> {
+                repository.declineFriendRequest(currentUserId, friendId)
+            }
+
             assertEquals(
-                listOf(currentUserId to friendId),
-                friendDao.deletedFriendships,
+                listOf(
+                    "delete($currentUserId, $friendId)",
+                    "upsert($currentUserId, $friendId, ${Status.REQUESTED})",
+                ),
+                fakeFriendDao.calls,
             )
+        }
+
+    @Test
+    fun removeFriend_success_deletesLocallyAndCallsApi() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(fakeFriendDao, apiSucceeds = true)
+
+            repository.removeFriend(currentUserId, friendId)
+
+            assertEquals(
+                listOf("delete($currentUserId, $friendId)"),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
+    fun removeFriend_apiFailure_rollsBackToAcceptedAndRethrows() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<Exception> {
+                repository.removeFriend(currentUserId, friendId)
+            }
+
+            assertEquals(
+                listOf(
+                    "delete($currentUserId, $friendId)",
+                    "upsert($currentUserId, $friendId, ${Status.ACCEPTED})",
+                ),
+                fakeFriendDao.calls,
+            )
+        }
+
+    @Test
+    fun declineFriendRequest_apiFailure_lastCallIsRollbackUpsert() =
+        runTest {
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(fakeFriendDao, apiSucceeds = false)
+
+            assertFailsWith<Exception> {
+                repository.declineFriendRequest(currentUserId, friendId)
+            }
+
+            assertTrue(fakeFriendDao.calls.last().startsWith("upsert"))
         }
 
     @Test
     fun acceptFriendRequest_success_writesLocalAndCallsApi_withoutRollback() =
         runTest {
-            val friendDao = FakeFriendDao()
-            val repository = repository(friendDao = friendDao, apiSucceeds = true)
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = true)
 
             repository.acceptFriendRequest(currentUserId, friendId)
 
             assertEquals(
-                listOf(UserFriendEntity(currentUserId, friendId, Status.ACCEPTED)),
-                friendDao.upsertedFriendships,
+                listOf(
+                    "upsert($currentUserId, $friendId, ${Status.ACCEPTED})",
+                ),
+                fakeFriendDao.calls,
             )
         }
 
     @Test
     fun acceptFriendRequest_apiFailure_rollsBackToRequestedAndRethrows() =
         runTest {
-            val friendDao = FakeFriendDao()
-            val repository = repository(friendDao = friendDao, apiSucceeds = false)
+            val fakeFriendDao = FakeFriendDao()
+            val repository = repository(friendDao = fakeFriendDao, apiSucceeds = false)
 
             assertFailsWith<ApiFailureException> {
                 repository.acceptFriendRequest(currentUserId, friendId)
             }
 
-            // Optimistic write to ACCEPTED, then rollback upsert back to REQUESTED on failure.
             assertEquals(
                 listOf(
-                    UserFriendEntity(currentUserId, friendId, Status.ACCEPTED),
-                    UserFriendEntity(currentUserId, friendId, Status.REQUESTED),
+                    "upsert($currentUserId, $friendId, ${Status.ACCEPTED})",
+                    "upsert($currentUserId, $friendId, ${Status.REQUESTED})",
                 ),
-                friendDao.upsertedFriendships,
+                fakeFriendDao.calls,
             )
         }
 
@@ -106,23 +187,6 @@ class FriendRepositoryTest {
         friendDao: FriendDao,
         apiSucceeds: Boolean,
     ): FriendRepository {
-        val userDao = object : UserDao {
-            override fun observeAll(): Flow<List<UserEntity>> = flowOf(emptyList())
-
-            override fun observeById(id: String): Flow<UserEntity?> = flowOf(null)
-
-            override suspend fun upsertAll(users: List<UserEntity>) {}
-
-            override suspend fun setCurrentUser(currentUser: CurrentUserEntity) {}
-
-            override suspend fun getCurrentUser(): UserEntity? = null
-
-            override fun observeCurrentUser(): Flow<UserEntity?> = flowOf(null)
-
-            override suspend fun clearCurrentUser() {}
-
-            override suspend fun deleteAll() {}
-        }
 
         val engine = MockEngine { request ->
             if (apiSucceeds) {
@@ -140,24 +204,25 @@ class FriendRepositoryTest {
         return FriendRepository(
             api = api,
             friendDao = friendDao,
-            userDao = userDao,
+            userDao = FakeUserDao(),
             settings = MapSettings(),
         )
     }
 
     private class FakeFriendDao : FriendDao {
-        val upsertedFriendships = mutableListOf<UserFriendEntity>()
-        val deletedFriendships = mutableListOf<Pair<String, String>>()
+        val calls = mutableListOf<String>()
 
         override suspend fun upsertFriendships(friendships: List<UserFriendEntity>) {
-            upsertedFriendships += friendships
+            friendships.forEach {
+                calls.add("upsert(${it.userId}, ${it.friendId}, ${it.status})")
+            }
         }
 
         override suspend fun deleteFriendship(
             userId: String,
             friendId: String,
         ) {
-            deletedFriendships += userId to friendId
+            calls.add("delete($userId, $friendId)")
         }
 
         override suspend fun deleteFriendshipsNotIn(friendIds: List<String>) {}
@@ -179,6 +244,8 @@ class FriendRepositoryTest {
 
         override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {}
 
+        override suspend fun upsertAndPruneArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {}
+
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 
         override fun observeFriendRequests(): Flow<List<UserEntity>> = flowOf(emptyList())
@@ -186,5 +253,23 @@ class FriendRepositoryTest {
         override fun observeSentFriendRequests(): Flow<List<UserEntity>> = flowOf(emptyList())
 
         override fun observeArtistsWithFriendsFavoritedSummary(): Flow<List<ArtistFriendsFavoritedSummary>> = flowOf(emptyList())
+    }
+
+    private class FakeUserDao : UserDao {
+        override fun observeAll(): Flow<List<UserEntity>> = flowOf(emptyList())
+
+        override fun observeById(id: String): Flow<UserEntity?> = flowOf(null)
+
+        override suspend fun upsertAll(users: List<UserEntity>) {}
+
+        override suspend fun setCurrentUser(currentUser: CurrentUserEntity) {}
+
+        override suspend fun getCurrentUser(): UserEntity? = null
+
+        override fun observeCurrentUser(): Flow<UserEntity?> = flowOf(null)
+
+        override suspend fun clearCurrentUser() {}
+
+        override suspend fun deleteAll() {}
     }
 }
