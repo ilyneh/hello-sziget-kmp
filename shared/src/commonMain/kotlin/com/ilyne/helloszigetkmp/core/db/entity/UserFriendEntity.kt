@@ -12,26 +12,28 @@ import androidx.room.Index
             entity = UserEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("userId"),
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
         ),
         ForeignKey(
             entity = UserEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("friendId"),
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
     indices = [
         Index(value = ["userId"]),
         Index(value = ["friendId"]),
-    ]
+    ],
 )
 data class UserFriendEntity(
     val userId: String,
     val friendId: String,
-    val status: Status
+    val status: Status,
 ) {
     enum class Status {
-        ACCEPTED, REQUESTED, SENT
+        ACCEPTED,
+        REQUESTED,
+        SENT,
     }
 }

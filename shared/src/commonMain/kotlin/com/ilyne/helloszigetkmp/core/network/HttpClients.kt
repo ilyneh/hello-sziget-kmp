@@ -4,10 +4,10 @@ import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -23,7 +23,6 @@ import com.ilyne.helloszigetkmp.util.Logger as AppLogger
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 private const val HTTP_LOG_TAG = "HttpClient"
-
 
 // Festival wifi/cell coverage is exactly the flaky-network case HttpTimeout exists for: without
 // it, a stalled request hangs the calling coroutine (and whatever UI is awaiting it) indefinitely,
@@ -92,12 +91,13 @@ fun createApiHttpClient(
                         val refreshToken = oldTokens?.refreshToken
                             ?: throw IllegalStateException("Attempting to refresh token without a refresh token.")
 
-                        client.post(urlString = "$baseUrl/auth/refresh") {
-                            contentType(ContentType.Application.Json)
-                            markAsRefreshTokenRequest()
-                            val refreshTokenRequestData = RefreshTokenRequest(refreshToken = refreshToken)
-                            setBody(Json.encodeToString(value = refreshTokenRequestData))
-                        }.body()
+                        client
+                            .post(urlString = "$baseUrl/auth/refresh") {
+                                contentType(ContentType.Application.Json)
+                                markAsRefreshTokenRequest()
+                                val refreshTokenRequestData = RefreshTokenRequest(refreshToken = refreshToken)
+                                setBody(Json.encodeToString(value = refreshTokenRequestData))
+                            }.body()
                     } catch (e: Exception) {
                         onSessionInvalidated()
                         return@refreshTokens null

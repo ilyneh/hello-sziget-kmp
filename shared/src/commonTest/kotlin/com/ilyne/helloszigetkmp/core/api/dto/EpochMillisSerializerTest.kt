@@ -1,8 +1,8 @@
 package com.ilyne.helloszigetkmp.core.api.dto
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant

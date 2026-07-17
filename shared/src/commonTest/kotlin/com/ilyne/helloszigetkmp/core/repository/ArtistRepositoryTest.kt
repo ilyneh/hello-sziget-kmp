@@ -158,7 +158,10 @@ class ArtistRepositoryTest {
     }
 
     private class FakeArtistDao : ArtistDao {
-        data class SetFavoritedCall(val id: String, val isFavorited: Boolean)
+        data class SetFavoritedCall(
+            val id: String,
+            val isFavorited: Boolean,
+        )
 
         val setFavoritedCalls = mutableListOf<SetFavoritedCall>()
 

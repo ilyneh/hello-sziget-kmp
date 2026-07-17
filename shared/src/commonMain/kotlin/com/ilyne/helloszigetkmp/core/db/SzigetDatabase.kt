@@ -58,6 +58,5 @@ fun createDatabase(
             object : RoomDatabase.Callback() {
                 override fun onDestructiveMigration(connection: SQLiteConnection) = onDestructiveMigration()
             },
-        )
-        .fallbackToDestructiveMigration(dropAllTables = true)
+        ).fallbackToDestructiveMigration(dropAllTables = true)
         .build()

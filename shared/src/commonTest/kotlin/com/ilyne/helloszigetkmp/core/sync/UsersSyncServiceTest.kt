@@ -168,20 +168,14 @@ class UsersSyncServiceTest {
             upsertCallCount++
         }
 
-        override suspend fun setCurrentUser(currentUser: CurrentUserEntity) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun setCurrentUser(currentUser: CurrentUserEntity): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun getCurrentUser(): UserEntity? = currentUser
 
         override fun observeCurrentUser(): Flow<UserEntity?> = flowOf(null)
 
-        override suspend fun clearCurrentUser() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun clearCurrentUser(): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteAll() {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteAll(): Unit = throw NotImplementedError("unused in this test")
     }
 }

@@ -61,7 +61,7 @@ interface FriendDao {
 
     @Query("DELETE FROM artist_friend_favorites WHERE friendId NOT IN (:friendIds)")
     suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>)
-    
+
     @Query("DELETE FROM artist_friend_favorites")
     suspend fun deleteAllArtistFriendFavorited()
 
