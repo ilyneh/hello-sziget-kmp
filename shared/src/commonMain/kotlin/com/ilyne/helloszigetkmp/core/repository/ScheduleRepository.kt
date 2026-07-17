@@ -1,11 +1,11 @@
 package com.ilyne.helloszigetkmp.core.repository
 
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
-import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
-import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.SetTimeDao
 import com.ilyne.helloszigetkmp.core.db.dao.StageDao
+import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
+import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
@@ -22,7 +22,6 @@ class ScheduleRepository(
     private val artistDao: ArtistDao,
     settings: Settings,
 ) {
-
     companion object {
         private const val TAG = "ScheduleRepository"
     }
@@ -65,7 +64,6 @@ class ScheduleRepository(
             )
         }
 
-
     fun observeSetTimesForArtist(artistId: String): Flow<List<SetTime>> =
         combine(
             setTimeDao.observeByArtist(artistId),
@@ -85,13 +83,9 @@ class ScheduleRepository(
             }
         }
 
-    fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> =
-        setTimeDao.observeSetTimeRange()
+    fun observeSetTimeRange(): Flow<SetTimeDao.SetTimeRange> = setTimeDao.observeSetTimeRange()
 
-
-    fun observeFavoriteSetTimes(): Flow<List<SetTimeWithArtistStageSummary>> =
-        setTimeDao.observeFavorites()
-
+    fun observeFavoriteSetTimes(): Flow<List<SetTimeWithArtistStageSummary>> = setTimeDao.observeFavorites()
 
     suspend fun refresh(force: Boolean = false) {
         softRefreshGate.refreshIfStale(force) {

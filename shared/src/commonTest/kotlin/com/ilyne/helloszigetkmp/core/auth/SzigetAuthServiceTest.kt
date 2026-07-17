@@ -391,8 +391,14 @@ class SzigetAuthServiceTest {
         val engine = MockEngine { request ->
             val path = request.url.encodedPath
             when {
-                path.endsWith("/google/mobile") && googleLoginShouldFail -> respondError(HttpStatusCode.Unauthorized)
-                path.endsWith("/google/mobile") -> respond(json.encodeToString(googleLoginResult), headers = jsonHeaders)
+                path.endsWith("/google/mobile") && googleLoginShouldFail -> {
+                    respondError(HttpStatusCode.Unauthorized)
+                }
+
+                path.endsWith("/google/mobile") -> {
+                    respond(json.encodeToString(googleLoginResult), headers = jsonHeaders)
+                }
+
                 path.endsWith("/logout") -> {
                     onLogoutCalled?.invoke()
                     if (logoutShouldFail) {
@@ -402,7 +408,9 @@ class SzigetAuthServiceTest {
                     }
                 }
 
-                else -> respondError(HttpStatusCode.NotFound)
+                else -> {
+                    respondError(HttpStatusCode.NotFound)
+                }
             }
         }
         val client = HttpClient(engine) {
@@ -441,7 +449,9 @@ class SzigetAuthServiceTest {
         override fun getCurrentUser(): AuthUser? = null
     }
 
-    private class FakeArtistDao(val calls: MutableList<String> = mutableListOf()) : ArtistDao {
+    private class FakeArtistDao(
+        val calls: MutableList<String> = mutableListOf(),
+    ) : ArtistDao {
         override fun observeAll(): Flow<List<ArtistEntity>> = flowOf(emptyList())
 
         override fun observeById(id: String): Flow<ArtistEntity?> = flowOf(null)
@@ -450,13 +460,12 @@ class SzigetAuthServiceTest {
 
         override fun searchByName(query: String): Flow<List<ArtistEntity>> = flowOf(emptyList())
 
-        override suspend fun upsertAll(artists: List<ArtistEntity>) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun upsertAll(artists: List<ArtistEntity>): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun setFavorited(id: String, isFavorited: Boolean) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun setFavorited(
+            id: String,
+            isFavorited: Boolean,
+        ): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun deleteAll() {
             calls.add("artist.deleteAll")
@@ -471,13 +480,9 @@ class SzigetAuthServiceTest {
 
         override fun observeById(id: String): Flow<UserEntity?> = flowOf(null)
 
-        override suspend fun upsertAll(users: List<UserEntity>) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun upsertAll(users: List<UserEntity>): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun setCurrentUser(currentUser: CurrentUserEntity) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun setCurrentUser(currentUser: CurrentUserEntity): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun getCurrentUser(): UserEntity? = currentUser
 
@@ -492,18 +497,20 @@ class SzigetAuthServiceTest {
         }
     }
 
-    private class FakeFriendDao(val calls: MutableList<String> = mutableListOf()) : FriendDao {
-        override suspend fun upsertFriendships(friendships: List<UserFriendEntity>) {
-            throw NotImplementedError("unused in this test")
-        }
+    private class FakeFriendDao(
+        val calls: MutableList<String> = mutableListOf(),
+    ) : FriendDao {
+        override suspend fun upsertFriendships(friendships: List<UserFriendEntity>): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteFriendship(userId: String, friendId: String) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteFriendship(
+            userId: String,
+            friendId: String,
+        ): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteFriendshipsNotIn(userId: String, friendIds: List<String>) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteFriendshipsNotIn(
+            userId: String,
+            friendIds: List<String>,
+        ): Unit = throw NotImplementedError("unused in this test")
 
         override suspend fun deleteAllFriendships() {
             calls.add("friend.deleteAllFriendships")
@@ -513,29 +520,26 @@ class SzigetAuthServiceTest {
 
         override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
 
-        override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
+        override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>): Unit =
             throw NotImplementedError("unused in this test")
-        }
 
-        override suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>) {
+        override suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>): Unit =
             throw NotImplementedError("unused in this test")
-        }
 
-        override suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>) {
+        override suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>): Unit =
             throw NotImplementedError("unused in this test")
-        }
 
         override suspend fun deleteAllArtistFriendFavorited() {
             calls.add("friend.deleteAllArtistFriendFavorited")
         }
 
-        override suspend fun deleteStaleFavoritesForArtist(artistId: String, activeFriendIds: List<String>) {
-            throw NotImplementedError("unused in this test")
-        }
+        override suspend fun deleteStaleFavoritesForArtist(
+            artistId: String,
+            activeFriendIds: List<String>,
+        ): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {
+        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>): Unit =
             throw NotImplementedError("unused in this test")
-        }
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

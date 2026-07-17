@@ -8,11 +8,12 @@ import okio.FileSystem
 expect fun initAppImageLoader()
 
 fun createAppImageLoader(context: PlatformContext): ImageLoader =
-    ImageLoader.Builder(context)
+    ImageLoader
+        .Builder(context)
         .diskCache {
-            DiskCache.Builder()
+            DiskCache
+                .Builder()
                 .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "image_cache")
                 .maxSizeBytes(100L * 1024 * 1024)
                 .build()
-        }
-        .build()
+        }.build()

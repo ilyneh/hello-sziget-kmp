@@ -10,7 +10,6 @@ import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 data class ArtistFriendsFavoritedSummary(
     @Embedded
     val artist: ArtistEntity,
-
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
@@ -19,7 +18,7 @@ data class ArtistFriendsFavoritedSummary(
             parentColumn = "artistId",
             entityColumn = "friendId",
         ),
-        entity = UserEntity::class
+        entity = UserEntity::class,
     )
-    val friends: List<UserEntity>
+    val friends: List<UserEntity>,
 )

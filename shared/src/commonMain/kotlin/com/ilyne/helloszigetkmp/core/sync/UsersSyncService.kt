@@ -22,9 +22,14 @@ class UsersSyncService(
 ) {
     sealed class SyncStatus {
         data object Idle : SyncStatus()
+
         data object InProgress : SyncStatus()
+
         data object Success : SyncStatus()
-        data class Failure(val error: Throwable) : SyncStatus()
+
+        data class Failure(
+            val error: Throwable,
+        ) : SyncStatus()
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -50,6 +55,5 @@ class UsersSyncService(
     }
 
     /** Suspends until the current or most recent fetch finishes, returning true on success. */
-    suspend fun awaitSuccessfulSync(): Boolean =
-        status.first { it is SyncStatus.Success || it is SyncStatus.Failure } is SyncStatus.Success
+    suspend fun awaitSuccessfulSync(): Boolean = status.first { it is SyncStatus.Success || it is SyncStatus.Failure } is SyncStatus.Success
 }

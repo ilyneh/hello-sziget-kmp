@@ -12,4 +12,3 @@ data class ArtistEntity(
     val isFavorited: Boolean,
     val tags: List<String>?,
 )
-

@@ -1,11 +1,7 @@
 package com.ilyne.helloszigetkmp.core.db.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
 import androidx.room.Upsert
 import com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
@@ -27,7 +23,7 @@ interface SetTimeDao {
         INNER JOIN artists ON set_times.artistId = artists.id
         INNER JOIN stages ON set_times.stageId = stages.id
         WHERE artists.isFavorited = 1
-        """
+        """,
     )
     fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>>
 

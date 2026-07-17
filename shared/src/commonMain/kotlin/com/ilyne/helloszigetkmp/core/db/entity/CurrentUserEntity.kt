@@ -12,12 +12,12 @@ import androidx.room.PrimaryKey
             entity = UserEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("userId"),
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
-    indices = [Index(value = ["userId"])]
+    indices = [Index(value = ["userId"])],
 )
 data class CurrentUserEntity(
     @PrimaryKey val id: Int = 0,
-    val userId: String
+    val userId: String,
 )
