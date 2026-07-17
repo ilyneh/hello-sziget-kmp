@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.format
 
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),

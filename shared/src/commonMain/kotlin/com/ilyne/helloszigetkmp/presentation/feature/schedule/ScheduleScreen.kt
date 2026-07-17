@@ -27,10 +27,10 @@ import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
 import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.DaySelector
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.header.ViewModeToggle
-import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline.TimelineGridView
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 

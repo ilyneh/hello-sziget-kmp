@@ -22,9 +22,6 @@ import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
-import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.ic_cancel
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
