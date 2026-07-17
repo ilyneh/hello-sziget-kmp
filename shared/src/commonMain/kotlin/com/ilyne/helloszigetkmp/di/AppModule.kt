@@ -1,7 +1,7 @@
 package com.ilyne.helloszigetkmp.di
 
-import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
+import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProvider
 import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProviding
 import com.ilyne.helloszigetkmp.core.auth.LogoutService
