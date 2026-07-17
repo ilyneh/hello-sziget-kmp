@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -63,9 +64,10 @@ private val ScheduleFilterNavType = object : NavType<ScheduleFilter>(isNullableA
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
+    modifier: Modifier = Modifier,
     startDestination: Any = Login,
 ) {
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = startDestination, modifier = modifier) {
         composable<Login> {
             LoginScreen(
                 onLoginSuccess = {
@@ -85,7 +87,7 @@ fun AppNavGraph(
                 onNavigateToAddFriend = { navController.navigate(AddFriend) },
                 onArtistClick = { artistId -> navController.navigate(ArtistDetailRoute(artistId)) },
                 appliedFilter = appliedFilterJson?.let { Json.decodeFromString(it) },
-                onAppliedFilterConsumed = {
+                onConsumeAppliedFilter = {
                     backStackEntry.savedStateHandle[SCHEDULE_FILTER_RESULT_KEY] = null
                 },
                 onLoggedOut = {

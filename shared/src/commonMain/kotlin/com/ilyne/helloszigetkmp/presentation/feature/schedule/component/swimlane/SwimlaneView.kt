@@ -36,7 +36,6 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.st
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCardViewMode
 
-
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
 
 @Composable
@@ -112,7 +111,7 @@ fun SwimLaneView(
                                 onToggleFavorite = {
                                     onToggleFavorite(
                                         setTime.artistId,
-                                        setTime.artist?.isFavorited ?: false
+                                        setTime.artist?.isFavorited ?: false,
                                     )
                                 },
                             )

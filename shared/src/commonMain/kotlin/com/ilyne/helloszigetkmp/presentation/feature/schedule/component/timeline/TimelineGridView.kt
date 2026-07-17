@@ -42,7 +42,6 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEI
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
 
-
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
 
 private const val MIN_COLUMN_WIDTH_DP = 120
@@ -109,9 +108,10 @@ fun TimelineGridView(
             // Header row: a static spacer reserves space for the sticky hour column below,
             // stage names scroll horizontally in lockstep with the grid via horizScroll.
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(start = TIME_LABEL_WIDTH_DP.dp)
-                    .horizontalScroll(horizScroll)
+                    .horizontalScroll(horizScroll),
             ) {
                 stages.forEach { stage ->
                     val stageColor = stageColor(stageId = stage.id)
@@ -142,7 +142,7 @@ fun TimelineGridView(
                     modifier = Modifier
                         .width(TIME_LABEL_WIDTH_DP.dp)
                         .fillMaxHeight()
-                        .verticalScroll(state = vertScroll)
+                        .verticalScroll(state = vertScroll),
                 )
 
                 Box(
@@ -152,17 +152,17 @@ fun TimelineGridView(
                         .verticalScroll(vertScroll)
                         .horizontalScroll(horizScroll),
                 ) {
-
                     // Stage column color
                     Row(modifier = Modifier.fillMaxHeight()) {
                         stages.forEach { stage ->
                             Box(
-                                modifier = Modifier.width(columnWidth)
+                                modifier = Modifier
+                                    .width(columnWidth)
                                     .height(totalGridHeight)
                                     .background(
                                         color = stageColor(stageId = stage.id)
-                                            .copy(alpha = 0.2f)
-                                    )
+                                            .copy(alpha = 0.2f),
+                                    ),
                             )
                         }
                     }
@@ -170,7 +170,7 @@ fun TimelineGridView(
                     Box(
                         modifier = Modifier
                             .size(totalGridWidth, totalGridHeight)
-                            .background(color = Color.Transparent)
+                            .background(color = Color.Transparent),
                     ) {
                         // Hour gridlines span the full scrollable grid width
                         for (hour in gridMinHour..gridMaxHour) {
@@ -206,7 +206,7 @@ fun TimelineGridView(
                                     onToggleFavorite = {
                                         onToggleFavorite(
                                             setTime.artistId,
-                                            setTime.artist?.isFavorited ?: false
+                                            setTime.artist?.isFavorited ?: false,
                                         )
                                     },
                                 )

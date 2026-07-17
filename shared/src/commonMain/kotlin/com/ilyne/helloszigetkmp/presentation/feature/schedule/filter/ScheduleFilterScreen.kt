@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +29,6 @@ import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
-
 @Composable
 fun ScheduleFilterScreen(
     initialFilter: ScheduleFilter,
@@ -38,12 +38,13 @@ fun ScheduleFilterScreen(
 ) {
     val viewModel = koinViewModel<ScheduleFilterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentOnSave by rememberUpdatedState(onSave)
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(FilterIntent.Initialize(initialFilter))
         viewModel.effects.collect { effect ->
             when (effect) {
-                is FilterEffect.UpdateFilter -> onSave(effect.filter)
+                is FilterEffect.UpdateFilter -> currentOnSave(effect.filter)
             }
         }
     }
@@ -77,37 +78,37 @@ private fun ScheduleFilterContent(
     toggleGenreGroup: (GenreGroup, Boolean) -> Unit,
     toggleGenreDropdown: (PerformanceType) -> Unit,
     saveFilter: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
     ) {
         ModalHeader(text = "Filters")
 
         FilterSwitchRow(
             text = "Favorites",
             checked = uiState.showFavoritesOnly,
-            onCheckedChange = { toggleFavoritesOnly(it) }
+            onCheckedChange = { toggleFavoritesOnly(it) },
         )
 
         FilterSwitchRow(
             text = "Friends Going",
             checked = uiState.showFriendsGoing,
-            onCheckedChange = { toggleFriendsGoing(it) }
+            onCheckedChange = { toggleFriendsGoing(it) },
         )
 
         FilterSwitchRow(
             text = "Hide Stages with Empty Timeslots",
             checked = uiState.hideEmptyStages,
-            onCheckedChange = { toggleHideEmptyStages(it) }
+            onCheckedChange = { toggleHideEmptyStages(it) },
         )
 
         FilterSwitchRow(
             text = "Show Extra Days",
             checked = uiState.showExtraDays,
-            onCheckedChange = { toggleShowExtraDays(it) }
+            onCheckedChange = { toggleShowExtraDays(it) },
         )
 
         SubHeader2(text = "Performance Types")
@@ -126,11 +127,11 @@ private fun ScheduleFilterContent(
 
         ActionButton(
             onClick = { saveFilter() },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
             Text(
                 text = "Save",
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -138,7 +139,7 @@ private fun ScheduleFilterContent(
 
 @Preview
 @Composable
-fun ScheduleFilterContentPreview() {
+private fun ScheduleFilterContentPreview() {
     AppTheme {
         ScheduleFilterContent(
             uiState = ScheduleFilterUiState(),
@@ -158,16 +159,16 @@ fun ScheduleFilterContentPreview() {
 private fun FilterSwitchRow(
     text: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
         )
     }
 }

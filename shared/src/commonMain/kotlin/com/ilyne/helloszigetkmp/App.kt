@@ -20,7 +20,7 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.koinInject
 
 @Composable
-fun App() {
+fun App(modifier: Modifier = Modifier) {
     val authService = koinInject<SzigetAuthService>()
     val navController = rememberNavController()
     var startDestination by remember { mutableStateOf<Any?>(null) }
@@ -60,13 +60,14 @@ fun App() {
     AppTheme {
         val destination = startDestination
         if (destination == null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {
             AppNavGraph(
                 navController = navController,
-                startDestination = destination
+                startDestination = destination,
+                modifier = modifier,
             )
         }
     }

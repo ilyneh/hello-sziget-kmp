@@ -25,7 +25,7 @@ fun AddFriendUserItem(
 ) {
     FriendListItem(
         onClick = {},
-        modifier = modifier
+        modifier = modifier,
     ) {
         NamedAvatarRow(
             avatarText = name.initials(),
@@ -34,19 +34,22 @@ fun AddFriendUserItem(
         ) {
             when (status) {
                 FriendshipStatus.NONE -> AddFriendUserItemActionButton(text = "Request", onClick = onAdd)
+
                 FriendshipStatus.REQUEST_RECEIVED -> AddFriendUserItemActionButton(
                     text = "Accept",
-                    onClick = onAccept
+                    onClick = onAccept,
                 )
+
                 FriendshipStatus.REQUEST_SENT -> AddFriendUserItemActionButton(
                     text = "Requested",
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 )
+
                 FriendshipStatus.FRIEND -> AddFriendUserItemActionButton(
                     text = "Friends",
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 )
             }
         }
@@ -58,7 +61,7 @@ fun AddFriendUserItemActionButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     ActionButton(
         onClick = onClick,
@@ -70,14 +73,14 @@ fun AddFriendUserItemActionButton(
             text = text,
             fontWeight = FontWeight.SemiBold,
             fontSize = 13.sp,
-            maxLines = 1
+            maxLines = 1,
         )
     }
 }
 
 @Preview
 @Composable
-fun AddFriendUserItemPreview() {
+private fun AddFriendUserItemPreview() {
     AppTheme {
         AddFriendUserItem(
             name = "Zack Jones",

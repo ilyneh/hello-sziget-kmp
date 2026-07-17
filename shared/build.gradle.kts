@@ -174,7 +174,7 @@ spotless {
                 mapOf(
                     "ktlint_standard_no-wildcard-imports" to "disabled",
                     "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
-                    "compose_allowed_composition_locals" to "LocalAppColors",
+                    "compose_allowed_composition_locals" to "LocalAppColors,LocalBottomBarPadding",
                     "ktlint_standard_multiline-expression-wrapping" to "disabled",
                     "ktlint_standard_string-template-indent" to "disabled",
                 ),

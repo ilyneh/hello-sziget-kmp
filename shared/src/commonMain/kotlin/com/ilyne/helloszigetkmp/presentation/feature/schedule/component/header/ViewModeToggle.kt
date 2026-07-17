@@ -58,7 +58,7 @@ fun ViewModeToggle(
                     painter = painterResource(resource),
                     contentDescription = contentDescription,
                     tint = if (selected) AppTheme.colors.highlightYellow else AppTheme.colors.hairline,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(14.dp),
                 )
             }
         }
@@ -67,15 +67,16 @@ fun ViewModeToggle(
 
 @Preview
 @Composable
-fun ViewModelTogglePreview() {
+private fun ViewModelTogglePreview() {
     AppTheme {
-        Box(modifier = Modifier
-            .background(AppTheme.colors.navy)
-            .padding(16.dp)
+        Box(
+            modifier = Modifier
+                .background(AppTheme.colors.navy)
+                .padding(16.dp),
         ) {
             ViewModeToggle(
                 current = ViewMode.SWIMLANE,
-                onChange = {}
+                onChange = {},
             )
         }
     }

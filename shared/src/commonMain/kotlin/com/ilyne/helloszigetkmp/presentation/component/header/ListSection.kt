@@ -21,18 +21,21 @@ fun <T> ListSection(
     modifier: Modifier = Modifier,
     itemContent: @Composable (T) -> Unit,
 ) {
-    SectionHeader(
-        modifier = Modifier.padding(top = 8.dp),
-        text = title
-    )
-    Column(
-        modifier = modifier.fillMaxWidth()
-            .padding(bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items.forEach { item ->
-            key(itemKey(item)) {
-                itemContent(item)
+    Column(modifier = modifier) {
+        SectionHeader(
+            modifier = Modifier.padding(top = 8.dp),
+            text = title,
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items.forEach { item ->
+                key(itemKey(item)) {
+                    itemContent(item)
+                }
             }
         }
     }

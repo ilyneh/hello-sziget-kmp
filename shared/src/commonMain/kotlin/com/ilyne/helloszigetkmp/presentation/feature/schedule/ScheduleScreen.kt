@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,17 +39,19 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ScheduleScreen(
     openFilterScreen: (ScheduleFilter) -> Unit,
     appliedFilter: ScheduleFilter?,
-    onAppliedFilterConsumed: () -> Unit,
+    onConsumeAppliedFilter: () -> Unit,
     onArtistClick: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val viewModel = koinViewModel<ScheduleViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentOpenFilterScreen by rememberUpdatedState(openFilterScreen)
+    val currentOnConsumeAppliedFilter by rememberUpdatedState(onConsumeAppliedFilter)
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is ScheduleEffect.NavigateToFilter -> openFilterScreen(effect.filter)
+                is ScheduleEffect.NavigateToFilter -> currentOpenFilterScreen(effect.filter)
             }
         }
     }
@@ -56,55 +59,56 @@ fun ScheduleScreen(
     LaunchedEffect(appliedFilter) {
         appliedFilter?.let {
             viewModel.onIntent(ScheduleIntent.ApplyFilter(it))
-            onAppliedFilterConsumed()
+            currentOnConsumeAppliedFilter()
         }
     }
 
     ScheduleContent(
         uiState = uiState,
-        onViewModeChanged = { viewModel.onIntent(ScheduleIntent.ChangeViewMode(it)) },
-        onDaySelected = { viewModel.onIntent(ScheduleIntent.SelectDay(it)) },
-        onFilterButtonClicked = { viewModel.onIntent(ScheduleIntent.OpenFilter) },
+        onViewModeChange = { viewModel.onIntent(ScheduleIntent.ChangeViewMode(it)) },
+        onDaySelect = { viewModel.onIntent(ScheduleIntent.SelectDay(it)) },
+        onFilterButtonClick = { viewModel.onIntent(ScheduleIntent.OpenFilter) },
         onToggleFavorite = { artistId, current ->
             viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId, current))
         },
         onArtistClick = onArtistClick,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun ScheduleContent(
     uiState: ScheduleUiState,
-    onViewModeChanged: (ViewMode) -> Unit,
-    onDaySelected: (SetTimeDay) -> Unit,
-    onFilterButtonClicked: () -> Unit,
+    onViewModeChange: (ViewMode) -> Unit,
+    onDaySelect: (SetTimeDay) -> Unit,
+    onFilterButtonClick: () -> Unit,
     onToggleFavorite: (String?, Boolean) -> Unit,
     onArtistClick: (String) -> Unit = {},
     onRefresh: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     PullToRefreshContent(
         isRefreshing = uiState.status == ScheduleUiState.Status.Loading,
         onRefresh = onRefresh,
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface),
         ) {
             MainHeader(text = "Schedule") {
                 ViewModeToggle(
                     current = uiState.viewMode,
-                    onChange = onViewModeChanged,
+                    onChange = onViewModeChange,
                 )
             }
 
             DaySelector(
                 days = uiState.days,
                 selected = uiState.selectedDay,
-                onDaySelect = onDaySelected,
+                onDaySelect = onDaySelect,
             )
 
             FilterBar(
@@ -113,9 +117,9 @@ private fun ScheduleContent(
                     filterTexts = uiState.activeFilterItemsText,
                     trailingText = if (uiState.setTimes.isNotEmpty()) "${uiState.setTimes.size} Sets" else null,
                 ),
-                onFilterButtonClick = onFilterButtonClicked,
+                onFilterButtonClick = onFilterButtonClick,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                backgroundColor = MaterialTheme.colorScheme.surface
+                backgroundColor = MaterialTheme.colorScheme.surface,
             )
 
             // Content
@@ -123,14 +127,16 @@ private fun ScheduleContent(
             // (e.g. first load); a pull-to-refresh with existing data keeps rendering that
             // data underneath PullToRefreshBox's own refresh indicator instead of flashing empty.
             when (val status = uiState.status) {
-                is ScheduleUiState.Status.Loading -> if (uiState.setTimes.isEmpty()) {
-                    LoadingBox()
-                } else {
-                    ScheduleSetTimesContent(
-                        uiState = uiState,
-                        onToggleFavorite = onToggleFavorite,
-                        onArtistClick = onArtistClick,
-                    )
+                is ScheduleUiState.Status.Loading -> {
+                    if (uiState.setTimes.isEmpty()) {
+                        LoadingBox()
+                    } else {
+                        ScheduleSetTimesContent(
+                            uiState = uiState,
+                            onToggleFavorite = onToggleFavorite,
+                            onArtistClick = onArtistClick,
+                        )
+                    }
                 }
 
                 is ScheduleUiState.Status.Error -> {
@@ -140,20 +146,22 @@ private fun ScheduleContent(
                     )
                 }
 
-                else -> if (uiState.setTimes.isEmpty()) {
-                    Box(
-                        Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No Set Times")
-                    }
-                } else {
-                    key(uiState.selectedDay) {
-                        ScheduleSetTimesContent(
-                            uiState = uiState,
-                            onToggleFavorite = onToggleFavorite,
-                            onArtistClick = onArtistClick,
-                        )
+                else -> {
+                    if (uiState.setTimes.isEmpty()) {
+                        Box(
+                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("No Set Times")
+                        }
+                    } else {
+                        key(uiState.selectedDay) {
+                            ScheduleSetTimesContent(
+                                uiState = uiState,
+                                onToggleFavorite = onToggleFavorite,
+                                onArtistClick = onArtistClick,
+                            )
+                        }
                     }
                 }
             }
@@ -195,7 +203,7 @@ private fun ScheduleSetTimesContent(
                 uiState.setTimes,
                 onToggleFavorite = onToggleFavorite,
                 onArtistClick = onArtistClick,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -207,10 +215,10 @@ private fun ScheduleContentPreview() {
     AppTheme {
         ScheduleContent(
             uiState = ScheduleUiState(),
-            onViewModeChanged = {},
-            onDaySelected = {},
-            onFilterButtonClicked = {},
-            onToggleFavorite = { _,_ ->}
+            onViewModeChange = {},
+            onDaySelect = {},
+            onFilterButtonClick = {},
+            onToggleFavorite = { _, _ -> },
         )
     }
 }

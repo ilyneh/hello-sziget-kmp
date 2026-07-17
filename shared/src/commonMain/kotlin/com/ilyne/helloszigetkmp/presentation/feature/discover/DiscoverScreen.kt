@@ -31,7 +31,10 @@ import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFil
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {
+fun DiscoverScreen(
+    modifier: Modifier = Modifier,
+    onArtistClick: (String) -> Unit = {},
+) {
     val viewModel = koinViewModel<DiscoverViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -47,7 +50,7 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
     PullToRefreshContent(
         isRefreshing = uiState.status == DiscoverUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier
+        modifier = modifier,
     ) {
         DiscoverScreenContent(
             uiState = uiState,
@@ -63,18 +66,17 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
                 viewModel.onIntent(DiscoverIntent.ApplyFilter(filter))
                 showFilterDialog = false
             },
-            onDismiss = { showFilterDialog = false }
+            onDismiss = { showFilterDialog = false },
         )
     }
 }
-
 
 @Composable
 private fun DiscoverScreenContent(
     uiState: DiscoverUiState,
     viewModel: DiscoverViewModel,
     onArtistClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         MainHeader(text = "Discover")
@@ -84,7 +86,7 @@ private fun DiscoverScreenContent(
             onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         )
         FilterBar(
             data = FilterBarData(
@@ -92,7 +94,7 @@ private fun DiscoverScreenContent(
                 filterTexts = uiState.filterTexts,
             ),
             onFilterButtonClick = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         )
 
         when (val status = uiState.status) {

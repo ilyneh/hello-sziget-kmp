@@ -36,7 +36,10 @@ ktlint_standard_string-template-indent = disabled
 
 # LocalAppColors (presentation/theme/AppColors.kt) is an intentional CompositionLocal
 # mirroring MaterialTheme.colorScheme's own pattern for our custom AppColorScheme.
-compose_allowed_composition_locals = LocalAppColors
+# LocalBottomBarPadding (presentation/feature/MainScaffold.kt) is an intentional
+# CompositionLocal used by screens nested under the bottom nav bar to reserve scroll-content
+# clearance without prop-drilling the bottom bar's height through every intermediate screen.
+compose_allowed_composition_locals = LocalAppColors,LocalBottomBarPadding
 
 [*.md]
 trim_trailing_whitespace = false

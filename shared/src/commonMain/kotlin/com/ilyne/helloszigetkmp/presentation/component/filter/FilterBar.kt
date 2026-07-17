@@ -20,11 +20,10 @@ import com.ilyne.helloszigetkmp.presentation.component.pill.TextPill
 import com.ilyne.helloszigetkmp.presentation.component.pill.TextPillDefaults
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 data class FilterBarData(
     val filterCount: Int = 0,
     val filterTexts: List<String> = emptyList(),
-    val trailingText: String? = null
+    val trailingText: String? = null,
 )
 
 @Composable
@@ -32,7 +31,7 @@ fun FilterBar(
     data: FilterBarData,
     onFilterButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = AppTheme.colors.navy
+    backgroundColor: Color = AppTheme.colors.navy,
 ) {
     val scrollState = rememberScrollState()
     Row(
@@ -41,11 +40,11 @@ fun FilterBar(
             .background(color = backgroundColor)
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         FilterButtonChip(
             filterCount = data.filterCount,
-            onClick = onFilterButtonClick
+            onClick = onFilterButtonClick,
         )
 
         if (data.trailingText != null) {
@@ -61,7 +60,7 @@ fun FilterBar(
                 TextPill(
                     text = it,
                     style = TextPillDefaults.style.copy(fontSize = 12.sp),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                 )
             }
         }
@@ -79,7 +78,7 @@ private fun FilterBarPreview() {
                     "Electronic",
                     "Techno",
                     "Hip-Hop",
-                )
+                ),
             ),
             onFilterButtonClick = {},
         )
@@ -98,7 +97,7 @@ private fun FilterBarWithTrailingTextPreview() {
                     "Electronic",
                     "Techno",
                     "Hip-Hop",
-                )
+                ),
             ),
             onFilterButtonClick = {},
         )

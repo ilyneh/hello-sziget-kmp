@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -64,14 +65,19 @@ fun ProfileScreen(
     val launchImagePicker = rememberProfileImagePicker { image ->
         viewModel.onIntent(ProfileIntent.PhotoPicked(image))
     }
+    val currentOnNavigateToAddFriend by rememberUpdatedState(onNavigateToAddFriend)
+    val currentOnLoggedOut by rememberUpdatedState(onLoggedOut)
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                ProfileEffect.NavigateToAddFriend -> onNavigateToAddFriend()
+                ProfileEffect.NavigateToAddFriend -> {
+                    currentOnNavigateToAddFriend()
+                }
+
                 ProfileEffect.Logout -> {
                     logoutService.logout()
-                    onLoggedOut()
+                    currentOnLoggedOut()
                 }
             }
         }
@@ -80,17 +86,18 @@ fun ProfileScreen(
     PullToRefreshContent(
         isRefreshing = uiState.isLoading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
-            modifier = modifier.fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background),
         ) {
             MainHeader(
                 text = "Profile",
                 trailingContent = {
                     IconButton(
-                        onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) }
+                        onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
@@ -98,11 +105,12 @@ fun ProfileScreen(
                             tint = AppTheme.colors.highlightYellow,
                         )
                     }
-                }
+                },
             )
 
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .verticalScroll(state = vertScroll),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -121,18 +129,18 @@ fun ProfileScreen(
                         ProfileEngagementCountItemState(uiState.likedArtistCount, "Hearted"),
                         ProfileEngagementCountItemState(uiState.friends.size, "Friends"),
                         ProfileEngagementCountItemState(6, "Days"),
-                    )
+                    ),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    modifier = modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         modifier = Modifier.weight(1f),
                         text = "Friends",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        fontWeight = FontWeight.ExtraBold,
                     )
 
                     ActionIconButton(
@@ -142,7 +150,7 @@ fun ProfileScreen(
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_person_add),
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -173,7 +181,7 @@ fun ProfileScreen(
                         friends = uiState.friends,
                         onClick = {
                             viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
-                        }
+                        },
                     )
                 }
 
@@ -210,12 +218,12 @@ fun ProfileAvatarAndName(
     imageUrl: String? = null,
     isUploading: Boolean = false,
     onAvatarClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
             ProfileAvatar(
@@ -223,7 +231,7 @@ fun ProfileAvatarAndName(
                 avatarText = avatarText,
                 imageUrl = imageUrl,
                 onClick = if (isUploading) null else onAvatarClick,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(100.dp),
             )
             if (isUploading) {
                 CircularProgressIndicator(color = AppTheme.colors.onAccent)
@@ -233,14 +241,14 @@ fun ProfileAvatarAndName(
             text = name,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
 
 @Preview
 @Composable
-fun ProfileScreenPreview() {
+private fun ProfileScreenPreview() {
     AppTheme {
         ProfileScreen()
     }

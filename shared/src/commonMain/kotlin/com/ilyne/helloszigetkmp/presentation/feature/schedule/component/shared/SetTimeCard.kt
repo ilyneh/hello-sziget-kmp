@@ -29,9 +29,9 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.ar
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 
-
 enum class SetTimeCardViewMode {
-    TIMELINE, SWIMLANE
+    TIMELINE,
+    SWIMLANE,
 }
 
 private val FAVORITE_HEART_SIZE = 16.dp
@@ -56,7 +56,6 @@ fun SetTimeCard(
             .combinedClickable(onClick = onClick, onLongClick = onToggleFavorite)
             .padding(8.dp),
     ) {
-
         val friendsFavorited = setTime.artistFriendsFavorited?.friendsFavorited
         val hasFriendsFavorited = friendsFavorited?.isNotEmpty() == true
 
@@ -99,14 +98,13 @@ fun SetTimeCard(
                     .size(FAVORITE_HEART_SIZE),
             )
         }
-
     }
 }
 
 @Composable
 private fun FriendsAvatar(
     friends: List<User>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FriendAvatarStack(
         friends = friends.map { friend ->
@@ -117,6 +115,6 @@ private fun FriendsAvatar(
             )
         },
         maxNumAvatars = 3,
-        modifier = modifier
+        modifier = modifier,
     )
 }

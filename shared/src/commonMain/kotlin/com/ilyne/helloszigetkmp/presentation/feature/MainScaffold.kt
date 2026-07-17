@@ -85,9 +85,9 @@ fun MainScaffold(
     onNavigateToAddFriend: () -> Unit,
     onArtistClick: (String) -> Unit,
     appliedFilter: ScheduleFilter?,
-    onAppliedFilterConsumed: () -> Unit,
+    onConsumeAppliedFilter: () -> Unit,
     onLoggedOut: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -143,9 +143,10 @@ fun MainScaffold(
 
     Scaffold(
         containerColor = AppTheme.colors.navy,
+        modifier = modifier,
         bottomBar = {
             Surface(
-                modifier = modifier
+                modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .navigationBarsPadding()
                     .onSizeChanged { size -> bottomBarHeight = with(density) { size.height.toDp() } }
@@ -184,10 +185,10 @@ fun MainScaffold(
         },
     ) { innerPadding ->
         val swipeState = remember { SwipeAccumulator() }
+
         // Keep the top status-bar inset but drop the bottom one, so content flows
         // underneath the floating navigation bar instead of stopping above it.
-        fun tabIndex(destination: NavDestination?) =
-            tabs.indexOfFirst { destination?.hasRoute(it.route::class) == true }
+        fun tabIndex(destination: NavDestination?) = tabs.indexOfFirst { destination?.hasRoute(it.route::class) == true }
 
         CompositionLocalProvider(LocalBottomBarPadding provides bottomBarHeight) {
             NavHost(
@@ -219,9 +220,9 @@ fun MainScaffold(
                             },
                             onDragEnd = {
                                 if (currentTabIndex >= 0) {
-                                    if (swipeState.total <= -SwipeThresholdPx && currentTabIndex < tabs.lastIndex) {
+                                    if (swipeState.total <= -SWIPE_THRESHOLD_PX && currentTabIndex < tabs.lastIndex) {
                                         navigateToTab(tabs[currentTabIndex + 1].route)
-                                    } else if (swipeState.total >= SwipeThresholdPx && currentTabIndex > 0) {
+                                    } else if (swipeState.total >= SWIPE_THRESHOLD_PX && currentTabIndex > 0) {
                                         navigateToTab(tabs[currentTabIndex - 1].route)
                                     }
                                 }
@@ -234,7 +235,7 @@ fun MainScaffold(
                     ScheduleScreen(
                         openFilterScreen = openFilterScreen,
                         appliedFilter = appliedFilter,
-                        onAppliedFilterConsumed = onAppliedFilterConsumed,
+                        onConsumeAppliedFilter = onConsumeAppliedFilter,
                         onArtistClick = onArtistClick,
                     )
                 }
@@ -251,7 +252,7 @@ fun MainScaffold(
     }
 }
 
-private const val SwipeThresholdPx = 150f
+private const val SWIPE_THRESHOLD_PX = 150f
 
 private class SwipeAccumulator {
     var total: Float = 0f

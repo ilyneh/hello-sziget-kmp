@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.model.dayOfWeekLabel
 
-
 @Composable
 fun DaySelector(
     days: List<SetTimeDay>,
@@ -50,13 +49,12 @@ fun DaySelector(
                             border(
                                 width = 2.dp,
                                 shape = RoundedCornerShape(11.dp),
-                                color = MaterialTheme.colorScheme.onSecondary
+                                color = MaterialTheme.colorScheme.onSecondary,
                             )
                         } else {
                             this
                         }
-                    }
-                    .clickable { onDaySelect(day) }
+                    }.clickable { onDaySelect(day) }
                     .padding(vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -65,14 +63,14 @@ fun DaySelector(
                     text = day.dayOfWeekLabel().uppercase(),
                     fontSize = 10.sp,
                     color = textColor,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
                 )
                 Text(
                     text = day.dateOfMonth.toString(),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }

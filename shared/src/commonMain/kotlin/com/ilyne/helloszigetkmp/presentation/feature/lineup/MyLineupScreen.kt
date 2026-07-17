@@ -41,14 +41,17 @@ import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {
+fun MyLineupScreen(
+    modifier: Modifier = Modifier,
+    onArtistClick: (String) -> Unit = {},
+) {
     val viewModel = koinViewModel<MyLineupViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     PullToRefreshContent(
         isRefreshing = uiState.status == MyLineupUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier
+        modifier = modifier,
     ) {
         MyLineupScreenContent(
             uiState = uiState,
@@ -57,7 +60,6 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
         )
     }
 }
-
 
 @Composable
 private fun MyLineupScreenContent(
@@ -70,12 +72,16 @@ private fun MyLineupScreenContent(
         MainHeader(text = "My Lineup")
 
         when (val status = uiState.status) {
-            MyLineupUiState.Status.Loading -> LoadingBox()
+            MyLineupUiState.Status.Loading -> {
+                LoadingBox()
+            }
 
-            is MyLineupUiState.Status.Error -> ErrorState(
-                message = status.message ?: "Something went wrong",
-                onRetry = { viewModel.refresh() },
-            )
+            is MyLineupUiState.Status.Error -> {
+                ErrorState(
+                    message = status.message ?: "Something went wrong",
+                    onRetry = { viewModel.refresh() },
+                )
+            }
 
             else -> {
                 if (uiState.favoritesGroupedByDay.isEmpty()) {
@@ -84,7 +90,7 @@ private fun MyLineupScreenContent(
                     MyLineupScreenList(
                         uiState = uiState,
                         onArtistClick = onArtistClick,
-                        onRemoveFavorite = { viewModel.removeFavorite(artistId = it) }
+                        onRemoveFavorite = { viewModel.removeFavorite(artistId = it) },
                     )
                 }
             }
@@ -109,15 +115,16 @@ private fun MyLineupScreenList(
             top = 16.dp,
             bottom = LocalBottomBarPadding.contentBottomInset,
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         val itemShape = RoundedCornerShape(size = 8.dp)
 
         uiState.favoritesGroupedByDay.forEach { (day, setTimes) ->
             stickyHeader {
                 Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(top = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                 ) {
                     SetTimeListHeader(text = day)
                 }
@@ -130,7 +137,7 @@ private fun MyLineupScreenList(
                         modifier = Modifier
                             .matchParentSize()
                             .offset(x = 6.dp, y = 6.dp) // The 3D offset effect
-                            .background(color = AppTheme.colors.redOrange, shape = itemShape)
+                            .background(color = AppTheme.colors.redOrange, shape = itemShape),
                     )
 
                     Row(
@@ -142,12 +149,12 @@ private fun MyLineupScreenList(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
                                 text = setTime.artistName,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = AppTheme.colors.onAccent
+                                color = AppTheme.colors.onAccent,
                             )
 
                             StageSetTimeRow(
@@ -173,17 +180,17 @@ private fun StageSetTimeRow(
     stageName: String,
     startTime: String,
     endTime: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
     ) {
         SubtitleText(
             text = stageName,
             color = AppTheme.colors.onAccent,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
-                .weight(weight = 2f, fill = false)
+                .weight(weight = 2f, fill = false),
         )
 
         SubtitleText(
@@ -192,25 +199,23 @@ private fun StageSetTimeRow(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
                 .padding(horizontal = 4.dp)
-                .weight(weight = 1f, fill = false)
+                .weight(weight = 1f, fill = false),
         )
 
         SubtitleText(
             text = "$startTime - $endTime",
             color = AppTheme.colors.onAccent,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.wrapContentWidth()
+            modifier = Modifier.wrapContentWidth(),
         )
     }
 }
 
 @Composable
-private fun EmptyView(
-    modifier: Modifier = Modifier
-) {
+private fun EmptyView(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("♡", fontSize = 48.sp)

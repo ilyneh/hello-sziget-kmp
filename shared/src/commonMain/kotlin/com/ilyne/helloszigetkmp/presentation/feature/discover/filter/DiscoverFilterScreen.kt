@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,22 +26,22 @@ import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
-
 @Composable
 fun DiscoverFilterScreen(
     initialFilter: DiscoverFilter,
     onSave: (DiscoverFilter) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val viewModel = koinViewModel<DiscoverFilterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentOnSave by rememberUpdatedState(onSave)
 
     LaunchedEffect(Unit) {
         viewModel.onIntent(DiscoverFilterIntent.Initialize(initialFilter))
         viewModel.effects.collect { effect ->
             when (effect) {
-                is DiscoverFilterEffect.UpdateFilter -> onSave(effect.filter)
+                is DiscoverFilterEffect.UpdateFilter -> currentOnSave(effect.filter)
             }
         }
     }
@@ -66,12 +67,12 @@ private fun DiscoverFilterContent(
     toggleGenreGroup: (GenreGroup, Boolean) -> Unit,
     toggleGenreDropdown: (PerformanceType) -> Unit,
     saveFilter: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
     ) {
         ModalHeader(text = "Filters")
         SubHeader2(text = "Performance Types")
@@ -90,11 +91,11 @@ private fun DiscoverFilterContent(
 
         ActionButton(
             onClick = { saveFilter() },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
             Text(
                 text = "Save",
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }

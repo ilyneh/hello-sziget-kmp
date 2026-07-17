@@ -19,21 +19,21 @@ import com.ilyne.helloszigetkmp.presentation.component.avatar.InitialsAvatar
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.presentation.theme.SzigetPalette
 
-
 data class FriendAvatarStackData(
     val id: String,
     val name: String,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
 )
 
 // Lightened by ~15% (blended toward white) so brand swatches stay legible as small filled
 // circles behind avatar initials, rather than reading as fully-saturated blocks of color.
-private fun Color.lightened(factor: Float): Color = Color(
-    red = red + (1f - red) * factor,
-    green = green + (1f - green) * factor,
-    blue = blue + (1f - blue) * factor,
-    alpha = alpha,
-)
+private fun Color.lightened(factor: Float): Color =
+    Color(
+        red = red + (1f - red) * factor,
+        green = green + (1f - green) * factor,
+        blue = blue + (1f - blue) * factor,
+        alpha = alpha,
+    )
 
 private val avatarPalette = listOf(
     SzigetPalette.PrimaryBlue,
@@ -47,19 +47,17 @@ private val avatarPalette = listOf(
 
 // Deterministic hash-into-palette, mirroring StageColors.stageColor's convention for picking
 // a stable color from a palette based on an identifier.
-private fun avatarColorFor(friend: FriendAvatarStackData): Color =
-    avatarPalette[friend.name.hashCode().mod(avatarPalette.size)]
+private fun avatarColorFor(friend: FriendAvatarStackData): Color = avatarPalette[friend.name.hashCode().mod(avatarPalette.size)]
 
 @Composable
 fun FriendAvatarStack(
     friends: List<FriendAvatarStackData>,
     modifier: Modifier = Modifier,
-    maxNumAvatars: Int = 2
+    maxNumAvatars: Int = 2,
 ) {
-
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy((-6).dp)
+        horizontalArrangement = Arrangement.spacedBy((-6).dp),
     ) {
         friends.take(maxNumAvatars).forEach { friend ->
             key(friend.id) {
@@ -68,11 +66,11 @@ fun FriendAvatarStack(
         }
 
         if (friends.size > maxNumAvatars) {
-           Avatar(
-               text = "+${friends.size - maxNumAvatars}",
-               textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-               avatarColor = MaterialTheme.colorScheme.surfaceVariant,
-           )
+            Avatar(
+                text = "+${friends.size - maxNumAvatars}",
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                avatarColor = MaterialTheme.colorScheme.surfaceVariant,
+            )
         }
     }
 }
@@ -145,8 +143,8 @@ private fun PreviewFriendAvatarStack() {
             friends = listOf(
                 FriendAvatarStackData(id = "1", name = "Zack"),
                 FriendAvatarStackData(id = "2", name = "owen"),
-                FriendAvatarStackData(id = "3", name = "Zaira")
-            )
+                FriendAvatarStackData(id = "3", name = "Zaira"),
+            ),
         )
     }
 }
@@ -159,8 +157,8 @@ private fun PreviewFriendAvatarRow() {
             friends = listOf(
                 FriendAvatarStackData(id = "1", name = "Zack"),
                 FriendAvatarStackData(id = "2", name = "owen"),
-                FriendAvatarStackData(id = "3", name = "Zaira")
-            )
+                FriendAvatarStackData(id = "3", name = "Zaira"),
+            ),
         )
     }
 }

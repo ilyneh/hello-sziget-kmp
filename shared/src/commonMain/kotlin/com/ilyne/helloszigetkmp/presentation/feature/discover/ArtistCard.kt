@@ -29,7 +29,6 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.FavoriteIconButton
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 @Composable
 fun ArtistCard(
     artist: Artist,
@@ -43,13 +42,13 @@ fun ArtistCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f)
+            .aspectRatio(0.8f),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = coral)
-                .padding(6.dp)
+                .padding(6.dp),
         ) {
             AsyncImage(
                 model = artist.imageUrl,
@@ -65,16 +64,16 @@ fun ArtistCard(
                             brush = Brush.verticalGradient(
                                 colors = listOf(Color.Transparent, gradientEnd),
                                 startY = size.height * 0.5f, // Adjust where the shadow begins fading in
-                                endY = size.height        // Ends perfectly at the bottom edge
-                            )
+                                endY = size.height, // Ends perfectly at the bottom edge
+                            ),
                         )
-                    }
+                    },
             )
 
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(8.dp)
+                    .padding(8.dp),
             ) {
                 Text(
                     text = artist.name,
@@ -85,11 +84,11 @@ fun ArtistCard(
                     lineHeight = 14.sp,
                     overflow = TextOverflow.Ellipsis,
                     autoSize = TextAutoSize.StepBased(
-                        minFontSize = 10.sp,        // Minimum allowable size
-                        maxFontSize = 14.sp,        // Maximum allowable size
-                        stepSize = 0.5.sp             // Granularity of adjustment
+                        minFontSize = 10.sp, // Minimum allowable size
+                        maxFontSize = 14.sp, // Maximum allowable size
+                        stepSize = 0.5.sp, // Granularity of adjustment
                     ),
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 4.dp),
                 )
             }
 

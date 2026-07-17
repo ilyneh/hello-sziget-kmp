@@ -25,7 +25,10 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun AddFriendScreen(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+fun AddFriendScreen(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val viewModel = koinViewModel<AddFriendViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -60,7 +63,7 @@ private fun AddFriendContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
                 SearchTextField(
@@ -110,7 +113,7 @@ private fun AddFriendContent(
 
 @Preview
 @Composable
-fun AddFriendScreenPreview() {
+private fun AddFriendScreenPreview() {
     AppTheme {
         AddFriendContent(
             uiState = AddFriendUiState(),
