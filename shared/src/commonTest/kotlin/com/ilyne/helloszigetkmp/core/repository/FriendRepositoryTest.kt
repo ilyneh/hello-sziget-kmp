@@ -344,7 +344,9 @@ class FriendRepositoryTest {
     private class ApiFailureException : Exception("simulated api failure")
 
     /** Simulates the Room FK-constraint exception thrown when [friendId] isn't cached in the local users table yet. */
-    private class FakeForeignKeyViolation(friendId: String) : Exception("simulated FK violation for $friendId")
+    private class FakeForeignKeyViolation(
+        friendId: String,
+    ) : Exception("simulated FK violation for $friendId")
 
     private fun userDto(id: String) = UserDto(id = id, name = id, imageUrl = null)
 
@@ -475,8 +477,7 @@ class FriendRepositoryTest {
             friendships.clear()
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> =
-            artistFriendFavorites.map { it.artistId }.distinct()
+        override suspend fun getArtistIdsFriendsFavorited(): List<String> = artistFriendFavorites.map { it.artistId }.distinct()
 
         override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = artistFriendFavorites.toList()
 

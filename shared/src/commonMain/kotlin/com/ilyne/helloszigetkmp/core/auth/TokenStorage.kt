@@ -6,15 +6,14 @@ import kotlinx.serialization.json.Json
 
 private const val KEY = "TokenStorage"
 
-class TokenStorage(private val settings: Settings) {
-
+class TokenStorage(
+    private val settings: Settings,
+) {
     fun save(token: TokenDto) {
         settings.putString(KEY, Json.encodeToString(token))
     }
 
-    fun read(): TokenDto? {
-        return settings.getStringOrNull(KEY)?.let { Json.decodeFromString(it) }
-    }
+    fun read(): TokenDto? = settings.getStringOrNull(KEY)?.let { Json.decodeFromString(it) }
 
     fun clear() {
         settings.remove(KEY)
