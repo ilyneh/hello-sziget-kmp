@@ -2,10 +2,10 @@ package com.ilyne.helloszigetkmp.presentation.feature.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
-import com.ilyne.helloszigetkmp.core.api.SzigetApiService
+import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,8 +31,8 @@ class LoginViewModel(
     private val userRepository: UserRepository,
     private val usersSyncService: UsersSyncService,
     private val currentUserProvider: CurrentUserProvider,
-) : ViewModel(), KoinComponent {
-
+) : ViewModel(),
+    KoinComponent {
     // Resolved lazily: the authenticated SzigetApiService only exists in Koin
     // once szigetAuthService.signIn() has loaded its module below.
     private val apiService: SzigetApiService by inject()

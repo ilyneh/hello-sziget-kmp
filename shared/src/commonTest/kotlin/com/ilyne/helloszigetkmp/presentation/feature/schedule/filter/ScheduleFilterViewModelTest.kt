@@ -27,7 +27,6 @@ import kotlin.test.assertTrue
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScheduleFilterViewModelTest {
-
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -46,8 +45,7 @@ class ScheduleFilterViewModelTest {
     private fun genreState(
         state: ScheduleFilterUiState,
         group: GenreGroup,
-    ): GenreUiState =
-        state.performanceTypes.flatMap { it.genres }.first { it.group == group }
+    ): GenreUiState = state.performanceTypes.flatMap { it.genres }.first { it.group == group }
 
     @Test
     fun initialState_defaultsMatchScheduleFilterDefaults() {

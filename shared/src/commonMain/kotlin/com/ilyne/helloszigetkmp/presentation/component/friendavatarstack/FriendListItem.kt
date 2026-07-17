@@ -18,13 +18,12 @@ import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 
-
 @Composable
 fun FriendListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = AppTheme.colors.coral,
-    content: @Composable (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit),
 ) {
     Row(
         modifier = modifier
@@ -32,9 +31,8 @@ fun FriendListItem(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(24.dp),
                 ambientColor = DefaultShadowColor.copy(alpha = 0.4f),
-                spotColor = DefaultShadowColor.copy(alpha = 0.4f)
-            )
-            .clip(shape = RoundedCornerShape(24.dp))
+                spotColor = DefaultShadowColor.copy(alpha = 0.4f),
+            ).clip(shape = RoundedCornerShape(24.dp))
             .background(color = backgroundColor)
             .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(24.dp))
             .clickable(enabled = true, onClick = onClick)

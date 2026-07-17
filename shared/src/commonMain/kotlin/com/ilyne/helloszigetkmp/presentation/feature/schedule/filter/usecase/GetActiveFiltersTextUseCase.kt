@@ -6,7 +6,6 @@ import com.ilyne.helloszigetkmp.domain.model.genreGroupsFor
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 
 class GetActiveFiltersTextUseCase {
-
     operator fun invoke(filter: ScheduleFilter): List<String> {
         val filtersText = mutableListOf<String>()
 

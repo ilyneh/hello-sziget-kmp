@@ -20,7 +20,7 @@ fun FavoriteIconButton(
     ) {
         HeartIcon(
             enabled = enabled,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
         )
     }
 }

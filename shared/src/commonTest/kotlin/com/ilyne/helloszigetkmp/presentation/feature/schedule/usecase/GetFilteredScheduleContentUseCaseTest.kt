@@ -50,12 +50,13 @@ class GetFilteredScheduleContentUseCaseTest {
         stage = stage,
     )
 
-    private fun noOpFilter() = ScheduleFilter(
-        showFavorites = false,
-        showFriendsGoing = false,
-        hideEmptyStages = false,
-        selectedGenreGroups = setOf(GenreGroup.TECHNO),
-    )
+    private fun noOpFilter() =
+        ScheduleFilter(
+            showFavorites = false,
+            showFriendsGoing = false,
+            hideEmptyStages = false,
+            selectedGenreGroups = setOf(GenreGroup.TECHNO),
+        )
 
     @Test
     fun noFiltersApplied_passesAllSetTimesThrough() {

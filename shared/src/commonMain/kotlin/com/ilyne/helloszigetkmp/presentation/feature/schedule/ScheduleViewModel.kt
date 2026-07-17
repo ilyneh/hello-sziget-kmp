@@ -66,13 +66,18 @@ data class ScheduleUiState(
 
     sealed class Status {
         object Success : Status()
+
         object Loading : Status()
-        data class Error(val message: String) : Status()
+
+        data class Error(
+            val message: String,
+        ) : Status()
     }
 }
 
 sealed class ScheduleIntent {
     object OpenFilter : ScheduleIntent()
+
     data class SelectDay(
         val day: SetTimeDay,
     ) : ScheduleIntent()
@@ -92,7 +97,9 @@ sealed class ScheduleIntent {
 }
 
 sealed class ScheduleEffect {
-    data class NavigateToFilter(val filter: ScheduleFilter) : ScheduleEffect()
+    data class NavigateToFilter(
+        val filter: ScheduleFilter,
+    ) : ScheduleEffect()
 }
 
 class ScheduleViewModel(
@@ -106,7 +113,6 @@ class ScheduleViewModel(
     private val scheduleViewModeStorage: ScheduleViewModeStorage,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
-
     private companion object {
         const val TAG = "ScheduleViewModel"
     }
@@ -185,6 +191,7 @@ class ScheduleViewModel(
                     }
                 }
             }
+
             is ScheduleIntent.OpenFilter -> {
                 viewModelScope.launch {
                     _effects.emit(value = ScheduleEffect.NavigateToFilter(filter.value))
@@ -202,12 +209,14 @@ class ScheduleViewModel(
     private fun observeSelectedDay() {
         viewModelScope.launch {
             try {
-                val setTimesForDay = selectedDay.filterNotNull()
+                val setTimesForDay = selectedDay
+                    .filterNotNull()
                     .flatMapLatest { day ->
                         scheduleRepository.observeSetTimesForDay(day.dayStartMillis, day.dayEndMillis)
                     }
 
-                val artistsFriendsFavorited = friendRepository.observeArtistsFriendsFavorited()
+                val artistsFriendsFavorited = friendRepository
+                    .observeArtistsFriendsFavorited()
                     .map { favorited ->
                         favorited.associateBy { it.artist.id }
                     }
@@ -239,7 +248,7 @@ class ScheduleViewModel(
                                 stages = filteredData.stages,
                                 gridMinHour = filteredData.gridMinHour,
                                 gridMaxHour = filteredData.gridMaxHour,
-                                status = ScheduleUiState.Status.Success
+                                status = ScheduleUiState.Status.Success,
                             )
                         }
                     }
@@ -257,7 +266,7 @@ class ScheduleViewModel(
                 _uiState.update {
                     it.copy(
                         activeFilterCount = filter.activeCount(),
-                        activeFilterItemsText = getActiveFiltersTextUseCase(filter)
+                        activeFilterItemsText = getActiveFiltersTextUseCase(filter),
                     )
                 }
             }
@@ -278,12 +287,12 @@ class ScheduleViewModel(
                     }
                 }.flowOn(backgroundDispatcher)
                     .collect { filteredDays ->
-                    _uiState.update { it.copy(days = filteredDays) }
-                    if (selectedDay.value == null || selectedDay.value !in filteredDays) {
-                        selectedDay.update { filteredDays.firstOrNull() }
-                        _uiState.update { it.copy(selectedDay = selectedDay.value) }
+                        _uiState.update { it.copy(days = filteredDays) }
+                        if (selectedDay.value == null || selectedDay.value !in filteredDays) {
+                            selectedDay.update { filteredDays.firstOrNull() }
+                            _uiState.update { it.copy(selectedDay = selectedDay.value) }
+                        }
                     }
-                }
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSetTimeDays(): failed to load festival days", e)
                 val message = "Couldn't load festival days."

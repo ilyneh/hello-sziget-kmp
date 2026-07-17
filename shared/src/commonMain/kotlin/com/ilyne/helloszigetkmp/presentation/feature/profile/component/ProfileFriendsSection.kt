@@ -10,7 +10,7 @@ import com.ilyne.helloszigetkmp.util.text.initials
 fun ProfileFriendsSection(
     friends: List<User>,
     onClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ListSection(
         title = "Following - ${friends.size}",

@@ -39,8 +39,6 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.Set
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @Composable
 fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Unit = {}) {

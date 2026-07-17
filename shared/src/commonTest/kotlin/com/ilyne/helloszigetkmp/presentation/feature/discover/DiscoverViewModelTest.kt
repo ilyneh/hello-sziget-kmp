@@ -50,7 +50,6 @@ import kotlin.time.Clock
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class DiscoverViewModelTest {
-
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -80,176 +79,193 @@ class DiscoverViewModelTest {
     )
 
     @Test
-    fun init_loadsArtistsFromRepositoryWithSuccessStatus() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
-        val viewModel = newViewModel(artistDao = artistDao)
+    fun init_loadsArtistsFromRepositoryWithSuccessStatus() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
+            val viewModel = newViewModel(artistDao = artistDao)
 
-        val state = viewModel.uiState.value
-        assertIs<DiscoverUiState.Status.Success>(state.status)
-        assertEquals(listOf("artist-1", "artist-2"), state.artists.map { it.id })
-    }
-
-    @Test
-    fun searchQueryChanged_filtersArtistsBySearchArtists() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
-        val viewModel = newViewModel(artistDao = artistDao)
-
-        viewModel.onIntent(DiscoverIntent.SearchQueryChanged("rock"))
-
-        val state = viewModel.uiState.value
-        assertEquals("rock", state.searchQuery)
-        assertEquals(listOf("artist-1"), state.artists.map { it.id })
-    }
-
-    @Test
-    fun searchQueryChanged_blankQueryFallsBackToObserveArtists() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
-        val viewModel = newViewModel(artistDao = artistDao)
-
-        viewModel.onIntent(DiscoverIntent.SearchQueryChanged("rock"))
-        assertEquals(listOf("artist-1"), viewModel.uiState.value.artists.map { it.id })
-
-        viewModel.onIntent(DiscoverIntent.SearchQueryChanged(""))
-
-        assertEquals(listOf("artist-1", "artist-2"), viewModel.uiState.value.artists.map { it.id })
-    }
-
-    @Test
-    fun applyFilter_keepsOnlyArtistsPassingGenreFilterAndUpdatesFilterMetadata() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
-        val viewModel = newViewModel(artistDao = artistDao)
-
-        viewModel.onIntent(DiscoverIntent.ApplyFilter(DiscoverFilter(selectedGenreGroups = setOf(GenreGroup.ROCK))))
-
-        val state = viewModel.uiState.value
-        // unknownArtist has no tags, so it falls back to GenreGroup.UNKNOWN and is filtered out
-        // once only ROCK is selected.
-        assertEquals(listOf("artist-1"), state.artists.map { it.id })
-        assertEquals(1, state.filterCount)
-        assertEquals(listOf("Music"), state.filterTexts)
-    }
-
-    @Test
-    fun openFilterDialog_emitsLaunchFilterDialogEffect() = runTest {
-        val viewModel = newViewModel()
-
-        viewModel.effects.test {
-            viewModel.onIntent(DiscoverIntent.OpenFilterDialog)
-
-            assertIs<DiscoverEffect.LaunchFilterDialog>(awaitItem())
+            val state = viewModel.uiState.value
+            assertIs<DiscoverUiState.Status.Success>(state.status)
+            assertEquals(listOf("artist-1", "artist-2"), state.artists.map { it.id })
         }
-    }
 
     @Test
-    fun toggleFavorite_success_flipsFavoriteStateInRepository() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist))
-        val viewModel = newViewModel(artistDao = artistDao)
+    fun searchQueryChanged_filtersArtistsBySearchArtists() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
+            val viewModel = newViewModel(artistDao = artistDao)
 
-        viewModel.toggleFavorite(artistId = "artist-1", current = false)
+            viewModel.onIntent(DiscoverIntent.SearchQueryChanged("rock"))
 
-        assertEquals(true, artistDao.currentArtists.first { it.id == "artist-1" }.isFavorited)
-        assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
-    }
+            val state = viewModel.uiState.value
+            assertEquals("rock", state.searchQuery)
+            assertEquals(listOf("artist-1"), state.artists.map { it.id })
+        }
 
     @Test
-    fun toggleFavorite_apiFailure_doesNotShowError() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist))
-        val settings = freshSettings()
-        val repository = ArtistRepository(api = failingFavoriteApi(), dao = artistDao, settings = settings)
-        val viewModel = DiscoverViewModel(
-            artistRepository = repository,
-            getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
-            backgroundDispatcher = Dispatchers.Main,
-        )
+    fun searchQueryChanged_blankQueryFallsBackToObserveArtists() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
+            val viewModel = newViewModel(artistDao = artistDao)
 
-        // The mock engine hops off the test dispatcher internally, so the optimistic-update ->
-        // revert isn't synchronous like the rest of this suite - collect for the reverted
-        // artist state via turbine instead of reading artistDao.currentArtists immediately
-        // after advanceUntilIdle().
-        artistDao.observeById("artist-1").test {
-            assertEquals(false, awaitItem()?.isFavorited)
+            viewModel.onIntent(DiscoverIntent.SearchQueryChanged("rock"))
+            assertEquals(
+                listOf("artist-1"),
+                viewModel.uiState.value.artists
+                    .map { it.id },
+            )
+
+            viewModel.onIntent(DiscoverIntent.SearchQueryChanged(""))
+
+            assertEquals(
+                listOf("artist-1", "artist-2"),
+                viewModel.uiState.value.artists
+                    .map { it.id },
+            )
+        }
+
+    @Test
+    fun applyFilter_keepsOnlyArtistsPassingGenreFilterAndUpdatesFilterMetadata() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist, unknownArtist))
+            val viewModel = newViewModel(artistDao = artistDao)
+
+            viewModel.onIntent(DiscoverIntent.ApplyFilter(DiscoverFilter(selectedGenreGroups = setOf(GenreGroup.ROCK))))
+
+            val state = viewModel.uiState.value
+            // unknownArtist has no tags, so it falls back to GenreGroup.UNKNOWN and is filtered out
+            // once only ROCK is selected.
+            assertEquals(listOf("artist-1"), state.artists.map { it.id })
+            assertEquals(1, state.filterCount)
+            assertEquals(listOf("Music"), state.filterTexts)
+        }
+
+    @Test
+    fun openFilterDialog_emitsLaunchFilterDialogEffect() =
+        runTest {
+            val viewModel = newViewModel()
+
+            viewModel.effects.test {
+                viewModel.onIntent(DiscoverIntent.OpenFilterDialog)
+
+                assertIs<DiscoverEffect.LaunchFilterDialog>(awaitItem())
+            }
+        }
+
+    @Test
+    fun toggleFavorite_success_flipsFavoriteStateInRepository() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist))
+            val viewModel = newViewModel(artistDao = artistDao)
 
             viewModel.toggleFavorite(artistId = "artist-1", current = false)
 
-            assertEquals(true, awaitItem()?.isFavorited)
-            assertEquals(false, awaitItem()?.isFavorited)
-
-            cancelAndIgnoreRemainingEvents()
+            assertEquals(true, artistDao.currentArtists.first { it.id == "artist-1" }.isFavorited)
+            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
         }
-        assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
-    }
 
     @Test
-    fun refresh_forcedRefreshSucceeds_upsertsArtistsFromApi() = runTest {
-        val artistDao = FakeArtistDao(emptyList())
-        val settings = freshSettings()
-        val fetchedDto = ArtistDto(
-            id = "artist-3",
-            name = "Fresh Act",
-            bio = null,
-            imageUrl = null,
-            favoriteCount = 0,
-            isFavorited = false,
-            tags = listOf("genre-rock"),
-        )
-        val repository = ArtistRepository(
-            api = artistsListApi(listOf(fetchedDto)),
-            dao = artistDao,
-            settings = settings,
-        )
-        val viewModel = DiscoverViewModel(
-            artistRepository = repository,
-            getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
-            backgroundDispatcher = Dispatchers.Main,
-        )
+    fun toggleFavorite_apiFailure_doesNotShowError() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist))
+            val settings = freshSettings()
+            val repository = ArtistRepository(api = failingFavoriteApi(), dao = artistDao, settings = settings)
+            val viewModel = DiscoverViewModel(
+                artistRepository = repository,
+                getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+                backgroundDispatcher = Dispatchers.Main,
+            )
 
-        viewModel.uiState.test {
-            assertIs<DiscoverUiState.Status.Success>(awaitItem().status) // initial empty list, gate already fresh
+            // The mock engine hops off the test dispatcher internally, so the optimistic-update ->
+            // revert isn't synchronous like the rest of this suite - collect for the reverted
+            // artist state via turbine instead of reading artistDao.currentArtists immediately
+            // after advanceUntilIdle().
+            artistDao.observeById("artist-1").test {
+                assertEquals(false, awaitItem()?.isFavorited)
 
-            viewModel.refresh()
+                viewModel.toggleFavorite(artistId = "artist-1", current = false)
 
-            assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                assertEquals(true, awaitItem()?.isFavorited)
+                assertEquals(false, awaitItem()?.isFavorited)
 
-            // The dao's upsert (triggering observeArtists' own reactive emission) and
-            // refreshArtists' explicit post-fetch Success update can arrive as separate
-            // emissions in either order, so keep consuming until the upserted artist shows up.
-            var state = awaitItem()
-            while (state.artists.isEmpty()) {
-                state = awaitItem()
+                cancelAndIgnoreRemainingEvents()
             }
-            assertIs<DiscoverUiState.Status.Success>(state.status)
-            assertEquals(listOf("artist-3"), state.artists.map { it.id })
-
-            cancelAndIgnoreRemainingEvents()
+            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
         }
-    }
 
     @Test
-    fun refresh_forcedRefreshFailsBecauseUnparseableApiResponse_setsErrorStatus() = runTest {
-        val artistDao = FakeArtistDao(listOf(rockArtist))
-        val settings = freshSettings()
-        // No ContentNegotiation plugin is installed, and the mock engine returns an empty 200
-        // body, so parsing the response into List<ArtistDto> fails - this mirrors
-        // ScheduleViewModelTest's equivalent forced-refresh-failure test.
-        val repository = ArtistRepository(api = mockApi(), dao = artistDao, settings = settings)
-        val viewModel = DiscoverViewModel(
-            artistRepository = repository,
-            getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
-            backgroundDispatcher = Dispatchers.Main,
-        )
+    fun refresh_forcedRefreshSucceeds_upsertsArtistsFromApi() =
+        runTest {
+            val artistDao = FakeArtistDao(emptyList())
+            val settings = freshSettings()
+            val fetchedDto = ArtistDto(
+                id = "artist-3",
+                name = "Fresh Act",
+                bio = null,
+                imageUrl = null,
+                favoriteCount = 0,
+                isFavorited = false,
+                tags = listOf("genre-rock"),
+            )
+            val repository = ArtistRepository(
+                api = artistsListApi(listOf(fetchedDto)),
+                dao = artistDao,
+                settings = settings,
+            )
+            val viewModel = DiscoverViewModel(
+                artistRepository = repository,
+                getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+                backgroundDispatcher = Dispatchers.Main,
+            )
 
-        viewModel.uiState.test {
-            assertIs<DiscoverUiState.Status.Success>(awaitItem().status)
+            viewModel.uiState.test {
+                assertIs<DiscoverUiState.Status.Success>(awaitItem().status) // initial empty list, gate already fresh
 
-            viewModel.refresh()
+                viewModel.refresh()
 
-            assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
-            val errored = awaitItem()
-            assertIs<DiscoverUiState.Status.Error>(errored.status)
+                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
 
-            cancelAndIgnoreRemainingEvents()
+                // The dao's upsert (triggering observeArtists' own reactive emission) and
+                // refreshArtists' explicit post-fetch Success update can arrive as separate
+                // emissions in either order, so keep consuming until the upserted artist shows up.
+                var state = awaitItem()
+                while (state.artists.isEmpty()) {
+                    state = awaitItem()
+                }
+                assertIs<DiscoverUiState.Status.Success>(state.status)
+                assertEquals(listOf("artist-3"), state.artists.map { it.id })
+
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
+
+    @Test
+    fun refresh_forcedRefreshFailsBecauseUnparseableApiResponse_setsErrorStatus() =
+        runTest {
+            val artistDao = FakeArtistDao(listOf(rockArtist))
+            val settings = freshSettings()
+            // No ContentNegotiation plugin is installed, and the mock engine returns an empty 200
+            // body, so parsing the response into List<ArtistDto> fails - this mirrors
+            // ScheduleViewModelTest's equivalent forced-refresh-failure test.
+            val repository = ArtistRepository(api = mockApi(), dao = artistDao, settings = settings)
+            val viewModel = DiscoverViewModel(
+                artistRepository = repository,
+                getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
+                backgroundDispatcher = Dispatchers.Main,
+            )
+
+            viewModel.uiState.test {
+                assertIs<DiscoverUiState.Status.Success>(awaitItem().status)
+
+                viewModel.refresh()
+
+                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                val errored = awaitItem()
+                assertIs<DiscoverUiState.Status.Error>(errored.status)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 
     // --- test fixtures -------------------------------------------------------------------
 

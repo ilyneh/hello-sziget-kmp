@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 data class ProfileUiState(
     val name: String? = null,
     val imageUrl: String? = null,
@@ -40,26 +39,33 @@ data class ProfileUiState(
 
 sealed class ProfileEffect {
     data object NavigateToAddFriend : ProfileEffect()
+
     object Logout : ProfileEffect()
 }
 
 sealed class ProfileIntent {
     object AddFriend : ProfileIntent()
-    data class PhotoPicked(val image: DeviceImage?) : ProfileIntent()
+
+    data class PhotoPicked(
+        val image: DeviceImage?,
+    ) : ProfileIntent()
+
     object LogoutClicked : ProfileIntent()
+
     object ConfirmLogout : ProfileIntent()
+
     object DismissLogoutAlert : ProfileIntent()
 
     data class AcceptFriendRequest(
-        val friendId: String
+        val friendId: String,
     ) : ProfileIntent()
 
     data class DeclineFriendRequest(
-        val friendId: String
+        val friendId: String,
     ) : ProfileIntent()
 
     data class ViewFriend(
-        val friendId: String
+        val friendId: String,
     ) : ProfileIntent()
 
     object DismissRemoveFriendAlert : ProfileIntent()
@@ -75,8 +81,7 @@ class ProfileViewModel(
     private val getLikedArtistCountUseCase: GetLikedArtistCountUseCase,
     private val api: SzigetApiService,
     currentUserProvider: CurrentUserProvider,
-) : ViewModel()  {
-
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -157,45 +162,62 @@ class ProfileViewModel(
 
     fun onIntent(intent: ProfileIntent) {
         when (intent) {
-            ProfileIntent.AddFriend -> viewModelScope.launch {
-                _effects.emit(ProfileEffect.NavigateToAddFriend)
-            }
-            is ProfileIntent.PhotoPicked -> intent.image?.let { uploadPhoto(it) }
-            is ProfileIntent.AcceptFriendRequest -> viewModelScope.launch {
-                val userId = currentUser?.id ?: return@launch
-                try {
-                    friendRepository.acceptFriendRequest(userId, intent.friendId)
-                } catch (e: Exception) {
-                    _uiState.update { it.copy(error = "Failed to accept friend request") }
+            ProfileIntent.AddFriend -> {
+                viewModelScope.launch {
+                    _effects.emit(ProfileEffect.NavigateToAddFriend)
                 }
             }
-            is ProfileIntent.DeclineFriendRequest -> viewModelScope.launch {
-                val userId = currentUser?.id ?: return@launch
-                try {
-                    friendRepository.declineFriendRequest(userId, intent.friendId)
-                } catch (e: Exception) {
-                    _uiState.update { it.copy(error = "Failed to decline friend request") }
+
+            is ProfileIntent.PhotoPicked -> {
+                intent.image?.let { uploadPhoto(it) }
+            }
+
+            is ProfileIntent.AcceptFriendRequest -> {
+                viewModelScope.launch {
+                    val userId = currentUser?.id ?: return@launch
+                    try {
+                        friendRepository.acceptFriendRequest(userId, intent.friendId)
+                    } catch (e: Exception) {
+                        _uiState.update { it.copy(error = "Failed to accept friend request") }
+                    }
                 }
             }
+
+            is ProfileIntent.DeclineFriendRequest -> {
+                viewModelScope.launch {
+                    val userId = currentUser?.id ?: return@launch
+                    try {
+                        friendRepository.declineFriendRequest(userId, intent.friendId)
+                    } catch (e: Exception) {
+                        _uiState.update { it.copy(error = "Failed to decline friend request") }
+                    }
+                }
+            }
+
             is ProfileIntent.ViewFriend -> {
                 val friend = _uiState.value.friends.find { it.id == intent.friendId }
                 _uiState.update { it.copy(removeFriendAlert = friend) }
             }
+
             ProfileIntent.LogoutClicked -> {
                 _uiState.update { it.copy(showLogoutAlert = true) }
             }
+
             ProfileIntent.DismissLogoutAlert -> {
                 _uiState.update { it.copy(showLogoutAlert = false) }
             }
+
             ProfileIntent.ConfirmLogout -> {
                 _uiState.update { it.copy(showLogoutAlert = false) }
                 viewModelScope.launch {
                     _effects.emit(ProfileEffect.Logout)
                 }
             }
+
             ProfileIntent.DismissRemoveFriendAlert -> {
                 _uiState.update { it.copy(removeFriendAlert = null) }
             }
+
             ProfileIntent.RemoveFriendClicked -> {
                 val friend = _uiState.value.removeFriendAlert ?: return
                 _uiState.update { it.copy(removeFriendAlert = null) }

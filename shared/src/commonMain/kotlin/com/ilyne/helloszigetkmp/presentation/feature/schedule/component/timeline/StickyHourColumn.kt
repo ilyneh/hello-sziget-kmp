@@ -22,13 +22,15 @@ fun StickyHourColumn(
     totalGridHeight: Dp,
     gridMinHour: Int,
     gridMaxHour: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // Sticky hour column: only scrolls vertically (shares vertScroll with the grid),
     // never scrolls horizontally, so it stays pinned to the left edge.
-    Box(modifier = modifier
-        .background(color = MaterialTheme.colorScheme.surface)
-        .height(totalGridHeight).fillMaxWidth()
+    Box(
+        modifier = modifier
+            .background(color = MaterialTheme.colorScheme.surface)
+            .height(totalGridHeight)
+            .fillMaxWidth(),
     ) {
         for (hour in gridMinHour..gridMaxHour) {
             val y = ((hour - gridMinHour) * HOUR_HEIGHT_DP).dp

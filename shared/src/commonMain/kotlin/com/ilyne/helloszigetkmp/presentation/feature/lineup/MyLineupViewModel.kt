@@ -15,17 +15,19 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.format
 
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),
-    val status: Status = Status.Loading
+    val status: Status = Status.Loading,
 ) {
-
     sealed class Status {
         object Success : Status()
+
         object Loading : Status()
-        data class Error(val message: String?) : Status()
+
+        data class Error(
+            val message: String?,
+        ) : Status()
     }
 }
 
@@ -39,26 +41,26 @@ class MyLineupViewModel(
 
     init {
         viewModelScope.launch {
-            scheduleRepository.observeFavoriteSetTimes()
+            scheduleRepository
+                .observeFavoriteSetTimes()
                 .map { setTimes -> setTimes.groupByDay() }
                 .flowOn(backgroundDispatcher)
                 .collect { groupedByDay ->
                     _uiState.update {
                         it.copy(
                             favoritesGroupedByDay = groupedByDay,
-                            status = MyLineupUiState.Status.Success
+                            status = MyLineupUiState.Status.Success,
                         )
                     }
                 }
         }
     }
 
-    private fun List<SetTimeWithArtistStageSummary>.groupByDay(): Map<String, List<SetTimeWithArtistStageSummary>> {
-        return groupBy { setTime ->
+    private fun List<SetTimeWithArtistStageSummary>.groupByDay(): Map<String, List<SetTimeWithArtistStageSummary>> =
+        groupBy { setTime ->
             val festivalDate = setTime.startTime.toFestivalDate()
             festivalDate.formatDate()
         }
-    }
 
     fun refresh() {
         viewModelScope.launch {

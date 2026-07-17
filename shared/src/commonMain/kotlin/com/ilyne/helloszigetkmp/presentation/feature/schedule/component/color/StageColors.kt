@@ -40,7 +40,8 @@ private object StageColorAssignments {
     }
 
     private fun loadAssignments(): Map<String, Int> =
-        settings.getStringOrNull(STAGE_COLOR_ASSIGNMENTS_KEY)
+        settings
+            .getStringOrNull(STAGE_COLOR_ASSIGNMENTS_KEY)
             ?.let { Json.decodeFromString<Map<String, Int>>(it) }
             ?: emptyMap()
 

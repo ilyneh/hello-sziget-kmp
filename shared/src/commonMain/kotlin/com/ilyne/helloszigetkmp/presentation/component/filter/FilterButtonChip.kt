@@ -26,12 +26,11 @@ import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_filter_sliders
 import org.jetbrains.compose.resources.painterResource
 
-
 @Composable
 fun FilterButtonChip(
     filterCount: Int,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FilterChip(
         contentPadding = PaddingValues(horizontal = 12.dp),
@@ -53,11 +52,11 @@ fun FilterButtonChip(
         label = {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "Filters",
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
 
                 if (filterCount > 0) {
@@ -72,17 +71,17 @@ fun FilterButtonChip(
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .size(16.dp),
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
 @Composable
 private fun FilterCountLabel(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,
@@ -93,7 +92,7 @@ private fun FilterCountLabel(
             lineHeightStyle = LineHeightStyle(
                 alignment = LineHeightStyle.Alignment.Center,
                 trim = LineHeightStyle.Trim.Both,
-            )
+            ),
         ),
         modifier = modifier
             .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100.dp))

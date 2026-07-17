@@ -12,7 +12,6 @@ import hello_sziget_kmp.shared.generated.resources.ic_heart_fluid
 import hello_sziget_kmp.shared.generated.resources.ic_heart_fluid_filled
 import org.jetbrains.compose.resources.painterResource
 
-
 @Composable
 fun HeartIcon(
     enabled: Boolean,
@@ -23,7 +22,7 @@ fun HeartIcon(
         Icon(
             painter = painterResource(res),
             contentDescription = null,
-            tint = Color.Unspecified
+            tint = Color.Unspecified,
         )
     }
 }

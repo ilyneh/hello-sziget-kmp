@@ -15,13 +15,12 @@ import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import org.jetbrains.compose.resources.painterResource
 
-
 @Composable
 fun SearchTextField(
     value: String,
     placeHolderText: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -43,25 +42,25 @@ fun SearchTextField(
             unfocusedTextColor = MaterialTheme.colorScheme.primary,
             focusedTextColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = AppTheme.colors.fieldBorder,
-            focusedBorderColor = AppTheme.colors.highlightMagenta
+            focusedBorderColor = AppTheme.colors.highlightMagenta,
         ),
     )
 }
 
 @Preview
 @Composable
-fun SearchTextFieldPreview() {
+private fun SearchTextFieldPreview() {
     AppTheme {
         SearchTextField(
             value = "Skirll",
             placeHolderText = "Search friends...",
-            onValueChange = {}
+            onValueChange = {},
         )
 
         SearchTextField(
             value = "Skirll",
             placeHolderText = "Search friends...",
-            onValueChange = {}
+            onValueChange = {},
         )
     }
 }
