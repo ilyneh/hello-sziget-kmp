@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 
-
 @Entity(
     tableName = "artist_friend_favorites",
     primaryKeys = ["artistId", "friendId"],
@@ -13,21 +12,21 @@ import androidx.room.Index
             entity = ArtistEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("artistId"),
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
         ),
         ForeignKey(
             entity = UserEntity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("friendId"),
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
     indices = [
         Index(value = ["artistId"]),
-        Index(value = ["friendId"])
-    ]
+        Index(value = ["friendId"]),
+    ],
 )
 data class ArtistFriendFavoritedEntity(
     val artistId: String,
-    val friendId: String
+    val friendId: String,
 )
