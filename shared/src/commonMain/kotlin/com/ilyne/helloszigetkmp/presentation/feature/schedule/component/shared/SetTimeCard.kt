@@ -40,8 +40,8 @@ private val FAVORITE_HEART_SIZE = 16.dp
 @Composable
 fun SetTimeCard(
     setTime: ScheduleUiState.SetTime,
-    viewMode: SetTimeCardViewMode = SetTimeCardViewMode.TIMELINE,
     modifier: Modifier = Modifier,
+    viewMode: SetTimeCardViewMode = SetTimeCardViewMode.TIMELINE,
     onClick: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
 ) {

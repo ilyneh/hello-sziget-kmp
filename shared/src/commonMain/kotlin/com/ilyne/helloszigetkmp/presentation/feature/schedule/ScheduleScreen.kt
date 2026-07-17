@@ -113,7 +113,7 @@ private fun ScheduleContent(
                     filterTexts = uiState.activeFilterItemsText,
                     trailingText = if (uiState.setTimes.isNotEmpty()) "${uiState.setTimes.size} Sets" else null,
                 ),
-                onFilterButtonClicked = onFilterButtonClicked,
+                onFilterButtonClick = onFilterButtonClicked,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 backgroundColor = MaterialTheme.colorScheme.surface
             )

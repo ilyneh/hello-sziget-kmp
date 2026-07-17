@@ -29,9 +29,10 @@ fun DaySelector(
     days: List<SetTimeDay>,
     selected: SetTimeDay?,
     onDaySelect: (SetTimeDay) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp),

@@ -17,4 +17,4 @@ const val MAX_PROFILE_IMAGE_BYTES: Long = 10L * 1024 * 1024
 // Both run out-of-process and grant access only to the picked item, so no runtime permission
 // is required. Returns a launcher; onPicked is called with null if the user cancels.
 @Composable
-expect fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> Unit
+expect fun rememberProfileImagePicker(onPickImage: (DeviceImage?) -> Unit): () -> Unit

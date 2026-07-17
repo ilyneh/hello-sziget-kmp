@@ -27,9 +27,9 @@ private suspend fun pickProfileImage(): DeviceImage? {
 }
 
 @Composable
-actual fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> Unit {
+actual fun rememberProfileImagePicker(onPickImage: (DeviceImage?) -> Unit): () -> Unit {
     val scope = rememberCoroutineScope()
-    val currentOnPicked by rememberUpdatedState(onPicked)
+    val currentOnPicked by rememberUpdatedState(onPickImage)
 
     return {
         scope.launch {

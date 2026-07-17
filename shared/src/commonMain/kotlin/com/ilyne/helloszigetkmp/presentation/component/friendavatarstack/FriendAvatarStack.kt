@@ -53,8 +53,8 @@ private fun avatarColorFor(friend: FriendAvatarStackData): Color =
 @Composable
 fun FriendAvatarStack(
     friends: List<FriendAvatarStackData>,
-    maxNumAvatars: Int = 2,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxNumAvatars: Int = 2
 ) {
 
     Row(
@@ -102,8 +102,8 @@ fun FriendAvatarRow(
 @Composable
 private fun FriendAvatar(
     friend: FriendAvatarStackData,
-    avatarColor: Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier,
+    avatarColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     Avatar(
         text = friend.name.firstOrNull()?.uppercase() ?: "-",
@@ -116,10 +116,10 @@ private fun FriendAvatar(
 @Composable
 private fun Avatar(
     text: String,
+    modifier: Modifier = Modifier,
     imageUrl: String? = null,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     avatarColor: Color = MaterialTheme.colorScheme.primary,
-    modifier: Modifier = Modifier,
 ) {
     InitialsAvatar(
         imageUrl = imageUrl,

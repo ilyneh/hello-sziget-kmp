@@ -34,7 +34,7 @@ fun ScheduleFilterScreen(
     initialFilter: ScheduleFilter,
     onSave: (ScheduleFilter) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val viewModel = koinViewModel<ScheduleFilterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

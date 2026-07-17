@@ -29,9 +29,10 @@ import org.jetbrains.compose.resources.painterResource
 fun ViewModeToggle(
     current: ViewMode,
     onChange: (ViewMode) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(9.dp))
             .background(AppTheme.colors.navy)
             .border(width = 2.dp, color = AppTheme.colors.highlightMagenta, shape = RoundedCornerShape(9.dp))

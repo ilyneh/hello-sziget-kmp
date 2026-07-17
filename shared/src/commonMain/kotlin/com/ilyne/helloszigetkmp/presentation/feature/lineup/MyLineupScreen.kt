@@ -54,7 +54,6 @@ fun MyLineupScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             uiState = uiState,
             viewModel = viewModel,
             onArtistClick = onArtistClick,
-            modifier = modifier
         )
     }
 }

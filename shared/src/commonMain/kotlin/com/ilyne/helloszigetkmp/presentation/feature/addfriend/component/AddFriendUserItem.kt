@@ -57,8 +57,8 @@ fun AddFriendUserItem(
 fun AddFriendUserItemActionButton(
     text: String,
     onClick: () -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     ActionButton(
         onClick = onClick,

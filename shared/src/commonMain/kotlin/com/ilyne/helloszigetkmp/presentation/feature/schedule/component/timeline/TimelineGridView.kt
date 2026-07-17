@@ -55,6 +55,7 @@ fun TimelineGridView(
     stages: List<Stage>,
     gridMinHour: Int,
     gridMaxHour: Int,
+    modifier: Modifier = Modifier,
     onArtistClick: (String) -> Unit = {},
     onToggleFavorite: (artistId: String?, current: Boolean) -> Unit = { _, _ -> },
 ) {
@@ -62,7 +63,7 @@ fun TimelineGridView(
     val horizScroll = rememberScrollState()
 
     if (setTimes.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
@@ -92,7 +93,7 @@ fun TimelineGridView(
 
     val totalGridHeight = ((gridMaxHour - gridMinHour) * HOUR_HEIGHT_DP).dp + LocalBottomBarPadding.current
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         // Columns stretch evenly to fill the available width when there are few stages,
         // but fall back to a fixed minimum (and let the row scroll) once that would
         // squeeze columns narrower than is readable.

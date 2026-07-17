@@ -34,13 +34,14 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 fun ArtistCard(
     artist: Artist,
     onFavoriteToggle: () -> Unit,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
     val coral = AppTheme.colors.coral
     val gradientEnd = MaterialTheme.colorScheme.primary
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(0.8f)
     ) {

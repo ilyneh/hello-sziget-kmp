@@ -45,6 +45,7 @@ fun SwimLaneView(
     stages: List<Stage>,
     gridMinHour: Int,
     gridMaxHour: Int,
+    modifier: Modifier = Modifier,
     onArtistClick: (String) -> Unit = {},
     onToggleFavorite: (artistId: String?, current: Boolean) -> Unit = { _, _ -> },
 ) {
@@ -52,13 +53,13 @@ fun SwimLaneView(
     val vertListState = rememberLazyListState()
 
     if (setTimes.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         // Time axis header
         Row(modifier = Modifier.horizontalScroll(horizScroll)) {
             Spacer(modifier = Modifier.width(80.dp))

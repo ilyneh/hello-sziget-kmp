@@ -35,8 +35,7 @@ fun AddFriendScreen(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         AddFriendContent(
             uiState = uiState,
-            onDismiss = onDismiss,
-            onSearchQueryChanged = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
+            onSearchQueryChange = { viewModel.onIntent(AddFriendIntent.SearchQueryChanged(query = it)) },
             onAdd = { viewModel.onIntent(AddFriendIntent.SendFriendRequest(it)) },
             onAccept = { viewModel.onIntent(AddFriendIntent.AcceptFriendRequest(it)) },
         )
@@ -46,8 +45,7 @@ fun AddFriendScreen(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun AddFriendContent(
     uiState: AddFriendUiState,
-    onDismiss: () -> Unit,
-    onSearchQueryChanged: (String) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
     onAdd: (String) -> Unit,
     onAccept: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -68,7 +66,7 @@ private fun AddFriendContent(
                 SearchTextField(
                     value = uiState.searchQuery,
                     placeHolderText = "Search users...",
-                    onValueChange = onSearchQueryChanged,
+                    onValueChange = onSearchQueryChange,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
@@ -116,8 +114,7 @@ fun AddFriendScreenPreview() {
     AppTheme {
         AddFriendContent(
             uiState = AddFriendUiState(),
-            onDismiss = {},
-            onSearchQueryChanged = {},
+            onSearchQueryChange = {},
             onAdd = {},
             onAccept = {},
         )

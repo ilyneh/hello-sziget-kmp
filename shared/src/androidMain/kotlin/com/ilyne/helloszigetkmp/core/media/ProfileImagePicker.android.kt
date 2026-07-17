@@ -12,21 +12,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
-import java.io.ByteArrayOutputStream
-import java.io.File
-import kotlin.math.sqrt
+import androidx.core.graphics.scale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.graphics.scale
+import java.io.ByteArrayOutputStream
+import java.io.File
+import kotlin.math.sqrt
 
-private data class RawImage(val bytes: ByteArray, val contentType: String)
+private data class RawImage(
+    val bytes: ByteArray,
+    val contentType: String,
+)
 
 @Composable
-actual fun rememberProfileImagePicker(onPicked: (DeviceImage?) -> Unit): () -> Unit {
+actual fun rememberProfileImagePicker(onPickImage: (DeviceImage?) -> Unit): () -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val currentOnPicked by rememberUpdatedState(onPicked)
+    val currentOnPicked by rememberUpdatedState(onPickImage)
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -60,7 +63,7 @@ private fun RawImage.downscaledIfNeeded(): RawImage {
     val scale = sqrt(MAX_PROFILE_IMAGE_BYTES.toDouble() / bytes.size.toDouble()).coerceAtMost(1.0)
     val scaled = original.scale(
         width = (original.width * scale).toInt().coerceAtLeast(1),
-        height = (original.height * scale).toInt().coerceAtLeast(1)
+        height = (original.height * scale).toInt().coerceAtLeast(1),
     )
 
     var quality = 90

@@ -7,10 +7,12 @@ import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 
-
 fun formatTime(epochMillis: Long): String = epochMillis.toLocalDateTime().formatTime()
 
-fun formatDayAndTime(startTimeMillis: Long, endTimeMillis: Long): String {
+fun formatDayAndTime(
+    startTimeMillis: Long,
+    endTimeMillis: Long,
+): String {
     val startTime = startTimeMillis.toLocalDateTime()
     val endTime = endTimeMillis.toLocalDateTime()
     val dayFormat = LocalDateTime.Format {
@@ -18,7 +20,6 @@ fun formatDayAndTime(startTimeMillis: Long, endTimeMillis: Long): String {
     }
     return "${startTime.format(dayFormat)}, ${startTime.formatTime()} - ${endTime.formatTime()}"
 }
-
 
 fun LocalDateTime.formatTime(): String {
     val timeFormat = LocalDateTime.Format {

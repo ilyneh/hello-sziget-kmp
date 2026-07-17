@@ -22,6 +22,7 @@ fun RowScope.NamedAvatarRow(
     avatarText: String,
     imageUrl: String?,
     name: String,
+    modifier: Modifier = Modifier,
     trailing: @Composable RowScope.() -> Unit,
 ) {
     ProfileAvatar(

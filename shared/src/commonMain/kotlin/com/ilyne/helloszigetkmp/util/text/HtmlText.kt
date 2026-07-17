@@ -41,8 +41,11 @@ fun String.htmlToAnnotatedString(): AnnotatedString {
 
                 when (tagName) {
                     "p", "div" -> {
-                        if (isClosing) pendingBlockBreak = true
-                        else appendPendingBreak()
+                        if (isClosing) {
+                            pendingBlockBreak = true
+                        } else {
+                            appendPendingBreak()
+                        }
                     }
 
                     "br" -> {
@@ -87,7 +90,7 @@ fun String.htmlToAnnotatedString(): AnnotatedString {
                             pushStyle(
                                 SpanStyle(
                                     textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
-                                )
+                                ),
                             )
                         } else {
                             pop()
@@ -120,23 +123,35 @@ fun String.htmlToAnnotatedString(): AnnotatedString {
                 appendPendingBreak()
                 when {
                     html.startsWith("&amp;", i) -> {
-                        append("&"); i += 5
+                        append("&")
+                        i += 5
                     }
+
                     html.startsWith("&lt;", i) -> {
-                        append("<"); i += 4
+                        append("<")
+                        i += 4
                     }
+
                     html.startsWith("&gt;", i) -> {
-                        append(">"); i += 4
+                        append(">")
+                        i += 4
                     }
+
                     html.startsWith("&quot;", i) -> {
-                        append("\""); i += 6
+                        append("\"")
+                        i += 6
                     }
+
                     html.startsWith("&#39;", i) || html.startsWith("&apos;", i) -> {
-                        append("'"); i += if (html.startsWith("&#39;", i)) 5 else 6
+                        append("'")
+                        i += if (html.startsWith("&#39;", i)) 5 else 6
                     }
+
                     html.startsWith("&nbsp;", i) -> {
-                        append(" "); i += 6
+                        append(" ")
+                        i += 6
                     }
+
                     else -> {
                         append(char)
                         i++

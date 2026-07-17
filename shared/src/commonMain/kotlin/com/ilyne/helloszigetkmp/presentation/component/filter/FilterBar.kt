@@ -30,7 +30,7 @@ data class FilterBarData(
 @Composable
 fun FilterBar(
     data: FilterBarData,
-    onFilterButtonClicked: () -> Unit,
+    onFilterButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = AppTheme.colors.navy
 ) {
@@ -45,7 +45,7 @@ fun FilterBar(
     ) {
         FilterButtonChip(
             filterCount = data.filterCount,
-            onClick = onFilterButtonClicked
+            onClick = onFilterButtonClick
         )
 
         if (data.trailingText != null) {
@@ -81,7 +81,7 @@ private fun FilterBarPreview() {
                     "Hip-Hop",
                 )
             ),
-            onFilterButtonClicked = {},
+            onFilterButtonClick = {},
         )
     }
 }
@@ -100,7 +100,7 @@ private fun FilterBarWithTrailingTextPreview() {
                     "Hip-Hop",
                 )
             ),
-            onFilterButtonClicked = {},
+            onFilterButtonClick = {},
         )
     }
 }

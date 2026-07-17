@@ -53,7 +53,6 @@ fun DiscoverScreen(modifier: Modifier = Modifier, onArtistClick: (String) -> Uni
             uiState = uiState,
             viewModel = viewModel,
             onArtistClick = onArtistClick,
-            modifier = modifier
         )
     }
 
@@ -92,7 +91,7 @@ private fun DiscoverScreenContent(
                 filterCount = uiState.filterCount,
                 filterTexts = uiState.filterTexts,
             ),
-            onFilterButtonClicked = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
+            onFilterButtonClick = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
