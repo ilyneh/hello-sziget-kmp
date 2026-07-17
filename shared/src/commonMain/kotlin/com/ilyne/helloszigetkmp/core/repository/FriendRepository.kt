@@ -115,8 +115,7 @@ class FriendRepository(
         runCatching { friendDao.upsertFriendship(entity) }
             .onFailure { e ->
                 Logger.e("FriendRepository", "upsertFriendshipTolerantly(): failed to cache ${entity.friendId} locally", e)
-            }
-            .isSuccess
+            }.isSuccess
 
     fun observeFriends(): Flow<List<User>> = friendDao.observeFriends().map { entities -> entities.map { it.toDomain() } }
 

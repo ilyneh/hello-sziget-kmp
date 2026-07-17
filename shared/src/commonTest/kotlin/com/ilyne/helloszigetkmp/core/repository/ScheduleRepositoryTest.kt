@@ -27,7 +27,6 @@ import kotlin.test.assertEquals
  * from their respective DAOs and manually joins them by id into domain [SetTime]/[Stage] objects.
  */
 class ScheduleRepositoryTest {
-
     private val stage1 = StageEntity(id = "stage-1", name = "Main Stage", description = "Big stage")
     private val stage2 = StageEntity(id = "stage-2", name = "A38", description = null)
 
@@ -202,11 +201,9 @@ class ScheduleRepositoryTest {
             override fun observeByDay(
                 dayStartMillis: Long,
                 dayEndMillis: Long,
-            ): Flow<List<SetTimeEntity>> =
-                flowOf(setTimes.filter { it.startTime >= dayStartMillis && it.startTime < dayEndMillis })
+            ): Flow<List<SetTimeEntity>> = flowOf(setTimes.filter { it.startTime >= dayStartMillis && it.startTime < dayEndMillis })
 
-            override fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>> =
-                flowOf(setTimes.filter { it.artistId == artistId })
+            override fun observeByArtist(artistId: String): Flow<List<SetTimeEntity>> = flowOf(setTimes.filter { it.artistId == artistId })
 
             override suspend fun upsertAll(setTimes: List<SetTimeEntity>) {}
 
