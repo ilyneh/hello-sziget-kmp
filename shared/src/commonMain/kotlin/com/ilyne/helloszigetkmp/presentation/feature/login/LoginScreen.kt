@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.login
+package com.ilyne.helloszigetkmp.presentation.feature.login
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -7,10 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ilyne.helloszigetkmp.presentation.feature.login.LoginEffect
-import com.ilyne.helloszigetkmp.presentation.feature.login.LoginViewModel
-import com.ilyne.helloszigetkmp.presentation.login.components.SignInCard
-import com.ilyne.helloszigetkmp.presentation.login.components.WelcomeBackground
+import com.ilyne.helloszigetkmp.presentation.feature.login.component.SignInCard
+import com.ilyne.helloszigetkmp.presentation.feature.login.component.WelcomeBackground
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

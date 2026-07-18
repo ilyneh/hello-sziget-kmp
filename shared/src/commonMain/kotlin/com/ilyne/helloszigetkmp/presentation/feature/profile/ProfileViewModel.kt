@@ -153,6 +153,7 @@ class ProfileViewModel(
                 )
                 _uiState.update { it.copy(isUploadingImage = false, imageUrl = user.imageUrl) }
             } catch (e: Exception) {
+                Logger.e("ProfileViewModel", "Failed to upload photo", e)
                 _uiState.update {
                     it.copy(isUploadingImage = false, pendingImageUrl = null, error = "Failed to upload photo")
                 }
@@ -178,6 +179,7 @@ class ProfileViewModel(
                     try {
                         friendRepository.acceptFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
+                        Logger.e("ProfileViewModel", "Failed to accept friend request", e)
                         _uiState.update { it.copy(error = "Failed to accept friend request") }
                     }
                 }
@@ -189,6 +191,7 @@ class ProfileViewModel(
                     try {
                         friendRepository.declineFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
+                        Logger.e("ProfileViewModel", "Failed to decline friend request", e)
                         _uiState.update { it.copy(error = "Failed to decline friend request") }
                     }
                 }
@@ -226,6 +229,7 @@ class ProfileViewModel(
                     try {
                         friendRepository.removeFriend(userId, friend.id)
                     } catch (e: Exception) {
+                        Logger.e("ProfileViewModel", "Failed to remove friend", e)
                         _uiState.update { it.copy(error = "Failed to remove friend") }
                     }
                 }

@@ -28,7 +28,7 @@ fun RowScope.NamedAvatarRow(
     ProfileAvatar(
         avatarText = avatarText,
         imageUrl = imageUrl,
-        modifier = Modifier.width(48.dp).height(48.dp),
+        modifier = modifier.width(48.dp).height(48.dp),
     )
     Spacer(modifier = Modifier.width(12.dp))
     Text(

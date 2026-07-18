@@ -2,7 +2,7 @@ package com.ilyne.helloszigetkmp.core.config
 
 const val BASE_URL_DEV = "https://hello-sziget-127130301586.us-east1.run.app/api/v1"
 
-// TODO: Set the real production Cloud Run URL before shipping a release build.
+// NOTE: placeholder pending the real production Cloud Run URL - must be set before shipping.
 // No production backend URL was discoverable in the repo/docs at the time this
 // dev/release split was wired up (only the dev Cloud Run URL above exists).
 // This placeholder MUST be replaced before a release build is distributed.

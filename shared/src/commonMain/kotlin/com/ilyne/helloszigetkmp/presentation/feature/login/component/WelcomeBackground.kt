@@ -1,4 +1,4 @@
-package com.ilyne.helloszigetkmp.presentation.login.components
+package com.ilyne.helloszigetkmp.presentation.feature.login.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
