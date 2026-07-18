@@ -7,6 +7,7 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.passesGenreFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
+import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -110,6 +111,7 @@ class DiscoverViewModel(
                 )
             } catch (e: Exception) {
                 // silently fail here, do not disrupt the view with error screen
+                Logger.e("DiscoverViewModel", "Failed to toggle favorite for $artistId", e)
             }
         }
     }

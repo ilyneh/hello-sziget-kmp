@@ -17,9 +17,9 @@ import androidx.savedstate.write
 import com.ilyne.helloszigetkmp.presentation.feature.MainScaffold
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.AddFriendScreen
 import com.ilyne.helloszigetkmp.presentation.feature.artistdetail.ArtistDetailScreen
+import com.ilyne.helloszigetkmp.presentation.feature.login.LoginScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterScreen
-import com.ilyne.helloszigetkmp.presentation.login.LoginScreen
 import io.ktor.http.decodeURLPart
 import io.ktor.http.encodeURLParameter
 import kotlinx.serialization.Serializable

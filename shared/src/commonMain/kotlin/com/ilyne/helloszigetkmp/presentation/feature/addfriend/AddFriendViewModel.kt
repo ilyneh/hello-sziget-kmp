@@ -91,6 +91,7 @@ class AddFriendViewModel(
                         _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
                         refreshFriendsFavoritedInBackground()
                     } catch (e: Exception) {
+                        Logger.e("AddFriendViewModel", "Failed to send friend request", e)
                         _uiState.update {
                             it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
                         }
@@ -106,6 +107,7 @@ class AddFriendViewModel(
                         _uiState.update { it.copy(status = AddFriendUiState.Status.Idle) }
                         refreshFriendsFavoritedInBackground()
                     } catch (e: Exception) {
+                        Logger.e("AddFriendViewModel", "Failed to accept friend request", e)
                         _uiState.update {
                             it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
                         }

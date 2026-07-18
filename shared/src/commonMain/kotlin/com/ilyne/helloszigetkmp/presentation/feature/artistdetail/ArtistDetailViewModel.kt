@@ -8,6 +8,7 @@ import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -85,6 +86,7 @@ class ArtistDetailViewModel(
                 artistRepository.toggleFavorite(artist.id, !artist.isFavorited)
             } catch (e: Exception) {
                 // silently fail here, do not disrupt the view with error screen
+                Logger.e("ArtistDetailViewModel", "Failed to toggle favorite for ${artist.id}", e)
             }
         }
     }

@@ -11,6 +11,7 @@ import com.ilyne.helloszigetkmp.core.repository.SoftRefreshGate
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
+import com.ilyne.helloszigetkmp.util.Logger
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,7 @@ class SzigetAuthService(
                 } catch (e: Exception) {
                     // Best-effort: the token is already cleared locally, so a failed revoke just
                     // means it stays valid server-side until it naturally expires.
+                    Logger.e("SzigetAuthService", "Background server-side logout failed", e)
                 }
             }
         }
@@ -119,12 +121,13 @@ class SzigetAuthService(
         loadAuthenticatedModules(tokenFromStorage)
 
         val user = userRepository.getCurrentUser()
-        if (user == null) {
+        return if (user == null) {
             invalidateSession()
-            return false
+            false
+        } else {
+            currentUserProvider.set(user)
+            true
         }
-        currentUserProvider.set(user)
-        return true
     }
 
     suspend fun invalidateSession() {

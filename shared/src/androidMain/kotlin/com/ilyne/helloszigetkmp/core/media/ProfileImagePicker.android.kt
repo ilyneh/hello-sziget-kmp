@@ -57,23 +57,27 @@ actual fun rememberProfileImagePicker(onPickImage: (DeviceImage?) -> Unit): () -
 }
 
 private fun RawImage.downscaledIfNeeded(): RawImage {
-    if (bytes.size <= MAX_PROFILE_IMAGE_BYTES) return this
+    if (bytes.size > MAX_PROFILE_IMAGE_BYTES) {
+        val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        if (original != null) {
+            val scale = sqrt(MAX_PROFILE_IMAGE_BYTES.toDouble() / bytes.size.toDouble()).coerceAtMost(1.0)
+            val scaled = original.scale(
+                width = (original.width * scale).toInt().coerceAtLeast(1),
+                height = (original.height * scale).toInt().coerceAtLeast(1),
+            )
 
-    val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return this
-    val scale = sqrt(MAX_PROFILE_IMAGE_BYTES.toDouble() / bytes.size.toDouble()).coerceAtMost(1.0)
-    val scaled = original.scale(
-        width = (original.width * scale).toInt().coerceAtLeast(1),
-        height = (original.height * scale).toInt().coerceAtLeast(1),
-    )
+            var quality = 90
+            var output = scaled.toJpegBytes(quality)
+            while (output.size > MAX_PROFILE_IMAGE_BYTES && quality > 10) {
+                quality -= 10
+                output = scaled.toJpegBytes(quality)
+            }
 
-    var quality = 90
-    var output = scaled.toJpegBytes(quality)
-    while (output.size > MAX_PROFILE_IMAGE_BYTES && quality > 10) {
-        quality -= 10
-        output = scaled.toJpegBytes(quality)
+            return RawImage(bytes = output, contentType = "image/jpeg")
+        }
     }
 
-    return RawImage(bytes = output, contentType = "image/jpeg")
+    return this
 }
 
 private fun Bitmap.toJpegBytes(quality: Int): ByteArray =

@@ -89,7 +89,7 @@ fun createApiHttpClient(
                 refreshTokens {
                     val refreshTokenInfo: TokenDto = try {
                         val refreshToken = oldTokens?.refreshToken
-                            ?: throw IllegalStateException("Attempting to refresh token without a refresh token.")
+                            ?: error("Attempting to refresh token without a refresh token.")
 
                         client
                             .post(urlString = "$baseUrl/auth/refresh") {
@@ -99,6 +99,7 @@ fun createApiHttpClient(
                                 setBody(Json.encodeToString(value = refreshTokenRequestData))
                             }.body()
                     } catch (e: Exception) {
+                        AppLogger.e(HTTP_LOG_TAG, "Token refresh failed", e)
                         onSessionInvalidated()
                         return@refreshTokens null
                     }
