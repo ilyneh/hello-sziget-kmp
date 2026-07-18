@@ -15,6 +15,11 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.ilyne.helloszigetkmp.util.Logger
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.schedule_error_load_day
+import hello_sziget_kmp.shared.generated.resources.schedule_error_load_days
+import hello_sziget_kmp.shared.generated.resources.schedule_error_refresh
+import hello_sziget_kmp.shared.generated.resources.schedule_error_update_favorite
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +34,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 enum class ViewMode {
     GRID,
@@ -155,7 +161,7 @@ class ScheduleViewModel(
                 // while) the message can carry a raw backend HTTP response body, which isn't
                 // meant for end users, instead of user-facing copy.
                 Logger.e(TAG, "refreshData(): failed to refresh schedule", e)
-                val message = "Couldn't refresh the schedule. Pull to refresh to try again."
+                val message = getString(Res.string.schedule_error_refresh)
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
@@ -186,7 +192,7 @@ class ScheduleViewModel(
                         artistRepository.toggleFavorite(intent.artistId, isFavorited = !intent.current)
                     } catch (e: Exception) {
                         Logger.e(TAG, "onIntent(): failed to toggle favorite", e)
-                        val message = "Couldn't update favorite. Please try again."
+                        val message = getString(Res.string.schedule_error_update_favorite)
                         _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
                     }
                 }
@@ -254,7 +260,7 @@ class ScheduleViewModel(
                     }
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSelectedDay(): failed to load schedule for the selected day", e)
-                val message = "Couldn't load the schedule for this day."
+                val message = getString(Res.string.schedule_error_load_day)
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }
@@ -295,7 +301,7 @@ class ScheduleViewModel(
                     }
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSetTimeDays(): failed to load festival days", e)
-                val message = "Couldn't load festival days."
+                val message = getString(Res.string.schedule_error_load_days)
                 _uiState.update { it.copy(status = ScheduleUiState.Status.Error(message)) }
             }
         }

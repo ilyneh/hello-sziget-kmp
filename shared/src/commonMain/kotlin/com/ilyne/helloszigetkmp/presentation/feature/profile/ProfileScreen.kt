@@ -48,7 +48,19 @@ import com.ilyne.helloszigetkmp.util.text.initials
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_logout
 import hello_sziget_kmp.shared.generated.resources.ic_person_add
+import hello_sziget_kmp.shared.generated.resources.profile_days
+import hello_sziget_kmp.shared.generated.resources.profile_friends
+import hello_sziget_kmp.shared.generated.resources.profile_hearted
+import hello_sziget_kmp.shared.generated.resources.profile_log_out_confirm
+import hello_sziget_kmp.shared.generated.resources.profile_log_out_content_description
+import hello_sziget_kmp.shared.generated.resources.profile_log_out_message
+import hello_sziget_kmp.shared.generated.resources.profile_log_out_title
+import hello_sziget_kmp.shared.generated.resources.profile_no_friends
+import hello_sziget_kmp.shared.generated.resources.profile_remove_friend_confirm
+import hello_sziget_kmp.shared.generated.resources.profile_remove_friend_message
+import hello_sziget_kmp.shared.generated.resources.profile_title
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -94,14 +106,14 @@ fun ProfileScreen(
                 .background(color = MaterialTheme.colorScheme.background),
         ) {
             MainHeader(
-                text = "Profile",
+                text = stringResource(Res.string.profile_title),
                 trailingContent = {
                     IconButton(
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
-                            contentDescription = "Log out",
+                            contentDescription = stringResource(Res.string.profile_log_out_content_description),
                             tint = AppTheme.colors.highlightYellow,
                         )
                     }
@@ -126,9 +138,9 @@ fun ProfileScreen(
                 ProfileEngagementCountCard(
                     modifier = Modifier.fillMaxWidth(),
                     items = listOf(
-                        ProfileEngagementCountItemState(uiState.likedArtistCount, "Hearted"),
-                        ProfileEngagementCountItemState(uiState.friends.size, "Friends"),
-                        ProfileEngagementCountItemState(6, "Days"),
+                        ProfileEngagementCountItemState(uiState.likedArtistCount, stringResource(Res.string.profile_hearted)),
+                        ProfileEngagementCountItemState(uiState.friends.size, stringResource(Res.string.profile_friends)),
+                        ProfileEngagementCountItemState(6, stringResource(Res.string.profile_days)),
                     ),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -138,7 +150,7 @@ fun ProfileScreen(
                 ) {
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "Friends",
+                        text = stringResource(Res.string.profile_friends),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
                     )
@@ -158,7 +170,7 @@ fun ProfileScreen(
                 if (uiState.friends.isEmpty() && uiState.friendRequests.isEmpty()) {
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                        text = "No friends",
+                        text = stringResource(Res.string.profile_no_friends),
                         textAlign = TextAlign.Center,
                         color = AppTheme.colors.navy,
                     )
@@ -193,8 +205,8 @@ fun ProfileScreen(
     uiState.removeFriendAlert?.let { friend ->
         ConfirmationDialog(
             title = friend.name,
-            message = "Remove ${friend.name} as a friend?",
-            confirmText = "Remove friend",
+            message = stringResource(Res.string.profile_remove_friend_message, friend.name),
+            confirmText = stringResource(Res.string.profile_remove_friend_confirm),
             onConfirm = { viewModel.onIntent(ProfileIntent.RemoveFriendClicked) },
             onDismiss = { viewModel.onIntent(ProfileIntent.DismissRemoveFriendAlert) },
         )
@@ -202,9 +214,9 @@ fun ProfileScreen(
 
     if (uiState.showLogoutAlert) {
         ConfirmationDialog(
-            title = "Log out?",
-            message = "Are you sure you want to log out?",
-            confirmText = "Log out",
+            title = stringResource(Res.string.profile_log_out_title),
+            message = stringResource(Res.string.profile_log_out_message),
+            confirmText = stringResource(Res.string.profile_log_out_confirm),
             onConfirm = { viewModel.onIntent(ProfileIntent.ConfirmLogout) },
             onDismiss = { viewModel.onIntent(ProfileIntent.DismissLogoutAlert) },
         )

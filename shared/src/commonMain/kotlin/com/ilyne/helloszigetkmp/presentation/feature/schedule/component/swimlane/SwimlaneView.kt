@@ -35,6 +35,9 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEI
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCardViewMode
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.schedule_no_sets_scheduled
+import org.jetbrains.compose.resources.stringResource
 
 // ── Swimlane View (Y = stage rows, X = time axis) ────────────────────────────
 
@@ -53,7 +56,7 @@ fun SwimLaneView(
 
     if (setTimes.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(Res.string.schedule_no_sets_scheduled), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
     }

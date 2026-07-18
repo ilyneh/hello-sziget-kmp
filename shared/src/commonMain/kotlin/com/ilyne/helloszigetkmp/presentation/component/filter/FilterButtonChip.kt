@@ -23,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_filters
+import hello_sziget_kmp.shared.generated.resources.filter_chip_content_description
 import hello_sziget_kmp.shared.generated.resources.ic_filter_sliders
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FilterButtonChip(
@@ -55,7 +58,7 @@ fun FilterButtonChip(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Filters",
+                    text = stringResource(Res.string.common_filters),
                     fontWeight = FontWeight.SemiBold,
                 )
 
@@ -67,7 +70,7 @@ fun FilterButtonChip(
         leadingIcon = {
             Icon(
                 painter = painterResource(Res.drawable.ic_filter_sliders),
-                contentDescription = "Filter Chip",
+                contentDescription = stringResource(Res.string.filter_chip_content_description),
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .size(16.dp),

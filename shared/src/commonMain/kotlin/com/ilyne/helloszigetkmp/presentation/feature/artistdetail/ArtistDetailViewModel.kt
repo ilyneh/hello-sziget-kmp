@@ -9,11 +9,14 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.artist_detail_load_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.time.Clock
 
 data class ArtistDetailUiState(
@@ -73,7 +76,7 @@ class ArtistDetailViewModel(
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(status = ArtistDetailUiState.Status.Error(e.message ?: "Failed to load artist"))
+                    it.copy(status = ArtistDetailUiState.Status.Error(e.message ?: getString(Res.string.artist_detail_load_error)))
                 }
             }
         }

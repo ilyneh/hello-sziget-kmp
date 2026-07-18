@@ -52,12 +52,21 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleScreen
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.discover_title
 import hello_sziget_kmp.shared.generated.resources.ic_discover
 import hello_sziget_kmp.shared.generated.resources.ic_heart_outline
 import hello_sziget_kmp.shared.generated.resources.ic_person
 import hello_sziget_kmp.shared.generated.resources.ic_schedule
+import hello_sziget_kmp.shared.generated.resources.lineup_title
+import hello_sziget_kmp.shared.generated.resources.main_nav_discover_tab_content_description
+import hello_sziget_kmp.shared.generated.resources.main_nav_lineup_tab_content_description
+import hello_sziget_kmp.shared.generated.resources.main_nav_profile_tab_content_description
+import hello_sziget_kmp.shared.generated.resources.main_nav_schedule_tab_content_description
+import hello_sziget_kmp.shared.generated.resources.profile_title
+import hello_sziget_kmp.shared.generated.resources.schedule_title
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 val LocalBottomBarPadding = staticCompositionLocalOf { 0.dp }
 
@@ -96,10 +105,10 @@ fun MainScaffold(
     var bottomBarHeight by remember { mutableStateOf(0.dp) }
 
     val tabs = listOf(
-        BottomTab("Schedule", ScheduleTab),
-        BottomTab("Discover", DiscoverTab),
-        BottomTab("My Lineup", LineupTab),
-        BottomTab("Profile", ProfileTab),
+        BottomTab(stringResource(Res.string.schedule_title), ScheduleTab),
+        BottomTab(stringResource(Res.string.discover_title), DiscoverTab),
+        BottomTab(stringResource(Res.string.lineup_title), LineupTab),
+        BottomTab(stringResource(Res.string.profile_title), ProfileTab),
     )
 
     fun navigateToTab(route: Any) {
@@ -118,25 +127,25 @@ fun MainScaffold(
         tabs[0] to {
             Icon(
                 painter = painterResource(Res.drawable.ic_schedule),
-                contentDescription = "Schedule_Tab",
+                contentDescription = stringResource(Res.string.main_nav_schedule_tab_content_description),
             )
         },
         tabs[1] to {
             Icon(
                 painter = painterResource(Res.drawable.ic_discover),
-                contentDescription = "Discover_Tab",
+                contentDescription = stringResource(Res.string.main_nav_discover_tab_content_description),
             )
         },
         tabs[2] to {
             Icon(
                 painter = painterResource(Res.drawable.ic_heart_outline),
-                contentDescription = "My_Lineup_Tab",
+                contentDescription = stringResource(Res.string.main_nav_lineup_tab_content_description),
             )
         },
         tabs[3] to {
             Icon(
                 painter = painterResource(Res.drawable.ic_person),
-                contentDescription = "Profile_Tab",
+                contentDescription = stringResource(Res.string.main_nav_profile_tab_content_description),
             )
         },
     )

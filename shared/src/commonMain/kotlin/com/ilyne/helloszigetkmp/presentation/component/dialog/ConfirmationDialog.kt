@@ -7,6 +7,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_cancel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Reusable destructive-action confirmation dialog: a title, a message, a destructive
@@ -20,7 +23,7 @@ fun ConfirmationDialog(
     confirmText: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    dismissText: String = "Cancel",
+    dismissText: String = stringResource(Res.string.common_cancel),
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,

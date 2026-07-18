@@ -12,6 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionButton
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_retry
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Centered error message for the common "screen failed to load" state.
@@ -25,7 +28,7 @@ fun ErrorState(
     message: String,
     modifier: Modifier = Modifier.fillMaxSize(),
     onRetry: (() -> Unit)? = null,
-    retryLabel: String = "Retry",
+    retryLabel: String = stringResource(Res.string.common_retry),
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (onRetry != null) {

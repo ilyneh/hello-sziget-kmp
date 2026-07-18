@@ -24,6 +24,11 @@ import com.ilyne.helloszigetkmp.presentation.component.performancetype.GenreChec
 import com.ilyne.helloszigetkmp.presentation.component.performancetype.PerformanceTypeSection
 import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_filters
+import hello_sziget_kmp.shared.generated.resources.common_performance_types
+import hello_sziget_kmp.shared.generated.resources.common_save
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -74,8 +79,8 @@ private fun DiscoverFilterContent(
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        ModalHeader(text = "Filters")
-        SubHeader2(text = "Performance Types")
+        ModalHeader(text = stringResource(Res.string.common_filters))
+        SubHeader2(text = stringResource(Res.string.common_performance_types))
 
         uiState.performanceTypes.forEach { performanceType ->
             PerformanceTypeSection(
@@ -94,7 +99,7 @@ private fun DiscoverFilterContent(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
             Text(
-                text = "Save",
+                text = stringResource(Res.string.common_save),
                 fontWeight = FontWeight.Bold,
             )
         }

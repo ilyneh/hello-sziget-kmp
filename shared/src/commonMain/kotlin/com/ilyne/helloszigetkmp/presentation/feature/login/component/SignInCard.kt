@@ -26,7 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_google
+import hello_sziget_kmp.shared.generated.resources.login_continue_with_google
+import hello_sziget_kmp.shared.generated.resources.login_headline
+import hello_sziget_kmp.shared.generated.resources.login_subtitle
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SignInCard(
@@ -49,14 +53,14 @@ fun SignInCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Plan your festival",
+                    text = stringResource(Res.string.login_headline),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.height(16.dp))
 
                 Text(
-                    text = "Build your lineup & see who's going",
+                    text = stringResource(Res.string.login_subtitle),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -87,7 +91,7 @@ fun SignInCard(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Continue with Google",
+                            text = stringResource(Res.string.login_continue_with_google),
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.SemiBold,
                         )

@@ -10,7 +10,9 @@ import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.NamedAv
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
+import hello_sziget_kmp.shared.generated.resources.profile_view_friend_content_description
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 data class ProfileFriendItemState(
     val name: String,
@@ -35,7 +37,7 @@ fun ProfileFriendItem(
         ) {
             Icon(
                 painter = painterResource(Res.drawable.ic_carat_right),
-                contentDescription = "View Friend",
+                contentDescription = stringResource(Res.string.profile_view_friend_content_description),
                 tint = MaterialTheme.colorScheme.outline,
             )
         }

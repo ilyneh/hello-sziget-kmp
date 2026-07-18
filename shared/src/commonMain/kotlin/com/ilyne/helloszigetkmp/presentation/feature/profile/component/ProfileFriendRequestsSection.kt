@@ -5,6 +5,9 @@ import androidx.compose.ui.Modifier
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.presentation.component.header.ListSection
 import com.ilyne.helloszigetkmp.util.text.initials
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.profile_requests_count
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProfileFriendRequestsSection(
@@ -14,7 +17,7 @@ fun ProfileFriendRequestsSection(
     modifier: Modifier = Modifier,
 ) {
     ListSection(
-        title = "Requests - ${friendRequests.size}",
+        title = stringResource(Res.string.profile_requests_count, friendRequests.size),
         items = friendRequests,
         itemKey = { it.id },
         modifier = modifier,

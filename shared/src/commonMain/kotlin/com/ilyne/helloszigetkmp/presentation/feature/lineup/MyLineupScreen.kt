@@ -38,6 +38,13 @@ import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
+import hello_sziget_kmp.shared.generated.resources.common_tba
+import hello_sziget_kmp.shared.generated.resources.lineup_empty_subtitle
+import hello_sziget_kmp.shared.generated.resources.lineup_empty_title
+import hello_sziget_kmp.shared.generated.resources.lineup_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -69,7 +76,7 @@ private fun MyLineupScreenContent(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        MainHeader(text = "My Lineup")
+        MainHeader(text = stringResource(Res.string.lineup_title))
 
         when (val status = uiState.status) {
             MyLineupUiState.Status.Loading -> {
@@ -78,7 +85,7 @@ private fun MyLineupScreenContent(
 
             is MyLineupUiState.Status.Error -> {
                 ErrorState(
-                    message = status.message ?: "Something went wrong",
+                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
                     onRetry = { viewModel.refresh() },
                 )
             }
@@ -158,7 +165,7 @@ private fun MyLineupScreenList(
                             )
 
                             StageSetTimeRow(
-                                stageName = setTime.stageName ?: "TBA",
+                                stageName = setTime.stageName ?: stringResource(Res.string.common_tba),
                                 startTime = formatTime(setTime.startTime),
                                 endTime = formatTime(setTime.endTime),
                             )
@@ -220,9 +227,9 @@ private fun EmptyView(modifier: Modifier = Modifier) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("♡", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("No favorites yet", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.lineup_empty_title), style = MaterialTheme.typography.titleMedium)
             Text(
-                "Tap the heart on any artist to add them",
+                stringResource(Res.string.lineup_empty_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

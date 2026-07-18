@@ -33,6 +33,11 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline.TimelineGridView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.schedule_no_set_times
+import hello_sziget_kmp.shared.generated.resources.schedule_sets_count
+import hello_sziget_kmp.shared.generated.resources.schedule_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -98,7 +103,7 @@ private fun ScheduleContent(
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surface),
         ) {
-            MainHeader(text = "Schedule") {
+            MainHeader(text = stringResource(Res.string.schedule_title)) {
                 ViewModeToggle(
                     current = uiState.viewMode,
                     onChange = onViewModeChange,
@@ -115,7 +120,11 @@ private fun ScheduleContent(
                 data = FilterBarData(
                     filterCount = uiState.activeFilterCount,
                     filterTexts = uiState.activeFilterItemsText,
-                    trailingText = if (uiState.setTimes.isNotEmpty()) "${uiState.setTimes.size} Sets" else null,
+                    trailingText = if (uiState.setTimes.isNotEmpty()) {
+                        stringResource(Res.string.schedule_sets_count, uiState.setTimes.size)
+                    } else {
+                        null
+                    },
                 ),
                 onFilterButtonClick = onFilterButtonClick,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -152,7 +161,7 @@ private fun ScheduleContent(
                             Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text("No Set Times")
+                            Text(stringResource(Res.string.schedule_no_set_times))
                         }
                     } else {
                         key(uiState.selectedDay) {

@@ -7,6 +7,9 @@ import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_accept_request
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_send_request
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 enum class FriendshipStatus { NONE, FRIEND, REQUEST_SENT, REQUEST_RECEIVED }
 
@@ -93,7 +97,9 @@ class AddFriendViewModel(
                     } catch (e: Exception) {
                         Logger.e("AddFriendViewModel", "Failed to send friend request", e)
                         _uiState.update {
-                            it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
+                            it.copy(
+                                status = AddFriendUiState.Status.Error(getString(Res.string.add_friend_error_send_request)),
+                            )
                         }
                     }
                 }
@@ -109,7 +115,9 @@ class AddFriendViewModel(
                     } catch (e: Exception) {
                         Logger.e("AddFriendViewModel", "Failed to accept friend request", e)
                         _uiState.update {
-                            it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
+                            it.copy(
+                                status = AddFriendUiState.Status.Error(getString(Res.string.add_friend_error_accept_request)),
+                            )
                         }
                     }
                 }

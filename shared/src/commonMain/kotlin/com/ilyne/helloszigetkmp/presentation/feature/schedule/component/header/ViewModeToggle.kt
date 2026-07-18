@@ -23,7 +23,11 @@ import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_grid
 import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_list
 import hello_sziget_kmp.shared.generated.resources.ic_view_toggle_swimlane
+import hello_sziget_kmp.shared.generated.resources.schedule_view_mode_grid_content_description
+import hello_sziget_kmp.shared.generated.resources.schedule_view_mode_list_content_description
+import hello_sziget_kmp.shared.generated.resources.schedule_view_mode_swimlane_content_description
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ViewModeToggle(
@@ -50,9 +54,20 @@ fun ViewModeToggle(
                 contentAlignment = Alignment.Center,
             ) {
                 val (resource, contentDescription) = when (mode) {
-                    ViewMode.GRID -> Res.drawable.ic_view_toggle_grid to "Grid View"
-                    ViewMode.SWIMLANE -> Res.drawable.ic_view_toggle_swimlane to "Swimlane View"
-                    ViewMode.LIST -> Res.drawable.ic_view_toggle_list to "List View"
+                    ViewMode.GRID -> {
+                        Res.drawable.ic_view_toggle_grid to
+                            stringResource(Res.string.schedule_view_mode_grid_content_description)
+                    }
+
+                    ViewMode.SWIMLANE -> {
+                        Res.drawable.ic_view_toggle_swimlane to
+                            stringResource(Res.string.schedule_view_mode_swimlane_content_description)
+                    }
+
+                    ViewMode.LIST -> {
+                        Res.drawable.ic_view_toggle_list to
+                            stringResource(Res.string.schedule_view_mode_list_content_description)
+                    }
                 }
                 Icon(
                     painter = painterResource(resource),

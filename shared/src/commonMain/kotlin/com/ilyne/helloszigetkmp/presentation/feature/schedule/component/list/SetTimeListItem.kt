@@ -33,6 +33,9 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_tba
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 
@@ -78,7 +81,7 @@ fun SetTimeListItem(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 SubtitleText(
-                    text = setTime.stage?.name ?: "TBA",
+                    text = setTime.stage?.name ?: stringResource(Res.string.common_tba),
                     modifier = Modifier
                         .weight(weight = 2f, fill = false),
                 )
