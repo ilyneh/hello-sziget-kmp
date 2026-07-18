@@ -23,6 +23,8 @@ import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_accept_request
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_send_request
 import hello_sziget_kmp.shared.generated.resources.add_friend_no_users_found
 import hello_sziget_kmp.shared.generated.resources.add_friend_search_placeholder
 import hello_sziget_kmp.shared.generated.resources.add_friend_title
@@ -84,9 +86,13 @@ private fun AddFriendContent(
             val status = uiState.status
             if (status is AddFriendUiState.Status.Error) {
                 item {
+                    val errorMessageRes = when (status.reason) {
+                        AddFriendErrorReason.SEND_REQUEST_FAILED -> Res.string.add_friend_error_send_request
+                        AddFriendErrorReason.ACCEPT_REQUEST_FAILED -> Res.string.add_friend_error_accept_request
+                    }
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = status.message,
+                        text = stringResource(errorMessageRes),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.error,
                     )

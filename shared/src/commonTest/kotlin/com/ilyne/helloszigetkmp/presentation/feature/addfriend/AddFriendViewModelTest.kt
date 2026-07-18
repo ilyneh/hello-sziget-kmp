@@ -224,7 +224,7 @@ class AddFriendViewModelTest {
 
                 val errored = awaitItem()
                 val status = assertIs<AddFriendUiState.Status.Error>(errored.status)
-                assertEquals("Failed to send friend request", status.message)
+                assertEquals(AddFriendErrorReason.SEND_REQUEST_FAILED, status.reason)
             }
         }
 
@@ -257,7 +257,7 @@ class AddFriendViewModelTest {
 
                 val errored = awaitItem()
                 val status = assertIs<AddFriendUiState.Status.Error>(errored.status)
-                assertEquals("Failed to accept friend request", status.message)
+                assertEquals(AddFriendErrorReason.ACCEPT_REQUEST_FAILED, status.reason)
             }
         }
 

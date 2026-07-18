@@ -32,8 +32,15 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.Set
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.swimlane.SwimLaneView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline.TimelineGridView
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.ActiveFilterItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.schedule_active_filter_friends_going
+import hello_sziget_kmp.shared.generated.resources.schedule_error_load_day
+import hello_sziget_kmp.shared.generated.resources.schedule_error_load_days
+import hello_sziget_kmp.shared.generated.resources.schedule_error_refresh
+import hello_sziget_kmp.shared.generated.resources.schedule_error_update_favorite
+import hello_sziget_kmp.shared.generated.resources.schedule_filter_favorites
 import hello_sziget_kmp.shared.generated.resources.schedule_no_set_times
 import hello_sziget_kmp.shared.generated.resources.schedule_sets_count
 import hello_sziget_kmp.shared.generated.resources.schedule_title
@@ -119,7 +126,13 @@ private fun ScheduleContent(
             FilterBar(
                 data = FilterBarData(
                     filterCount = uiState.activeFilterCount,
-                    filterTexts = uiState.activeFilterItemsText,
+                    filterTexts = uiState.activeFilterItems.map { item ->
+                        when (item) {
+                            ActiveFilterItem.Favorites -> stringResource(Res.string.schedule_filter_favorites)
+                            ActiveFilterItem.FriendsGoing -> stringResource(Res.string.schedule_active_filter_friends_going)
+                            is ActiveFilterItem.Custom -> item.text
+                        }
+                    },
                     trailingText = if (uiState.setTimes.isNotEmpty()) {
                         stringResource(Res.string.schedule_sets_count, uiState.setTimes.size)
                     } else {
@@ -149,8 +162,14 @@ private fun ScheduleContent(
                 }
 
                 is ScheduleUiState.Status.Error -> {
+                    val errorMessageRes = when (status.reason) {
+                        ScheduleErrorReason.REFRESH_FAILED -> Res.string.schedule_error_refresh
+                        ScheduleErrorReason.UPDATE_FAVORITE_FAILED -> Res.string.schedule_error_update_favorite
+                        ScheduleErrorReason.LOAD_DAY_FAILED -> Res.string.schedule_error_load_day
+                        ScheduleErrorReason.LOAD_DAYS_FAILED -> Res.string.schedule_error_load_days
+                    }
                     ErrorState(
-                        message = status.message,
+                        message = stringResource(errorMessageRes),
                         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                     )
                 }

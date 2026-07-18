@@ -172,7 +172,7 @@ class ProfileViewModelTest {
                 val failed = awaitItem()
                 assertFalse(failed.isUploadingImage)
                 assertNull(failed.pendingImageUrl)
-                assertEquals("Failed to upload photo", failed.error)
+                assertEquals(ProfileErrorReason.UPLOAD_PHOTO_FAILED, failed.error)
                 // imageUrl (the confirmed picture) is untouched by a failed upload.
                 assertEquals(initial.imageUrl, failed.imageUrl)
             }
@@ -212,7 +212,7 @@ class ProfileViewModelTest {
             viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = "f1"))
             viewModel.uiState.first { it.error != null }
 
-            assertEquals("Failed to accept friend request", viewModel.uiState.value.error)
+            assertEquals(ProfileErrorReason.ACCEPT_FRIEND_REQUEST_FAILED, viewModel.uiState.value.error)
         }
 
     @Test
@@ -236,7 +236,7 @@ class ProfileViewModelTest {
             viewModel.onIntent(ProfileIntent.DeclineFriendRequest(friendId = "f1"))
             viewModel.uiState.first { it.error != null }
 
-            assertEquals("Failed to decline friend request", viewModel.uiState.value.error)
+            assertEquals(ProfileErrorReason.DECLINE_FRIEND_REQUEST_FAILED, viewModel.uiState.value.error)
         }
 
     @Test
@@ -301,7 +301,7 @@ class ProfileViewModelTest {
             viewModel.uiState.first { it.error != null }
 
             assertNull(viewModel.uiState.value.removeFriendAlert)
-            assertEquals("Failed to remove friend", viewModel.uiState.value.error)
+            assertEquals(ProfileErrorReason.REMOVE_FRIEND_FAILED, viewModel.uiState.value.error)
             assertEquals(
                 listOf(
                     "delete(me, f1)",

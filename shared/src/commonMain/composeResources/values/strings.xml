@@ -88,7 +88,6 @@
     <string name="artist_detail_not_found">Artist not found</string>
     <string name="artist_detail_no_name">(no name)</string>
     <string name="artist_detail_no_bio">No bio available yet.</string>
-    <string name="artist_detail_load_error">Failed to load artist</string>
 
     <!-- Login -->
     <string name="login_headline">Plan your festival</string>

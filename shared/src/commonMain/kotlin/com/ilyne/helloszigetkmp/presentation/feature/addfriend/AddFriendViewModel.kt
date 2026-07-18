@@ -7,9 +7,6 @@ import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
-import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.add_friend_error_accept_request
-import hello_sziget_kmp.shared.generated.resources.add_friend_error_send_request
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +15,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
 
 enum class FriendshipStatus { NONE, FRIEND, REQUEST_SENT, REQUEST_RECEIVED }
 
@@ -36,9 +32,14 @@ data class AddFriendUiState(
         data object Idle : Status()
 
         data class Error(
-            val message: String,
+            val reason: AddFriendErrorReason,
         ) : Status()
     }
+}
+
+enum class AddFriendErrorReason {
+    SEND_REQUEST_FAILED,
+    ACCEPT_REQUEST_FAILED,
 }
 
 sealed class AddFriendIntent {
@@ -98,7 +99,7 @@ class AddFriendViewModel(
                         Logger.e("AddFriendViewModel", "Failed to send friend request", e)
                         _uiState.update {
                             it.copy(
-                                status = AddFriendUiState.Status.Error(getString(Res.string.add_friend_error_send_request)),
+                                status = AddFriendUiState.Status.Error(AddFriendErrorReason.SEND_REQUEST_FAILED),
                             )
                         }
                     }
@@ -116,7 +117,7 @@ class AddFriendViewModel(
                         Logger.e("AddFriendViewModel", "Failed to accept friend request", e)
                         _uiState.update {
                             it.copy(
-                                status = AddFriendUiState.Status.Error(getString(Res.string.add_friend_error_accept_request)),
+                                status = AddFriendUiState.Status.Error(AddFriendErrorReason.ACCEPT_REQUEST_FAILED),
                             )
                         }
                     }

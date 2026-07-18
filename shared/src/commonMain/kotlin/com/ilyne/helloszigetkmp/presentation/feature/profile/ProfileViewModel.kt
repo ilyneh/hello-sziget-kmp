@@ -12,20 +12,12 @@ import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.ilyne.helloszigetkmp.util.Logger
-import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.profile_error_accept_friend_request
-import hello_sziget_kmp.shared.generated.resources.profile_error_decline_friend_request
-import hello_sziget_kmp.shared.generated.resources.profile_error_load_profile
-import hello_sziget_kmp.shared.generated.resources.profile_error_remove_friend
-import hello_sziget_kmp.shared.generated.resources.profile_error_session_expired
-import hello_sziget_kmp.shared.generated.resources.profile_error_upload_photo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
 
 data class ProfileUiState(
     val name: String? = null,
@@ -40,10 +32,19 @@ data class ProfileUiState(
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
     val isUploadingImage: Boolean = false,
-    val error: String? = null,
+    val error: ProfileErrorReason? = null,
     val removeFriendAlert: User? = null,
     val showLogoutAlert: Boolean = false,
 )
+
+enum class ProfileErrorReason {
+    SESSION_EXPIRED,
+    LOAD_PROFILE_FAILED,
+    UPLOAD_PHOTO_FAILED,
+    ACCEPT_FRIEND_REQUEST_FAILED,
+    DECLINE_FRIEND_REQUEST_FAILED,
+    REMOVE_FRIEND_FAILED,
+}
 
 sealed class ProfileEffect {
     data object NavigateToAddFriend : ProfileEffect()
@@ -107,9 +108,7 @@ class ProfileViewModel(
         val user = currentUser
         if (user == null) {
             Logger.e("ProfileViewModel", "init: no current user, session was likely invalidated during navigation")
-            viewModelScope.launch {
-                _uiState.update { it.copy(isLoading = false, error = getString(Res.string.profile_error_session_expired)) }
-            }
+            _uiState.update { it.copy(isLoading = false, error = ProfileErrorReason.SESSION_EXPIRED) }
         } else {
             viewModelScope.launch {
                 try {
@@ -127,7 +126,7 @@ class ProfileViewModel(
                     }
                 } catch (e: Exception) {
                     Logger.e("ProfileViewModel", "init: failed to load profile", e)
-                    _uiState.update { it.copy(isLoading = false, error = getString(Res.string.profile_error_load_profile)) }
+                    _uiState.update { it.copy(isLoading = false, error = ProfileErrorReason.LOAD_PROFILE_FAILED) }
                 }
             }
             observeFriends()
@@ -168,7 +167,7 @@ class ProfileViewModel(
                     it.copy(
                         isUploadingImage = false,
                         pendingImageUrl = null,
-                        error = getString(Res.string.profile_error_upload_photo),
+                        error = ProfileErrorReason.UPLOAD_PHOTO_FAILED,
                     )
                 }
             }
@@ -194,7 +193,7 @@ class ProfileViewModel(
                         friendRepository.acceptFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to accept friend request", e)
-                        _uiState.update { it.copy(error = getString(Res.string.profile_error_accept_friend_request)) }
+                        _uiState.update { it.copy(error = ProfileErrorReason.ACCEPT_FRIEND_REQUEST_FAILED) }
                     }
                 }
             }
@@ -206,7 +205,7 @@ class ProfileViewModel(
                         friendRepository.declineFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to decline friend request", e)
-                        _uiState.update { it.copy(error = getString(Res.string.profile_error_decline_friend_request)) }
+                        _uiState.update { it.copy(error = ProfileErrorReason.DECLINE_FRIEND_REQUEST_FAILED) }
                     }
                 }
             }
@@ -244,7 +243,7 @@ class ProfileViewModel(
                         friendRepository.removeFriend(userId, friend.id)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to remove friend", e)
-                        _uiState.update { it.copy(error = getString(Res.string.profile_error_remove_friend)) }
+                        _uiState.update { it.copy(error = ProfileErrorReason.REMOVE_FRIEND_FAILED) }
                     }
                 }
             }
