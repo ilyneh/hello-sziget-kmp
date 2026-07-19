@@ -28,6 +28,9 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleUiState
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.artistColor
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_unknown
+import org.jetbrains.compose.resources.stringResource
 
 enum class SetTimeCardViewMode {
     TIMELINE,
@@ -61,7 +64,7 @@ fun SetTimeCard(
 
         Column {
             Text(
-                text = setTime.artist?.name ?: "Unknown",
+                text = setTime.artist?.name ?: stringResource(Res.string.common_unknown),
                 modifier = Modifier.padding(end = if (isFavorited) FAVORITE_HEART_SIZE + 4.dp else 0.dp),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp,

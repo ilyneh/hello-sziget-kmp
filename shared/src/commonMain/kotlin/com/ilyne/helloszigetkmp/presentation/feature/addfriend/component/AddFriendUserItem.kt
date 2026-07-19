@@ -14,6 +14,12 @@ import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.NamedAv
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.FriendshipStatus
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.text.initials
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.add_friend_accept
+import hello_sziget_kmp.shared.generated.resources.add_friend_friends
+import hello_sziget_kmp.shared.generated.resources.add_friend_request
+import hello_sziget_kmp.shared.generated.resources.add_friend_requested
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AddFriendUserItem(
@@ -33,21 +39,24 @@ fun AddFriendUserItem(
             name = name,
         ) {
             when (status) {
-                FriendshipStatus.NONE -> AddFriendUserItemActionButton(text = "Request", onClick = onAdd)
+                FriendshipStatus.NONE -> AddFriendUserItemActionButton(
+                    text = stringResource(Res.string.add_friend_request),
+                    onClick = onAdd,
+                )
 
                 FriendshipStatus.REQUEST_RECEIVED -> AddFriendUserItemActionButton(
-                    text = "Accept",
+                    text = stringResource(Res.string.add_friend_accept),
                     onClick = onAccept,
                 )
 
                 FriendshipStatus.REQUEST_SENT -> AddFriendUserItemActionButton(
-                    text = "Requested",
+                    text = stringResource(Res.string.add_friend_requested),
                     onClick = {},
                     enabled = false,
                 )
 
                 FriendshipStatus.FRIEND -> AddFriendUserItemActionButton(
-                    text = "Friends",
+                    text = stringResource(Res.string.add_friend_friends),
                     onClick = {},
                     enabled = false,
                 )

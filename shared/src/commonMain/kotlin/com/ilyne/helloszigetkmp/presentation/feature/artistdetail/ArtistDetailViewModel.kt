@@ -73,7 +73,7 @@ class ArtistDetailViewModel(
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(status = ArtistDetailUiState.Status.Error(e.message ?: "Failed to load artist"))
+                    it.copy(status = ArtistDetailUiState.Status.Error(e.message))
                 }
             }
         }

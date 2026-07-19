@@ -32,10 +32,19 @@ data class ProfileUiState(
     val likedArtistCount: Int = 0,
     val isLoading: Boolean = false,
     val isUploadingImage: Boolean = false,
-    val error: String? = null,
+    val error: ProfileErrorReason? = null,
     val removeFriendAlert: User? = null,
     val showLogoutAlert: Boolean = false,
 )
+
+enum class ProfileErrorReason {
+    SESSION_EXPIRED,
+    LOAD_PROFILE_FAILED,
+    UPLOAD_PHOTO_FAILED,
+    ACCEPT_FRIEND_REQUEST_FAILED,
+    DECLINE_FRIEND_REQUEST_FAILED,
+    REMOVE_FRIEND_FAILED,
+}
 
 sealed class ProfileEffect {
     data object NavigateToAddFriend : ProfileEffect()
@@ -99,7 +108,7 @@ class ProfileViewModel(
         val user = currentUser
         if (user == null) {
             Logger.e("ProfileViewModel", "init: no current user, session was likely invalidated during navigation")
-            _uiState.update { it.copy(isLoading = false, error = "Session expired. Please log in again.") }
+            _uiState.update { it.copy(isLoading = false, error = ProfileErrorReason.SESSION_EXPIRED) }
         } else {
             viewModelScope.launch {
                 try {
@@ -117,7 +126,7 @@ class ProfileViewModel(
                     }
                 } catch (e: Exception) {
                     Logger.e("ProfileViewModel", "init: failed to load profile", e)
-                    _uiState.update { it.copy(isLoading = false, error = "Failed to load profile") }
+                    _uiState.update { it.copy(isLoading = false, error = ProfileErrorReason.LOAD_PROFILE_FAILED) }
                 }
             }
             observeFriends()
@@ -155,7 +164,11 @@ class ProfileViewModel(
             } catch (e: Exception) {
                 Logger.e("ProfileViewModel", "Failed to upload photo", e)
                 _uiState.update {
-                    it.copy(isUploadingImage = false, pendingImageUrl = null, error = "Failed to upload photo")
+                    it.copy(
+                        isUploadingImage = false,
+                        pendingImageUrl = null,
+                        error = ProfileErrorReason.UPLOAD_PHOTO_FAILED,
+                    )
                 }
             }
         }
@@ -180,7 +193,7 @@ class ProfileViewModel(
                         friendRepository.acceptFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to accept friend request", e)
-                        _uiState.update { it.copy(error = "Failed to accept friend request") }
+                        _uiState.update { it.copy(error = ProfileErrorReason.ACCEPT_FRIEND_REQUEST_FAILED) }
                     }
                 }
             }
@@ -192,7 +205,7 @@ class ProfileViewModel(
                         friendRepository.declineFriendRequest(userId, intent.friendId)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to decline friend request", e)
-                        _uiState.update { it.copy(error = "Failed to decline friend request") }
+                        _uiState.update { it.copy(error = ProfileErrorReason.DECLINE_FRIEND_REQUEST_FAILED) }
                     }
                 }
             }
@@ -230,7 +243,7 @@ class ProfileViewModel(
                         friendRepository.removeFriend(userId, friend.id)
                     } catch (e: Exception) {
                         Logger.e("ProfileViewModel", "Failed to remove friend", e)
-                        _uiState.update { it.copy(error = "Failed to remove friend") }
+                        _uiState.update { it.copy(error = ProfileErrorReason.REMOVE_FRIEND_FAILED) }
                     }
                 }
             }

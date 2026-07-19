@@ -27,6 +27,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.login_badge_artists
+import hello_sziget_kmp.shared.generated.resources.login_badge_days
+import hello_sziget_kmp.shared.generated.resources.login_badge_stages
+import hello_sziget_kmp.shared.generated.resources.login_brand_name
+import hello_sziget_kmp.shared.generated.resources.login_date_location
+import hello_sziget_kmp.shared.generated.resources.login_slogan
+import hello_sziget_kmp.shared.generated.resources.login_year
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Screen-specific overlay tones for the welcome hero. This screen intentionally renders a
@@ -125,7 +134,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                             .padding(horizontal = 18.dp, vertical = 5.dp),
                     ) {
                         Text(
-                            text = "AUG 6–11 · BUDAPEST",
+                            text = stringResource(Res.string.login_date_location),
                             color = WelcomeColors.TextPrimary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -137,7 +146,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
 
                     // Big Headline Text with Soft drop-shadow
                     Text(
-                        text = "SZIGET",
+                        text = stringResource(Res.string.login_brand_name),
                         color = WelcomeColors.TextPrimary,
                         fontSize = 96.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -154,7 +163,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
 
                     // Year Label
                     Text(
-                        text = "2026",
+                        text = stringResource(Res.string.login_year),
                         color = WelcomeColors.YearLabelText,
                         fontSize = 38.sp,
                         fontWeight = FontWeight.Bold,
@@ -164,7 +173,7 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
 
                     // Subtitle Slogan
                     Text(
-                        text = "Island of Freedom",
+                        text = stringResource(Res.string.login_slogan),
                         color = WelcomeColors.SubtitleText,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
@@ -179,9 +188,9 @@ fun WelcomeBackground(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        FestivalBadge(text = "🎸 400+ Artists")
-                        FestivalBadge(text = "🌍 6 Days")
-                        FestivalBadge(text = "🎪 7 Stages")
+                        FestivalBadge(text = stringResource(Res.string.login_badge_artists))
+                        FestivalBadge(text = stringResource(Res.string.login_badge_days))
+                        FestivalBadge(text = stringResource(Res.string.login_badge_stages))
                     }
                 }
             }

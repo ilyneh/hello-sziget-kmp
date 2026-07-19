@@ -32,9 +32,14 @@ data class AddFriendUiState(
         data object Idle : Status()
 
         data class Error(
-            val message: String,
+            val reason: AddFriendErrorReason,
         ) : Status()
     }
+}
+
+enum class AddFriendErrorReason {
+    SEND_REQUEST_FAILED,
+    ACCEPT_REQUEST_FAILED,
 }
 
 sealed class AddFriendIntent {
@@ -93,7 +98,9 @@ class AddFriendViewModel(
                     } catch (e: Exception) {
                         Logger.e("AddFriendViewModel", "Failed to send friend request", e)
                         _uiState.update {
-                            it.copy(status = AddFriendUiState.Status.Error("Failed to send friend request"))
+                            it.copy(
+                                status = AddFriendUiState.Status.Error(AddFriendErrorReason.SEND_REQUEST_FAILED),
+                            )
                         }
                     }
                 }
@@ -109,7 +116,9 @@ class AddFriendViewModel(
                     } catch (e: Exception) {
                         Logger.e("AddFriendViewModel", "Failed to accept friend request", e)
                         _uiState.update {
-                            it.copy(status = AddFriendUiState.Status.Error("Failed to accept friend request"))
+                            it.copy(
+                                status = AddFriendUiState.Status.Error(AddFriendErrorReason.ACCEPT_REQUEST_FAILED),
+                            )
                         }
                     }
                 }

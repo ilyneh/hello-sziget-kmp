@@ -14,7 +14,10 @@ import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.ic_cancel
 import hello_sziget_kmp.shared.generated.resources.ic_check
+import hello_sziget_kmp.shared.generated.resources.profile_accept_friend_request_content_description
+import hello_sziget_kmp.shared.generated.resources.profile_decline_friend_request_content_description
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 data class ProfileFriendRequestItemState(
     val name: String,
@@ -45,7 +48,7 @@ fun ProfileFriendRequestItem(
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_check),
-                    contentDescription = "Accept Friend Request",
+                    contentDescription = stringResource(Res.string.profile_accept_friend_request_content_description),
                 )
             }
             FilledIconButton(
@@ -58,7 +61,7 @@ fun ProfileFriendRequestItem(
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_cancel),
-                    contentDescription = "Decline Friend Request",
+                    contentDescription = stringResource(Res.string.profile_decline_friend_request_content_description),
                 )
             }
         }

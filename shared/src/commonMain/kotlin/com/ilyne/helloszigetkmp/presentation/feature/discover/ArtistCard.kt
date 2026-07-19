@@ -28,6 +28,9 @@ import coil3.compose.AsyncImage
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.presentation.component.FavoriteIconButton
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.discover_artist_image_content_description
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ArtistCard(
@@ -52,7 +55,7 @@ fun ArtistCard(
         ) {
             AsyncImage(
                 model = artist.imageUrl,
-                contentDescription = "${artist.name} image",
+                contentDescription = stringResource(Res.string.discover_artist_image_content_description, artist.name),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.BottomCenter,
                 modifier = Modifier

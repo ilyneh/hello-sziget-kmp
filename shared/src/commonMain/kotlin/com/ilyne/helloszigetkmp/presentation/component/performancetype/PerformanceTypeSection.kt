@@ -21,8 +21,11 @@ import com.ilyne.helloszigetkmp.domain.model.PerformanceType
 import com.ilyne.helloszigetkmp.domain.model.displayName
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_collapse_genres
+import hello_sziget_kmp.shared.generated.resources.common_expand_genres
 import hello_sziget_kmp.shared.generated.resources.ic_carat_right
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 data class GenreCheckboxUiState(
     val group: GenreGroup,
@@ -53,7 +56,11 @@ fun PerformanceTypeSection(
             IconButton(onClick = onToggleDropdown) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_carat_right),
-                    contentDescription = if (isExpanded) "Collapse genres" else "Expand genres",
+                    contentDescription = if (isExpanded) {
+                        stringResource(Res.string.common_collapse_genres)
+                    } else {
+                        stringResource(Res.string.common_expand_genres)
+                    },
                     modifier = Modifier.graphicsLayer { rotationZ = if (isExpanded) 90f else 0f },
                 )
             }

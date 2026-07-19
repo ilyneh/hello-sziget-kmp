@@ -22,6 +22,13 @@ import com.ilyne.helloszigetkmp.presentation.component.search.SearchTextField
 import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.feature.addfriend.component.AddFriendUserItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_accept_request
+import hello_sziget_kmp.shared.generated.resources.add_friend_error_send_request
+import hello_sziget_kmp.shared.generated.resources.add_friend_no_users_found
+import hello_sziget_kmp.shared.generated.resources.add_friend_search_placeholder
+import hello_sziget_kmp.shared.generated.resources.add_friend_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -55,7 +62,7 @@ private fun AddFriendContent(
 ) {
     Column(modifier = modifier.fillMaxWidth().imePadding()) {
         ModalHeader(
-            text = "Add Friends",
+            text = stringResource(Res.string.add_friend_title),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         )
 
@@ -68,7 +75,7 @@ private fun AddFriendContent(
             item {
                 SearchTextField(
                     value = uiState.searchQuery,
-                    placeHolderText = "Search users...",
+                    placeHolderText = stringResource(Res.string.add_friend_search_placeholder),
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -79,9 +86,13 @@ private fun AddFriendContent(
             val status = uiState.status
             if (status is AddFriendUiState.Status.Error) {
                 item {
+                    val errorMessageRes = when (status.reason) {
+                        AddFriendErrorReason.SEND_REQUEST_FAILED -> Res.string.add_friend_error_send_request
+                        AddFriendErrorReason.ACCEPT_REQUEST_FAILED -> Res.string.add_friend_error_accept_request
+                    }
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = status.message,
+                        text = stringResource(errorMessageRes),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -92,7 +103,7 @@ private fun AddFriendContent(
                 item {
                     Text(
                         modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
-                        text = "No users found",
+                        text = stringResource(Res.string.add_friend_no_users_found),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.outline,
                     )

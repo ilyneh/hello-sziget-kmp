@@ -33,6 +33,12 @@ import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatDayAndTime
 import com.ilyne.helloszigetkmp.util.text.htmlToAnnotatedString
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.artist_detail_no_bio
+import hello_sziget_kmp.shared.generated.resources.artist_detail_no_name
+import hello_sziget_kmp.shared.generated.resources.artist_detail_not_found
+import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -67,7 +73,7 @@ private fun ArtistDetailContent(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         ModalHeader(
-            text = uiState.artist?.name ?: "(no name)",
+            text = uiState.artist?.name ?: stringResource(Res.string.artist_detail_no_name),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         ) {
             if (uiState.artist != null) {
@@ -85,7 +91,7 @@ private fun ArtistDetailContent(
 
             is ArtistDetailUiState.Status.Error -> {
                 ErrorState(
-                    message = status.message ?: "Something went wrong",
+                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                 )
             }
@@ -94,7 +100,7 @@ private fun ArtistDetailContent(
                 val artist = uiState.artist
                 if (artist == null) {
                     Text(
-                        text = "Artist not found",
+                        text = stringResource(Res.string.artist_detail_not_found),
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -123,7 +129,7 @@ private fun ArtistDetailContent(
                         Text(
                             text = artist.bio
                                 ?.htmlToAnnotatedString()
-                                ?: AnnotatedString("No bio available yet."),
+                                ?: AnnotatedString(stringResource(Res.string.artist_detail_no_bio)),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 24.dp),
                         )

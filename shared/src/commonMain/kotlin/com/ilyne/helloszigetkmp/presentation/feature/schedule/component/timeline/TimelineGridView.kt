@@ -41,6 +41,9 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HEADER_H
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.HOUR_HEIGHT_DP
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.color.stageColor
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.shared.SetTimeCard
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.schedule_no_sets_scheduled
+import org.jetbrains.compose.resources.stringResource
 
 // ── Grid View (Y = time, X = stage columns) ──────────────────────────────────
 
@@ -63,7 +66,7 @@ fun TimelineGridView(
 
     if (setTimes.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No sets scheduled", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(Res.string.schedule_no_sets_scheduled), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
     }

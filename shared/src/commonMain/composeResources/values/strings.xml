@@ -1,0 +1,106 @@
+<resources>
+    <!-- Common -->
+    <string name="common_something_went_wrong">Something went wrong</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_unknown">Unknown</string>
+    <string name="common_tba">TBA</string>
+    <string name="common_save">Save</string>
+    <string name="common_filters">Filters</string>
+    <string name="common_performance_types">Performance Types</string>
+    <string name="common_collapse_genres">Collapse genres</string>
+    <string name="common_expand_genres">Expand genres</string>
+
+    <!-- Main navigation -->
+    <string name="main_nav_schedule_tab_content_description">Schedule_Tab</string>
+    <string name="main_nav_discover_tab_content_description">Discover_Tab</string>
+    <string name="main_nav_lineup_tab_content_description">My_Lineup_Tab</string>
+    <string name="main_nav_profile_tab_content_description">Profile_Tab</string>
+
+    <!-- Discover -->
+    <string name="discover_title">Discover</string>
+    <string name="discover_search_placeholder">Search artists…</string>
+    <string name="discover_artist_image_content_description">%1$s image</string>
+
+    <!-- My Lineup -->
+    <string name="lineup_title">My Lineup</string>
+    <string name="lineup_empty_title">No favorites yet</string>
+    <string name="lineup_empty_subtitle">Tap the heart on any artist to add them</string>
+
+    <!-- Schedule -->
+    <string name="schedule_title">Schedule</string>
+    <string name="schedule_no_set_times">No Set Times</string>
+    <string name="schedule_no_sets_scheduled">No sets scheduled</string>
+    <string name="schedule_sets_count">%1$d Sets</string>
+    <string name="schedule_error_refresh">Couldn\'t refresh the schedule. Pull to refresh to try again.</string>
+    <string name="schedule_error_update_favorite">Couldn\'t update favorite. Please try again.</string>
+    <string name="schedule_error_load_day">Couldn\'t load the schedule for this day.</string>
+    <string name="schedule_error_load_days">Couldn\'t load festival days.</string>
+
+    <!-- Schedule filter -->
+    <string name="schedule_filter_favorites">Favorites</string>
+    <string name="schedule_filter_friends_going">Friends Going</string>
+    <string name="schedule_filter_hide_empty_stages">Hide Stages with Empty Timeslots</string>
+    <string name="schedule_filter_show_extra_days">Show Extra Days</string>
+    <string name="schedule_active_filter_friends_going">Friends going</string>
+
+    <!-- Schedule view mode -->
+    <string name="schedule_view_mode_grid_content_description">Grid View</string>
+    <string name="schedule_view_mode_swimlane_content_description">Swimlane View</string>
+    <string name="schedule_view_mode_list_content_description">List View</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_log_out_content_description">Log out</string>
+    <string name="profile_friends">Friends</string>
+    <string name="profile_no_friends">No friends</string>
+    <string name="profile_hearted">Hearted</string>
+    <string name="profile_days">Days</string>
+    <string name="profile_view_friend_content_description">View Friend</string>
+    <string name="profile_accept_friend_request_content_description">Accept Friend Request</string>
+    <string name="profile_decline_friend_request_content_description">Decline Friend Request</string>
+    <string name="profile_requests_count">Requests - %1$d</string>
+    <string name="profile_following_count">Following - %1$d</string>
+    <string name="profile_remove_friend_message">Remove %1$s as a friend?</string>
+    <string name="profile_remove_friend_confirm">Remove friend</string>
+    <string name="profile_log_out_title">Log out?</string>
+    <string name="profile_log_out_message">Are you sure you want to log out?</string>
+    <string name="profile_log_out_confirm">Log out</string>
+    <string name="profile_error_session_expired">Session expired. Please log in again.</string>
+    <string name="profile_error_load_profile">Failed to load profile</string>
+    <string name="profile_error_upload_photo">Failed to upload photo</string>
+    <string name="profile_error_accept_friend_request">Failed to accept friend request</string>
+    <string name="profile_error_decline_friend_request">Failed to decline friend request</string>
+    <string name="profile_error_remove_friend">Failed to remove friend</string>
+
+    <!-- Add friend -->
+    <string name="add_friend_title">Add Friends</string>
+    <string name="add_friend_search_placeholder">Search users…</string>
+    <string name="add_friend_no_users_found">No users found</string>
+    <string name="add_friend_request">Request</string>
+    <string name="add_friend_accept">Accept</string>
+    <string name="add_friend_requested">Requested</string>
+    <string name="add_friend_friends">Friends</string>
+    <string name="add_friend_error_send_request">Failed to send friend request</string>
+    <string name="add_friend_error_accept_request">Failed to accept friend request</string>
+
+    <!-- Artist detail -->
+    <string name="artist_detail_not_found">Artist not found</string>
+    <string name="artist_detail_no_name">(no name)</string>
+    <string name="artist_detail_no_bio">No bio available yet.</string>
+
+    <!-- Login -->
+    <string name="login_headline">Plan your festival</string>
+    <string name="login_subtitle">Build your lineup &amp; see who\'s going</string>
+    <string name="login_continue_with_google">Continue with Google</string>
+    <string name="login_date_location">AUG 6–11 · BUDAPEST</string>
+    <string name="login_brand_name">SZIGET</string>
+    <string name="login_year">2026</string>
+    <string name="login_slogan">Island of Freedom</string>
+    <string name="login_badge_artists">🎸 400+ Artists</string>
+    <string name="login_badge_days">🌍 6 Days</string>
+    <string name="login_badge_stages">🎪 7 Stages</string>
+
+    <!-- Filter chip -->
+    <string name="filter_chip_content_description">Filter Chip</string>
+</resources>

@@ -28,6 +28,11 @@ import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
+import hello_sziget_kmp.shared.generated.resources.discover_search_placeholder
+import hello_sziget_kmp.shared.generated.resources.discover_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -79,10 +84,10 @@ private fun DiscoverScreenContent(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        MainHeader(text = "Discover")
+        MainHeader(text = stringResource(Res.string.discover_title))
         SearchTextField(
             value = uiState.searchQuery,
-            placeHolderText = "Search artists...",
+            placeHolderText = stringResource(Res.string.discover_search_placeholder),
             onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,7 +109,7 @@ private fun DiscoverScreenContent(
 
             is DiscoverUiState.Status.Error -> {
                 ErrorState(
-                    message = status.message ?: "Something went wrong",
+                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
                     onRetry = { viewModel.refresh() },
                 )
             }

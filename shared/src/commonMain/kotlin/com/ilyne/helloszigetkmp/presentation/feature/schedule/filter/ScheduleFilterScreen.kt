@@ -27,6 +27,15 @@ import com.ilyne.helloszigetkmp.presentation.component.performancetype.GenreChec
 import com.ilyne.helloszigetkmp.presentation.component.performancetype.PerformanceTypeSection
 import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import hello_sziget_kmp.shared.generated.resources.Res
+import hello_sziget_kmp.shared.generated.resources.common_filters
+import hello_sziget_kmp.shared.generated.resources.common_performance_types
+import hello_sziget_kmp.shared.generated.resources.common_save
+import hello_sziget_kmp.shared.generated.resources.schedule_filter_favorites
+import hello_sziget_kmp.shared.generated.resources.schedule_filter_friends_going
+import hello_sziget_kmp.shared.generated.resources.schedule_filter_hide_empty_stages
+import hello_sziget_kmp.shared.generated.resources.schedule_filter_show_extra_days
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -85,33 +94,33 @@ private fun ScheduleFilterContent(
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        ModalHeader(text = "Filters")
+        ModalHeader(text = stringResource(Res.string.common_filters))
 
         FilterSwitchRow(
-            text = "Favorites",
+            text = stringResource(Res.string.schedule_filter_favorites),
             checked = uiState.showFavoritesOnly,
             onCheckedChange = { toggleFavoritesOnly(it) },
         )
 
         FilterSwitchRow(
-            text = "Friends Going",
+            text = stringResource(Res.string.schedule_filter_friends_going),
             checked = uiState.showFriendsGoing,
             onCheckedChange = { toggleFriendsGoing(it) },
         )
 
         FilterSwitchRow(
-            text = "Hide Stages with Empty Timeslots",
+            text = stringResource(Res.string.schedule_filter_hide_empty_stages),
             checked = uiState.hideEmptyStages,
             onCheckedChange = { toggleHideEmptyStages(it) },
         )
 
         FilterSwitchRow(
-            text = "Show Extra Days",
+            text = stringResource(Res.string.schedule_filter_show_extra_days),
             checked = uiState.showExtraDays,
             onCheckedChange = { toggleShowExtraDays(it) },
         )
 
-        SubHeader2(text = "Performance Types")
+        SubHeader2(text = stringResource(Res.string.common_performance_types))
 
         uiState.performanceTypes.forEach { performanceType ->
             PerformanceTypeSection(
@@ -130,7 +139,7 @@ private fun ScheduleFilterContent(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
             Text(
-                text = "Save",
+                text = stringResource(Res.string.common_save),
                 fontWeight = FontWeight.Bold,
             )
         }

@@ -23,6 +23,7 @@ import com.ilyne.helloszigetkmp.domain.model.SetTimeDay
 import com.ilyne.helloszigetkmp.domain.usecase.GetSetTimeDaysUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilterStorage
+import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.ActiveFilterItem
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
 import com.russhwolf.settings.MapSettings
@@ -358,7 +359,7 @@ class ScheduleViewModelTest {
             viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId = "boom-artist", current = false))
 
             val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
-            assertEquals("Couldn't update favorite. Please try again.", status.message)
+            assertEquals(ScheduleErrorReason.UPDATE_FAVORITE_FAILED, status.reason)
         }
 
     @Test
@@ -381,7 +382,7 @@ class ScheduleViewModelTest {
 
                 assertIs<ScheduleUiState.Status.Loading>(awaitItem().status)
                 val status = assertIs<ScheduleUiState.Status.Error>(awaitItem().status)
-                assertEquals("Couldn't refresh the schedule. Pull to refresh to try again.", status.message)
+                assertEquals(ScheduleErrorReason.REFRESH_FAILED, status.reason)
             }
         }
 
@@ -396,7 +397,7 @@ class ScheduleViewModelTest {
             val viewModel = newViewModel(setTimeDao = throwingSetTimeDao)
 
             val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
-            assertEquals("Couldn't load festival days.", status.message)
+            assertEquals(ScheduleErrorReason.LOAD_DAYS_FAILED, status.reason)
         }
 
     @Test
@@ -419,7 +420,7 @@ class ScheduleViewModelTest {
             val viewModel = newViewModel(setTimeDao = throwingSetTimeDao)
 
             val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
-            assertEquals("Couldn't load the schedule for this day.", status.message)
+            assertEquals(ScheduleErrorReason.LOAD_DAY_FAILED, status.reason)
         }
 
     @Test
@@ -479,8 +480,8 @@ class ScheduleViewModelTest {
             val viewModel = newViewModel(settings = settings)
 
             assertTrue(
-                viewModel.uiState.value.activeFilterItemsText
-                    .contains("Friends going"),
+                viewModel.uiState.value.activeFilterItems
+                    .contains(ActiveFilterItem.FriendsGoing),
             )
             // ScheduleFilter(showFriendsGoing = true) also keeps hideEmptyStages at its true
             // default, so activeCount() counts both of those (see ScheduleFilter.activeCount()).
