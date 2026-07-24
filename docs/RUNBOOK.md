@@ -116,6 +116,29 @@ Store Connect / TestFlight as its last step, since `ExportOptions.plist` sets
 an explicit build number, `--no-bump` to reuse the current one, `--yes`/`-y` to skip the
 confirmation prompt, `--help` for details.
 
+To automatically add the uploaded build to a TestFlight beta group (instead of assigning it by
+hand in App Store Connect afterward), pass `--test-group NAME` (repeatable for multiple groups).
+This talks to the App Store Connect API directly — no Fastlane — and needs:
+- An App Store Connect API key (App Store Connect → Users and Access → Integrations → App Store
+  Connect API; App Manager role or higher), giving you a key ID, an issuer ID, and a downloaded
+  `.p8` private key file.
+- `jq`, `python3`, and `openssl` in `PATH` (only checked/required when `--test-group` is used).
+
+Pass the key via `--asc-key-id`/`--asc-issuer-id`/`--asc-key-path`, or the
+`ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_API_KEY_PATH` env vars:
+
+```sh
+scripts/release-ios-beta.sh --test-group "Internal Testers" --test-group "Sziget Team" \
+  --asc-key-id ABC123DEF4 \
+  --asc-issuer-id 69a6de70-03db-47e3-e053-5b8c7c11a4d1 \
+  --asc-key-path ~/.appstoreconnect/AuthKey_ABC123DEF4.p8
+```
+
+After uploading, the script polls the build's processing status (`--group-poll-interval`,
+default 30s; `--group-poll-timeout`, default 1800s) until Apple finishes processing it, then
+adds it to each named group. Group names must already exist in App Store Connect — the script
+doesn't create groups, only looks them up by exact name per app.
+
 Equivalent manual steps, if you'd rather not use the script:
 
 ```sh
