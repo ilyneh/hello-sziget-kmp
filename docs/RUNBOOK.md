@@ -195,15 +195,19 @@ upload action or Fastlane, since it runs in-process as part of the existing Grad
 build-type setup. It writes `google-services.json`, the release keystore +
 `keystore.properties`, and a Play Console service account key from repo secrets (see the
 checklist below), then runs `./gradlew :androidApp:publishBetaBundle`, which builds and uploads
-the `beta` build type's AAB to the Play Console **beta** track and deletes all the
-secret-derived files afterward regardless of outcome.
+the `beta` build type's AAB to the Play Console **internal** track ("Internal testing" — no
+Google review, immediate availability, capped at 100 testers managed via a tester list in Play
+Console) and deletes all the secret-derived files afterward regardless of outcome. This is
+distinct from Play Console's own track literally named "beta" ("Open testing", which requires
+review and is far more widely joinable) — the build type is named "beta" independently of that,
+and the two aren't related.
 
 Because the `beta` build type uses `applicationIdSuffix = ".beta"`, it publishes under its own
 package (`com.ilyne.helloszigetkmp.beta`) with its own separate Play Console app listing —
 distinct from the `release` app (`com.ilyne.helloszigetkmp`). That app listing must already
 exist in Play Console (Play Publisher can publish to an existing app, not create a new one), and
-its `beta` track needs at least one manual release already promoted through it once before
-automated publishing works.
+its internal testing track needs at least one manual release already promoted through it once
+before automated publishing works.
 
 Planning notes exist locally under the gitignored `docs/notes/` directory
 (`google-services-json-ci-plan.md`, `create-gcloud-serviceaccounts.md`) covering GCP service
