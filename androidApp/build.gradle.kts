@@ -175,12 +175,15 @@ android {
 
 // --- Google Play publishing (Gradle Play Publisher) -------------------------------------------
 //
-// Publishes the "beta" build type's AAB to the Play Console "beta" track. Because the "beta"
-// build type carries applicationIdSuffix ".beta", it ships as its own package
-// (com.ilyne.helloszigetkmp.beta) with its own Play Console app listing, separate from the
-// release app (com.ilyne.helloszigetkmp) — that listing must already exist in Play Console
-// before publishBetaBundle can succeed, since Play Publisher only publishes to an app that's
-// already been created there (it can't create a brand-new app listing).
+// Publishes the "beta" build type's AAB to the Play Console "internal" track (Play Console's
+// "Internal testing" — immediate availability, no Google review, capped at 100 testers managed
+// via a tester list in Play Console). Note this is a different thing from Play Console's "beta"
+// track ("Open testing"), despite the build type also being named "beta" — that naming is a
+// coincidence, not a mapping. Because the "beta" build type carries applicationIdSuffix ".beta",
+// it ships as its own package (com.ilyne.helloszigetkmp.beta) with its own Play Console app
+// listing, separate from the release app (com.ilyne.helloszigetkmp) — that listing must already
+// exist in Play Console before publishBetaBundle can succeed, since Play Publisher only
+// publishes to an app that's already been created there (it can't create a brand-new listing).
 //
 // serviceAccountCredentials points at a service account JSON key file. Locally this file doesn't
 // exist and any local `./gradlew publishBetaBundle` invocation will fail fast with a clear
