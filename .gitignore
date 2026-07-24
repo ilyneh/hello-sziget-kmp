@@ -9,6 +9,7 @@ androidApp/google-services.json
 androidApp/release/
 androidApp/keystore.properties
 androidApp/keystore/
+androidApp/play-service-account.json
 *.jks
 *.keystore
 iosApp/iosApp/GoogleService-Info.plist
