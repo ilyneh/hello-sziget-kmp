@@ -189,7 +189,7 @@ android {
 // path before invoking the publish task.
 play {
     serviceAccountCredentials.set(file("play-service-account.json"))
-    track.set("beta")
+    track.set("internal")
     defaultToAppBundles.set(true)
     releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }
