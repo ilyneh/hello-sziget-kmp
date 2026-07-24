@@ -167,6 +167,28 @@ Troubleshooting: missing provisioning profile, invalid/duplicate signing cert, o
 DerivedData are the usual causes of archive/export failures — clean DerivedData and re-check
 profile/cert validity in Xcode's Signing & Capabilities tab first.
 
+### Manually uploading dSYMs to Firebase Crashlytics
+
+Xcode already uploads dSYMs to Crashlytics automatically on every build, via the "Crashlytics:
+Run" build phase in `iosApp.xcodeproj` (runs Firebase's `Crashlytics/run` script from the
+SPM-checked-out `firebase-ios-sdk` package). `scripts/upload-ios-dsyms-firebase.sh` is for the
+cases that build-time step can't cover — re-uploading after it failed (e.g. no network at build
+time), or uploading dSYMs downloaded later from App Store Connect / Xcode Organizer:
+
+```sh
+# From an .xcarchive (e.g. the one scripts/release-ios-beta.sh leaves under /tmp):
+scripts/upload-ios-dsyms-firebase.sh /tmp/ios-beta-release.XXXXXX/iosApp.xcarchive
+
+# From a dSYMs .zip downloaded via Xcode -> Window -> Organizer -> Archives -> Download dSYMs:
+scripts/upload-ios-dsyms-firebase.sh ~/Downloads/appDsyms.zip
+```
+
+It defaults to `iosApp/GoogleService-Info-Release.plist`; pass `--config Debug` or
+`--google-service-plist PATH` for a different Firebase app. It auto-discovers Firebase's
+`upload-symbols` binary under `~/Library/Developer/Xcode/DerivedData` (requires having
+built/archived the project at least once so Swift Package Manager has checked out
+`firebase-ios-sdk`); override with `--upload-symbols-path` if needed. `--help` for full details.
+
 ---
 
 ## Google Sign-In setup
