@@ -84,6 +84,14 @@ Build types (`androidApp/build.gradle.kts`) — no product flavors, three build 
 `beta`/`release` builds require `androidApp/keystore.properties` to exist — the build fails
 loudly (rather than producing an unsigned artifact) if it's missing.
 
+Publishing the beta AAB to Google Play Console (via the
+[Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin) additionally
+requires `androidApp/play-service-account.json` — see [CI/CD status](#cicd-status) below:
+
+```sh
+./gradlew :androidApp:publishBetaBundle
+```
+
 ---
 
 ## iOS builds
@@ -179,12 +187,28 @@ Android and iOS version independently — there is no single source of truth acr
 
 ## CI/CD status
 
-No CI is configured yet (no `.github/workflows/`, no Fastlane). Planning notes exist locally
-under the gitignored `docs/notes/` directory (`google-services-json-ci-plan.md`,
-`create-gcloud-serviceaccounts.md`) covering how CI would eventually source
-`google-services.json`/`GoogleService-Info.plist` as a secret and what GCP service accounts are
-already provisioned for backend deploys. The manual iOS release steps above are the main
-candidate for future automation.
+`.github/workflows/play-beta-release.yml` — manual (`workflow_dispatch`-only) Android beta
+release to Google Play Console, using the
+[Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin
+(`com.github.triplet.play`, configured in `androidApp/build.gradle.kts`) rather than a separate
+upload action or Fastlane, since it runs in-process as part of the existing Gradle build and
+build-type setup. It writes `google-services.json`, the release keystore +
+`keystore.properties`, and a Play Console service account key from repo secrets (see the
+checklist below), then runs `./gradlew :androidApp:publishBetaBundle`, which builds and uploads
+the `beta` build type's AAB to the Play Console **beta** track and deletes all the
+secret-derived files afterward regardless of outcome.
+
+Because the `beta` build type uses `applicationIdSuffix = ".beta"`, it publishes under its own
+package (`com.ilyne.helloszigetkmp.beta`) with its own separate Play Console app listing —
+distinct from the `release` app (`com.ilyne.helloszigetkmp`). That app listing must already
+exist in Play Console (Play Publisher can publish to an existing app, not create a new one), and
+its `beta` track needs at least one manual release already promoted through it once before
+automated publishing works.
+
+Planning notes exist locally under the gitignored `docs/notes/` directory
+(`google-services-json-ci-plan.md`, `create-gcloud-serviceaccounts.md`) covering GCP service
+accounts already provisioned for backend deploys. The manual iOS release steps above are the
+main remaining candidate for future automation.
 
 ---
 
@@ -198,6 +222,21 @@ changes):
 - `androidApp/google-services.json`
 - `iosApp/iosApp/GoogleService-Info.plist`
 - `androidApp/release/`
+- `androidApp/play-service-account.json`
 
 Committed templates to copy from instead: `local.properties.example`,
 `androidApp/keystore.properties.example`.
+
+### GitHub Actions secrets (`play-beta-release.yml`)
+
+Repo secrets consumed by the Play Console beta release workflow — set these under
+**Settings → Secrets and variables → Actions**:
+
+| Secret | Contents |
+|---|---|
+| `GOOGLE_SERVICES_JSON` | Full contents of `androidApp/google-services.json` |
+| `ANDROID_KEYSTORE_BASE64` | Release keystore file, base64-encoded (`base64 -i release.keystore \| pbcopy` or equivalent) |
+| `ANDROID_KEYSTORE_STORE_PASSWORD` | `storePassword` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_ALIAS` | `keyAlias` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_PASSWORD` | `keyPassword` from `keystore.properties` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | Full contents of a Play Console API service account JSON key with Release Manager access to the `com.ilyne.helloszigetkmp.beta` app listing (Play Console → Setup → API access) |

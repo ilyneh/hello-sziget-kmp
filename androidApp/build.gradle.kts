@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebaseCrashlytics)
+    alias(libs.plugins.playPublisher)
 }
 
 val keystorePropertiesFile = file("keystore.properties")
@@ -170,4 +171,25 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+// --- Google Play publishing (Gradle Play Publisher) -------------------------------------------
+//
+// Publishes the "beta" build type's AAB to the Play Console "beta" track. Because the "beta"
+// build type carries applicationIdSuffix ".beta", it ships as its own package
+// (com.ilyne.helloszigetkmp.beta) with its own Play Console app listing, separate from the
+// release app (com.ilyne.helloszigetkmp) — that listing must already exist in Play Console
+// before publishBetaBundle can succeed, since Play Publisher only publishes to an app that's
+// already been created there (it can't create a brand-new app listing).
+//
+// serviceAccountCredentials points at a service account JSON key file. Locally this file doesn't
+// exist and any local `./gradlew publishBetaBundle` invocation will fail fast with a clear
+// "file not found" error, same pattern as the release keystore below — the GitHub Actions
+// workflow (.github/workflows/play-beta-release.yml) writes the key from a repo secret to this
+// path before invoking the publish task.
+play {
+    serviceAccountCredentials.set(file("play-service-account.json"))
+    track.set("beta")
+    defaultToAppBundles.set(true)
+    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }
