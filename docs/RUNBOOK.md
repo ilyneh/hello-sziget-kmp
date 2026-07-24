@@ -100,9 +100,23 @@ Xcode build/run/archive handles it automatically.
 
 ### TestFlight / App Store release
 
-Manual process (no CI automation yet). **Bump `CURRENT_PROJECT_VERSION` in
-`iosApp/Configuration/Release.xcconfig` before every upload** — App Store Connect rejects
-duplicate build numbers.
+No CI automation yet, but `scripts/release-ios-beta.sh` wraps the manual local steps (must run
+on macOS with Xcode installed):
+
+```sh
+scripts/release-ios-beta.sh
+```
+
+By default it increments `CURRENT_PROJECT_VERSION` in `iosApp/Configuration/Release.xcconfig` by
+1 (App Store Connect rejects a duplicate build number), prompts for confirmation, then runs
+`xcodebuild archive` followed by `xcodebuild -exportArchive` — which uploads straight to App
+Store Connect / TestFlight as its last step, since `ExportOptions.plist` sets
+`destination=upload`. The build-number bump is left as an uncommitted change in
+`Release.xcconfig` for you to commit once the upload succeeds. Flags: `--build-number N` to set
+an explicit build number, `--no-bump` to reuse the current one, `--yes`/`-y` to skip the
+confirmation prompt, `--help` for details.
+
+Equivalent manual steps, if you'd rather not use the script:
 
 ```sh
 xcodebuild archive \
