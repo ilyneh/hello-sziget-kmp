@@ -1,0 +1,11 @@
+# Shared Maestro config for hello-sziget-kmp.
+#
+# Build & install the debug app first:
+#   ./gradlew :androidApp:installDebug
+#
+# Run a single flow:
+#   maestro test maestro/flows/login/login_flow.yaml
+#
+# Run everything:
+#   maestro test maestro/flows
+appId: com.ilyne.helloszigetkmp.debug
