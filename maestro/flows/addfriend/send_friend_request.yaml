@@ -1,0 +1,44 @@
+# Happy path: open Add Friend from the Profile tab, search for a user by name,
+# and send them a friend request.
+#
+# Assumption: this device/emulator already has an authenticated session (there is
+# no debug/test auth backdoor in the app - login goes through real Google Sign-In,
+# which Maestro cannot drive). Run this after signing in manually once, or against
+# a pre-provisioned emulator snapshot that already has valid stored tokens, so the
+# app launches straight into the Main tabs rather than the Login screen.
+#
+# Assumption: at least one other user exists (seeded/synced via UserRepository)
+# whose name contains "a" and who is not already a friend, so the search below
+# returns a result in the FriendshipStatus.NONE state (Request button visible).
+# Swap SEARCH_QUERY for a name that matches your test environment's seed data.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- assertVisible:
+    text: "Profile"
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    text: "Friends"
+# The add-friend icon button has no text/testTag of its own (it lives in
+# ProfileScreen, out of scope for this feature's testTags), so it's targeted
+# relative to the "Friends" section header text next to which it sits.
+- tapOn:
+    rightOf: "Friends"
+- assertVisible:
+    id: "addfriend_screen"
+- assertVisible:
+    text: "Add Friends"
+- tapOn:
+    id: "addfriend_search_field"
+- inputText: "a"
+- assertVisible:
+    id: "addfriend_results_list"
+- assertVisible:
+    id: "addfriend_user_item"
+- tapOn:
+    id: "addfriend_request_button"
+- assertVisible:
+    id: "addfriend_requested_button"
+- assertNotVisible:
+    id: "addfriend_error_text"

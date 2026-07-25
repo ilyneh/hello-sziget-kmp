@@ -1,0 +1,27 @@
+# Searching for a user that doesn't exist shows the empty-state message instead
+# of a stale/previous result list.
+#
+# Assumption: same pre-authenticated session assumption as send_friend_request.yaml
+# - no debug auth backdoor exists, so the app must already be logged in when this
+# flow starts.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    text: "Friends"
+- tapOn:
+    rightOf: "Friends"
+- assertVisible:
+    id: "addfriend_screen"
+- tapOn:
+    id: "addfriend_search_field"
+# Deliberately implausible query so it can't accidentally match a real seeded user.
+- inputText: "zzznonexistentuserzzz"
+- assertVisible:
+    id: "addfriend_empty_state_text"
+- assertVisible:
+    text: "No users found"
+- assertNotVisible:
+    id: "addfriend_user_item"

@@ -1,0 +1,20 @@
+# Add Friend is a modal bottom sheet (dialog<AddFriend> in AppNavGraph) - back
+# navigation should dismiss it and return to the Profile screen underneath.
+#
+# Assumption: same pre-authenticated session assumption as send_friend_request.yaml.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    text: "Friends"
+- tapOn:
+    rightOf: "Friends"
+- assertVisible:
+    id: "addfriend_screen"
+- back
+- assertNotVisible:
+    id: "addfriend_screen"
+- assertVisible:
+    text: "Friends"
