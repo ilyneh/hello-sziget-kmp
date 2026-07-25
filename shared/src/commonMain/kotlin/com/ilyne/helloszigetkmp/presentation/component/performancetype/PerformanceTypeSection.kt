@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ fun PerformanceTypeSection(
             TriStateCheckbox(
                 state = checkState,
                 onClick = onToggleType,
+                modifier = Modifier.testTag("performance_type_${type.name.lowercase()}_checkbox"),
             )
             Text(
                 text = type.displayName(),

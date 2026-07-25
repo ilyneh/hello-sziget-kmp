@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,8 @@ fun ArtistCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f),
+            .aspectRatio(0.8f)
+            .testTag("discover_artist_card"),
     ) {
         Box(
             modifier = Modifier
@@ -91,14 +93,18 @@ fun ArtistCard(
                         maxFontSize = 14.sp, // Maximum allowable size
                         stepSize = 0.5.sp, // Granularity of adjustment
                     ),
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .testTag("discover_artist_name"),
                 )
             }
 
             FavoriteIconButton(
                 enabled = artist.isFavorited,
                 onClick = onFavoriteToggle,
-                modifier = Modifier.align(Alignment.TopEnd),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .testTag("discover_artist_favorite_button"),
             )
         }
     }
