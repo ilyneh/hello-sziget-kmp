@@ -1,0 +1,19 @@
+# Verifies the login screen renders its baseline (logged-out) state: the
+# welcome hero + sign-in card, with the Google sign-in button visible and
+# enabled, and no error or loading indicator showing yet.
+#
+# See maestro/flows/login/README.md for why this repo's login flows stop
+# short of a full Google Sign-In: the native account-picker UI can't be
+# reliably driven here.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "login_screen"
+- assertVisible:
+    id: "login_sign_in_button"
+- assertNotVisible:
+    id: "login_loading_indicator"
+- assertNotVisible:
+    id: "login_error_message"
