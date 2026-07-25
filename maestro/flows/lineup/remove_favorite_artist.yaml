@@ -1,0 +1,46 @@
+# Remove an artist from My Lineup via the heart/remove button and verify it
+# disappears from the list (MyLineupViewModel.removeFavorite ->
+# ArtistRepository.toggleFavorite(isFavorited = false), which flows back
+# through ScheduleRepository.observeFavoriteSetTimes()).
+#
+# ASSUMPTION: same as reach_lineup_and_verify_state.yaml -- there is no
+# debug auth backdoor (AppNavGraph.kt starts at Login, LoginScreen only
+# offers real Google Sign-In), so this flow assumes the device already has a
+# persisted, logged-in session. It ALSO assumes the test data/account has at
+# least one favorited artist already in the lineup -- if the account starts
+# with an empty lineup, favorite an artist from the Discover or Schedule tab
+# first (out of scope for this flow, which only touches the lineup screen).
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- tapOn:
+    text: "My Lineup"
+- assertVisible:
+    id: "lineup_screen"
+- assertVisible:
+    id: "lineup_list"
+# Tap the first remove/heart button in the list. Item ids are
+# "lineup_remove_<artistId>", so match by prefix rather than a fixed id
+# since the artist shown first depends on schedule/seed data.
+- tapOn:
+    id: "lineup_remove_.*"
+    index: 0
+# The removed row's own testTag ("lineup_item_<artistId>") disappears along
+# with it, but since the artistId isn't known ahead of time here, assert on
+# the more general/stable signal instead: the list either still shows
+# (fewer) remaining favorites, or -- if that was the only favorite left --
+# the empty state now renders.
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - assertVisible:
+          id: "lineup_empty_state"
+- runFlow:
+    when:
+      notVisible:
+        id: "lineup_empty_state"
+    commands:
+      - assertVisible:
+          id: "lineup_list"

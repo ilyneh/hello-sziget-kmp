@@ -1,0 +1,38 @@
+# Tap a favorited artist's row in My Lineup and confirm it navigates to the
+# artist detail screen (MyLineupScreen -> onArtistClick -> AppNavGraph's
+# ArtistDetailRoute dialog destination).
+#
+# ASSUMPTION: same as the other lineup flows -- no debug auth backdoor
+# exists, so this assumes a device that's already signed in, with at least
+# one favorited artist already in the lineup (favorite one from
+# Discover/Schedule first if starting from a clean account).
+#
+# NOTE: ArtistDetailScreen (presentation/feature/artistdetail/) has no
+# testTag of its own -- it's outside this task's scope
+# (presentation/feature/lineup/ only) -- so detail-screen assertions here
+# are limited to confirming we've left the lineup screen, rather than
+# asserting on anything inside the detail screen itself.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- tapOn:
+    text: "My Lineup"
+- assertVisible:
+    id: "lineup_screen"
+- assertVisible:
+    id: "lineup_list"
+# Tap the first artist row (not its remove button) to trigger onArtistClick.
+- tapOn:
+    id: "lineup_item_.*"
+    index: 0
+# ArtistDetailScreen renders as a full-width dialog over Main; the lineup
+# list/screen root is no longer the visible foreground content.
+- assertNotVisible:
+    id: "lineup_list"
+# Dismiss the detail dialog (ArtistDetailScreen's onDismiss pops the back
+# stack) and confirm we're back on the lineup screen.
+- back
+- assertVisible:
+    id: "lineup_screen"
+- assertVisible:
+    id: "lineup_list"

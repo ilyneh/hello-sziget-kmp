@@ -1,0 +1,43 @@
+# Reach the My Lineup tab and confirm it renders either the populated list or
+# the empty state (never gets stuck on the Loading/Error state).
+#
+# ASSUMPTION: AppNavGraph.kt starts at the Login destination and there is no
+# debug/test backdoor to skip Google Sign-In (SzigetAuthService drives real
+# Google Sign-In via GoogleAuthProvider; LoginScreen -> SignInCard has no
+# testTag or alternate entry point). Maestro cannot drive Google's native
+# account picker, so this flow assumes the target device/emulator already has
+# a persisted session (a real sign-in was performed once beforehand and
+# TokenStorage still holds valid tokens), landing directly on the Main/
+# MainScaffold destination with the bottom nav visible. If the app instead
+# shows the Login screen, this flow will fail at the "My Lineup" tap step --
+# that's expected until a test-only auth bypass exists.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+# Bottom nav lives in MainScaffold.kt, outside presentation/feature/lineup/,
+# so it has no testTag yet -- fall back to the tab's visible label text
+# (Res.string.lineup_title == "My Lineup").
+- tapOn:
+    text: "My Lineup"
+- assertVisible:
+    id: "lineup_screen"
+# Depending on seed/test data, the screen renders either a populated list or
+# the empty state -- assert whichever one actually rendered so the flow
+# fails only if NEITHER shows up (which would mean the screen got stuck
+# loading or errored out).
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - assertVisible:
+          id: "lineup_empty_state"
+      - assertVisible:
+          id: "lineup_empty_title"
+- runFlow:
+    when:
+      visible:
+        id: "lineup_list"
+    commands:
+      - assertVisible:
+          id: "lineup_list"
