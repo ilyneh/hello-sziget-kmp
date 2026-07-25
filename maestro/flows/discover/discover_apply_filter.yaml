@@ -27,8 +27,10 @@ appId: com.ilyne.helloszigetkmp.debug
 # DiscoverFilter's default is "all genre groups selected", so toggling one whole performance
 # type off is the smallest change that both (a) is guaranteed to differ from the default
 # regardless of backend data, and (b) survives Save as a non-trivial filter (activeCount() > 0).
+# Tapping the "Dance" label itself does nothing - it's a plain Text with no click handler; the
+# actual toggle action lives on the TriStateCheckbox next to it (see PerformanceTypeSection.kt).
 - tapOn:
-    text: "Dance"
+    id: "performance_type_dance_checkbox"
 - tapOn:
     id: "discover_filter_save_button"
 
@@ -46,6 +48,6 @@ appId: com.ilyne.helloszigetkmp.debug
 - tapOn:
     text: "Filters"
 - tapOn:
-    text: "Dance"
+    id: "performance_type_dance_checkbox"
 - tapOn:
     id: "discover_filter_save_button"

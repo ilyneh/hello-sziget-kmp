@@ -26,7 +26,7 @@ appId: com.ilyne.helloszigetkmp.debug
     id: "discover_artist_card"
     index: 0
 - assertVisible:
-    text: "${MAESTRO_COPIED_TEXT}"
+    text: "${maestro.copiedText}"
 
 # Dismiss the artist detail sheet (back gesture) and confirm we're back on Discover.
 - back

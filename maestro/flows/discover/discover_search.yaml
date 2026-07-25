@@ -25,11 +25,11 @@ appId: com.ilyne.helloszigetkmp.debug
     index: 0
 - tapOn:
     id: "discover_search_field"
-- inputText: "${MAESTRO_COPIED_TEXT}"
+- inputText: "${maestro.copiedText}"
 - assertVisible:
     id: "discover_artist_grid"
 - assertVisible:
-    text: "${MAESTRO_COPIED_TEXT}"
+    text: "${maestro.copiedText}"
 
 # Clear the query and confirm the full grid is reachable again.
 - tapOn:
