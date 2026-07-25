@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,8 @@ fun SetTimeCard(
             .clipToBounds()
             .background(color.copy(alpha = backgroundAlpha))
             .combinedClickable(onClick = onClick, onLongClick = onToggleFavorite)
-            .padding(8.dp),
+            .padding(8.dp)
+            .testTag("schedule_set_time_card"),
     ) {
         val friendsFavorited = setTime.artistFriendsFavorited?.friendsFavorited
         val hasFriendsFavorited = friendsFavorited?.isNotEmpty() == true

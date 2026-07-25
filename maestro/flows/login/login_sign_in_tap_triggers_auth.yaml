@@ -1,23 +1,14 @@
-# Confirms tapping the sign-in button actually kicks off LoginViewModel's
-# sign-in flow (button becomes disabled / loading indicator appears) rather
-# than being a no-op.
+# Confirms tapping the sign-in button actually completes sign-in and lands on the authenticated
+# Main screen.
 #
-# This flow intentionally stops here: with SKIP_GOOGLE_SIGN_IN off (the
-# default, and the only mode a release-shaped build ever honors -
-# SzigetAuthService.localSignIn() ignores the flag outside debug builds),
-# tapping "Continue with Google" hands off to GoogleAuthProvider, which
-# launches Google's native Sign-In / account-picker UI (Credential Manager /
-# a system activity outside this app's window). Maestro can't reliably
-# assert on or drive that surface - it isn't part of this app's Compose
-# tree, its content depends on which Google accounts are on the device/
-# emulator, and it isn't exposed via testTagsAsResourceId. So this flow only
-# verifies the *local* effect of the tap (loading state kicks in) and does
-# not attempt to complete sign-in.
-#
-# See maestro/flows/login/README.md for how a real end-to-end login could be
-# made testable (a pre-authorized test Google account on the device, or
-# building this app with -Psziget.skipGoogleSignIn=true to exercise the
-# existing debug-only local-auth bypass instead of Google).
+# This assumes the debug app under test was built with -Psziget.skipGoogleSignIn=true (see
+# maestro/README.md's "Running against a mocked backend" section) — with that flag on,
+# LoginViewModel routes the tap through SzigetAuthService.localSignIn() instead of
+# GoogleAuthProvider, so it never hands off to Google's native Sign-In / Credential Manager UI
+# (a system surface outside this app's window and Compose tree that Maestro can't reliably drive
+# — see maestro/flows/login/README.md for why). Without that flag, tapping "Continue with
+# Google" launches that native UI instead, and this flow's post-tap assertion will fail/time out
+# — that's the expected/documented behavior for a non-E2E debug build, not a broken flow.
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
@@ -26,9 +17,5 @@ appId: com.ilyne.helloszigetkmp.debug
     id: "login_sign_in_button"
 - tapOn:
     id: "login_sign_in_button"
-# Either the loading spinner shows briefly before Google's own UI takes
-# over, or that UI has already appeared by the time Maestro looks - both are
-# acceptable outcomes here since we're only checking the tap wasn't a no-op.
 - assertVisible:
-    id: "login_loading_indicator"
-    optional: true
+    text: "Discover"

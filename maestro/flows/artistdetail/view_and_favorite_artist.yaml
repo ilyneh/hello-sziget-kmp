@@ -8,10 +8,12 @@
 # - No debug/test backdoor exists to jump straight to a logged-in state or
 #   directly to an artist id, so this flow goes through the real Login ->
 #   Main -> Discover -> tap-a-card path.
-# - artistdetail/ has no stable id for individual cards in Discover (that
-#   screen is out of scope for this change), so the first artist card is
-#   located generically via a non-empty text match + index rather than a
-#   specific artist name, since the backend catalog isn't fixed test data.
+# - Individual Discover cards share one testTag ("discover_artist_card", see
+#   ArtistCard.kt) rather than per-artist ids, since the backend catalog
+#   isn't fixed test data - the first card is picked via that id + index: 0.
+#   (A generic `text: ".+"` match was tried first but matched the screen's
+#   own "Discover" header text before it ever reached the grid, since that
+#   selector matches any non-empty text anywhere on screen, not just cards.)
 # - Once inside the artist detail sheet, all assertions/taps use the
 #   `artistdetail_*` testTags added to ArtistDetailScreen.kt.
 appId: com.ilyne.helloszigetkmp.debug
@@ -29,11 +31,11 @@ appId: com.ilyne.helloszigetkmp.debug
 - assertVisible:
     id: "artistdetail_root"
     optional: true
-# Tap the first visible artist card in the Discover grid by matching any
-# non-empty artist name label, since card contents come from live backend
-# data rather than fixed test fixtures.
+# Tap the first visible artist card in the Discover grid. Cards share one
+# testTag rather than per-artist ids, since card contents come from live
+# backend data rather than fixed test fixtures.
 - tapOn:
-    text: ".+"
+    id: "discover_artist_card"
     index: 0
 - assertVisible:
     id: "artistdetail_header"
