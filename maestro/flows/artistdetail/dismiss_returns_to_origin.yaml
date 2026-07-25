@@ -1,0 +1,27 @@
+# Confirms the artist detail sheet can be reached from Schedule (the app's
+# start destination after login, not just Discover) and that dismissing it
+# via the system back button returns to that same origin screen without
+# navigating away from it.
+#
+# Assumptions: same login backdoor and "tap first artist-like item" caveats
+# as view_and_favorite_artist.yaml. Schedule's set-time entries are assumed
+# to expose the artist name as visible text, since that feature is out of
+# scope for testTag additions here.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- assertVisible:
+    text: "Schedule"
+- tapOn:
+    text: ".+"
+    index: 0
+- assertVisible:
+    id: "artistdetail_root"
+- pressKey: Back
+- assertNotVisible:
+    id: "artistdetail_root"
+- assertVisible:
+    text: "Schedule"

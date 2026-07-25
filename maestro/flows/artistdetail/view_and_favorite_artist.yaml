@@ -1,0 +1,56 @@
+# Launches the app, signs in (debug builds skip real Google auth via
+# SKIP_GOOGLE_SIGN_IN / localSignIn(), so tapping "Continue with Google" is
+# enough), navigates to the Discover tab, opens the first artist card, and
+# verifies the artist detail bottom sheet renders (title, favorite toggle,
+# bio) before toggling the favorite state and dismissing back to Discover.
+#
+# Assumptions:
+# - No debug/test backdoor exists to jump straight to a logged-in state or
+#   directly to an artist id, so this flow goes through the real Login ->
+#   Main -> Discover -> tap-a-card path.
+# - artistdetail/ has no stable id for individual cards in Discover (that
+#   screen is out of scope for this change), so the first artist card is
+#   located generically via a non-empty text match + index rather than a
+#   specific artist name, since the backend catalog isn't fixed test data.
+# - Once inside the artist detail sheet, all assertions/taps use the
+#   `artistdetail_*` testTags added to ArtistDetailScreen.kt.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    text: "Continue with Google"
+- tapOn:
+    text: "Continue with Google"
+- assertVisible:
+    text: "Discover"
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "artistdetail_root"
+    optional: true
+# Tap the first visible artist card in the Discover grid by matching any
+# non-empty artist name label, since card contents come from live backend
+# data rather than fixed test fixtures.
+- tapOn:
+    text: ".+"
+    index: 0
+- assertVisible:
+    id: "artistdetail_header"
+- assertVisible:
+    id: "artistdetail_bio"
+- assertVisible:
+    id: "artistdetail_favorite_button"
+- tapOn:
+    id: "artistdetail_favorite_button"
+- assertVisible:
+    id: "artistdetail_favorite_button"
+# Dismiss the modal bottom sheet (swipe down) and confirm we're back on
+# Discover, i.e. the sheet's testTag is no longer present.
+- swipe:
+    start: "50%, 20%"
+    end: "50%, 90%"
+- assertNotVisible:
+    id: "artistdetail_root"
+- assertVisible:
+    text: "Discover"
