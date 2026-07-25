@@ -1,0 +1,27 @@
+# Discover tab: launch, land on the tab, and verify the artist grid renders.
+#
+# Auth note: there is no debug/test login backdoor in this codebase (SzigetAuthService only
+# supports real Google Sign-In via GoogleAuthProvider, and AppNavGraph's start destination is
+# always `Login`). These flows assume the device/emulator already has a persisted, signed-in
+# session (TokenStorage) from a prior manual sign-in, so `launchApp` intentionally does NOT
+# clear state -- clearing state would land back on the Login screen with no way to proceed
+# non-interactively. If the app boots into Login here, sign in manually once on the target
+# device/emulator, then re-run.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_search_field"
+- assertVisible:
+    id: "discover_filter_bar"
+- assertVisible:
+    text: "Filters"
+- assertVisible:
+    id: "discover_artist_grid"
+- assertVisible:
+    id: "discover_artist_card"

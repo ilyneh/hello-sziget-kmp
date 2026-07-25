@@ -1,0 +1,36 @@
+# Discover tab: tapping an artist card navigates to the artist detail sheet.
+#
+# Auth note: see discover_view_list.yaml -- no test-only login backdoor exists, so this flow
+# assumes a device/emulator with an already-persisted, signed-in session.
+#
+# artistdetail/ is a separate feature (out of scope for testTag additions here) and its
+# ModalHeader shows the artist's own name rather than a fixed label, so this flow captures the
+# tapped card's name first and asserts the same text re-appears in the detail sheet's header --
+# that's the strongest content-agnostic signal that navigation actually happened, without
+# depending on fixture/backend artist data.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_artist_card"
+
+- copyTextFrom:
+    id: "discover_artist_name"
+    index: 0
+- tapOn:
+    id: "discover_artist_card"
+    index: 0
+- assertVisible:
+    text: "${maestro.copiedText}"
+
+# Dismiss the artist detail sheet (back gesture) and confirm we're back on Discover.
+- back
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_artist_grid"

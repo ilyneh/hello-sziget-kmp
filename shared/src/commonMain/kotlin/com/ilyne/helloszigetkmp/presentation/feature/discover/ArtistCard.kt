@@ -93,14 +93,18 @@ fun ArtistCard(
                         maxFontSize = 14.sp, // Maximum allowable size
                         stepSize = 0.5.sp, // Granularity of adjustment
                     ),
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .testTag("discover_artist_name"),
                 )
             }
 
             FavoriteIconButton(
                 enabled = artist.isFavorited,
                 onClick = onFavoriteToggle,
-                modifier = Modifier.align(Alignment.TopEnd),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .testTag("discover_artist_favorite_button"),
             )
         }
     }
