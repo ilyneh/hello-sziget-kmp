@@ -1,0 +1,66 @@
+name: Play Console beta release
+
+# Manual only: publishing to Play Console is a one-way action (once a beta build is uploaded to
+# a track, testers can install it), so this isn't wired to run automatically on push/PR — it's
+# triggered on demand from the Actions tab.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  publish-beta:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # versionCode/versionName in androidApp/build.gradle.kts are derived from full git
+          # history (git rev-list --count HEAD); a shallow clone would make them non-monotonic.
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" > androidApp/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      - name: Write release keystore
+        run: |
+          mkdir -p androidApp/keystore
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > androidApp/keystore/release.keystore
+          cat > androidApp/keystore.properties <<EOF
+          storeFile=keystore/release.keystore
+          storePassword=$ANDROID_KEYSTORE_STORE_PASSWORD
+          keyAlias=$ANDROID_KEYSTORE_KEY_ALIAS
+          keyPassword=$ANDROID_KEYSTORE_KEY_PASSWORD
+          EOF
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_STORE_PASSWORD }}
+          ANDROID_KEYSTORE_KEY_ALIAS: ${{ secrets.ANDROID_KEYSTORE_KEY_ALIAS }}
+          ANDROID_KEYSTORE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_KEY_PASSWORD }}
+
+      - name: Write Play Console service account key
+        run: echo "$PLAY_SERVICE_ACCOUNT_JSON" > androidApp/play-service-account.json
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+
+      - name: Publish beta bundle to Play Console
+        run: ./gradlew :androidApp:publishBetaBundle --stacktrace
+
+      # Runs even if the publish step fails, so secrets never linger in the runner's workspace
+      # (moot for ephemeral GitHub-hosted runners, but cheap insurance and required on self-hosted ones).
+      - name: Clean up secret files
+        if: always()
+        run: |
+          rm -f androidApp/google-services.json
+          rm -f androidApp/keystore.properties
+          rm -f androidApp/keystore/release.keystore
+          rm -f androidApp/play-service-account.json
