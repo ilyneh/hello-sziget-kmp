@@ -1,0 +1,28 @@
+# Confirms the artist detail sheet can be reached from Schedule (the app's
+# start destination after login, not just Discover) and that dismissing it
+# via the system back button returns to that same origin screen without
+# navigating away from it.
+#
+# Assumptions: same login backdoor as view_and_favorite_artist.yaml. Schedule
+# defaults to its GRID view mode on a fresh launch (state cleared below), so
+# the first set-time entry is reached via SetTimeCard's shared testTag (see
+# component/shared/SetTimeCard.kt) rather than a specific artist/set id,
+# since the schedule isn't fixed test data.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- assertVisible:
+    text: "Schedule"
+- tapOn:
+    id: "schedule_set_time_card"
+    index: 0
+- assertVisible:
+    id: "artistdetail_root"
+- pressKey: Back
+- assertNotVisible:
+    id: "artistdetail_root"
+- assertVisible:
+    text: "Schedule"
