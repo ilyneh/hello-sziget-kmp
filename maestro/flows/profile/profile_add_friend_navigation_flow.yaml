@@ -1,0 +1,21 @@
+# Verifies tapping the add-friend entry point on Profile navigates to the Add Friend
+# screen (dialog destination). Does not exercise the AddFriend flow itself - that screen
+# has its own test suite under maestro/flows/addfriend/.
+#
+# Assumption: same as profile_view_flow.yaml - assumes an already-authenticated session
+# is present on the device, since there's no debug auth backdoor to seed one here.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    id: "profile_screen_root"
+- tapOn:
+    id: "profile_add_friend_button"
+- assertVisible:
+    text: "Add Friends"
+- back
+- assertVisible:
+    id: "profile_screen_root"

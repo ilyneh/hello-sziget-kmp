@@ -6,6 +6,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.ilyne.helloszigetkmp.presentation.component.actionbutton.ActionIconButton
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendListItem
@@ -34,7 +35,7 @@ fun ProfileFriendRequestItem(
 ) {
     FriendListItem(
         onClick = {},
-        modifier = modifier,
+        modifier = modifier.testTag("profile_friend_request_item_${item.name}"),
         backgroundColor = MaterialTheme.colorScheme.surface,
     ) {
         NamedAvatarRow(
@@ -43,6 +44,7 @@ fun ProfileFriendRequestItem(
             name = item.name,
         ) {
             ActionIconButton(
+                modifier = Modifier.testTag("profile_accept_friend_request_button_${item.name}"),
                 onClick = onAccept,
                 shape = IconButtonDefaults.mediumSquareShape,
             ) {
@@ -52,6 +54,7 @@ fun ProfileFriendRequestItem(
                 )
             }
             FilledIconButton(
+                modifier = Modifier.testTag("profile_decline_friend_request_button_${item.name}"),
                 onClick = onDecline,
                 shape = IconButtonDefaults.mediumSquareShape,
                 colors = IconButtonDefaults.filledIconButtonColors(

@@ -1,0 +1,37 @@
+# Verifies the Profile tab renders the logged-in user's info, engagement counts, and
+# friends/friend-requests (or the empty state) after a real, already-authenticated launch.
+#
+# Assumption: there is no debug/test auth backdoor in this app (SzigetAuthService only
+# supports real Google Sign-In). This flow assumes the target device/emulator already
+# holds a valid session (persisted via TokenStorage from a prior real sign-in), so the
+# app opens straight to the Main tabs instead of Login. If the session is missing/expired,
+# this flow will fail at the "Profile" tap step because the app will be showing Login
+# instead - that's expected without a seeded session.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Profile"
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    id: "profile_screen_root"
+- assertVisible:
+    id: "profile_avatar_and_name"
+- assertVisible:
+    id: "profile_name"
+- assertVisible:
+    id: "profile_engagement_count_card"
+- assertVisible:
+    id: "profile_add_friend_button"
+# Which of these three renders depends on the signed-in test account's seeded backend
+# data (friends, pending friend requests, or neither). Uncomment the assertion matching
+# the fixture data for the account under test:
+#
+# - assertVisible:
+#     id: "profile_friends_list"
+# - assertVisible:
+#     id: "profile_friend_requests_section"
+# - assertVisible:
+#     id: "profile_no_friends_message"
