@@ -126,11 +126,12 @@ confirmation prompt, `--help` for details.
 
 To automatically add the uploaded build to a TestFlight beta group (instead of assigning it by
 hand in App Store Connect afterward), pass `--test-group NAME` (repeatable for multiple groups).
-This talks to the App Store Connect API directly — no Fastlane — and needs:
+This hands off to `scripts/assign_testflight_group.py`, which talks to the App Store Connect API
+directly — no Fastlane, no third-party pip packages — and needs:
 - An App Store Connect API key (App Store Connect → Users and Access → Integrations → App Store
   Connect API; App Manager role or higher), giving you a key ID, an issuer ID, and a downloaded
   `.p8` private key file.
-- `jq`, `python3`, and `openssl` in `PATH` (only checked/required when `--test-group` is used).
+- `python3` and `openssl` in `PATH` (only checked/required when `--test-group` is used).
 
 Pass the key via `--asc-key-id`/`--asc-issuer-id`/`--asc-key-path`, or the
 `ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_API_KEY_PATH` env vars:
