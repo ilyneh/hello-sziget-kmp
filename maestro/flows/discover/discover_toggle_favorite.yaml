@@ -1,0 +1,35 @@
+# Discover tab: tapping an artist card's favorite button toggles it without navigating away
+# or disrupting the grid (DiscoverViewModel.toggleFavorite swallows failures silently by
+# design, so this flow only checks that the screen stays put and interactive -- there is no
+# testTag-observable "favorited" visual state to assert on since FavoriteIconButton lives in
+# presentation/component/ (out of scope here) and its enabled/filled art asset isn't exposed
+# as text or id).
+#
+# Auth note: see discover_view_list.yaml -- no test-only login backdoor exists, so this flow
+# assumes a device/emulator with an already-persisted, signed-in session.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_artist_favorite_button"
+
+- tapOn:
+    id: "discover_artist_favorite_button"
+    index: 0
+# Toggling favorite must not navigate away from Discover or blow away the grid.
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_artist_grid"
+
+# Toggle back to leave no persisted state behind for subsequent runs.
+- tapOn:
+    id: "discover_artist_favorite_button"
+    index: 0
+- assertVisible:
+    id: "discover_artist_grid"
