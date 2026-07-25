@@ -1,0 +1,21 @@
+# Confirms tapping the sign-in button actually completes sign-in and lands on the authenticated
+# Main screen.
+#
+# This assumes the debug app under test was built with -Psziget.skipGoogleSignIn=true (see
+# maestro/README.md's "Running against a mocked backend" section) — with that flag on,
+# LoginViewModel routes the tap through SzigetAuthService.localSignIn() instead of
+# GoogleAuthProvider, so it never hands off to Google's native Sign-In / Credential Manager UI
+# (a system surface outside this app's window and Compose tree that Maestro can't reliably drive
+# — see maestro/flows/login/README.md for why). Without that flag, tapping "Continue with
+# Google" launches that native UI instead, and this flow's post-tap assertion will fail/time out
+# — that's the expected/documented behavior for a non-E2E debug build, not a broken flow.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "login_sign_in_button"
+- tapOn:
+    id: "login_sign_in_button"
+- assertVisible:
+    text: "Discover"

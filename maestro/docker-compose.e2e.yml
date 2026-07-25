@@ -1,0 +1,36 @@
+# Brings up a self-seeded backend for running Maestro against — see maestro/README.md.
+#
+# The `backend` service references the image by tag only (built once from a hello-sziget
+# checkout via `docker build -f Dockerfile.e2e -t hello-sziget-backend:e2e .`); this repo never
+# references that checkout's path directly. All required backend env vars are supplied here
+# (dummy values are fine for the Google OAuth / GCS fields, since the debug app bypasses Google
+# sign-in entirely via sziget.skipGoogleSignIn and image storage stays local).
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hello-sziget-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  backend:
+    image: hello-sziget-backend:e2e
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/hello-sziget-dev
+      SECRET_KEY: e2e-test-secret
+      GOOGLE_CLIENT_ID: dummy
+      GOOGLE_CLIENT_SECRET: dummy
+      GCS_BUCKET_NAME: dummy
+      GCS_USER_IMAGES_BUCKET_NAME: dummy
+      SYNC_API_KEY: dummy
+      IMAGE_STORAGE_BACKEND: local
+    ports:
+      - "8081:8080"
