@@ -1,0 +1,27 @@
+# Verifies the day selector (DaySelector.kt) drives the displayed schedule. Day items are tagged
+# "schedule_day_item_<dateOfMonth>" (SetTimeDay.dateOfMonth, e.g. "schedule_day_item_10") since
+# SetTimeDay has no other stable id. This flow assumes at least two festival days are configured
+# and reachable without the "Show extra days" filter — if the festival data only has a single day
+# in the default (non-extra) set, the second tapOn below will fail to find its target and the
+# flow should be adjusted to enable "Show extra days" first via the filter screen.
+#
+# See reach_schedule_and_switch_view_mode.yaml for the auth/session assumption this flow shares.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "schedule_screen"
+- assertVisible:
+    id: "schedule_day_selector"
+- assertVisible:
+    id: "schedule_grid_view"
+
+# Tap the second visible day chip and confirm the grid re-renders for the new day (the grid is
+# keyed by selectedDay in ScheduleScreen.kt, so content underneath changes even though the
+# container id stays the same — we assert the container survives the reselection).
+- tapOn:
+    id: "schedule_day_item_.*"
+    index: 1
+- assertVisible:
+    id: "schedule_grid_view"

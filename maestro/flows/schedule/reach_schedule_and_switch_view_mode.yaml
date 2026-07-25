@@ -1,0 +1,36 @@
+# Schedule is the app's start tab (see MainScaffold.kt: NavHost startDestination = ScheduleTab),
+# so a logged-in session lands directly on it after launch — no extra tab tap needed.
+#
+# NOTE ON AUTH: Login (LoginScreen.kt) is real Google Sign-In via GoogleAuthProvider; there is no
+# debug/test backdoor in this codebase. This flow assumes the target device/emulator already has
+# a persisted session from a prior successful sign-in (TokenStorage), so `launchApp` deliberately
+# does NOT clear state — clearing state would drop back to the Login screen and this flow would
+# stall waiting for a Google account picker Maestro cannot drive unattended.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "schedule_screen"
+
+# Default view mode is GRID (see ScheduleViewModel's default ScheduleUiState).
+- assertVisible:
+    id: "schedule_grid_view"
+
+# Switch to swimlane view via the header's view-mode toggle.
+- tapOn:
+    id: "schedule_view_mode_swimlane"
+- assertVisible:
+    id: "schedule_swimlane_view"
+
+# Switch to list view.
+- tapOn:
+    id: "schedule_view_mode_list"
+- assertVisible:
+    id: "schedule_list_view"
+
+# Switch back to grid view.
+- tapOn:
+    id: "schedule_view_mode_grid"
+- assertVisible:
+    id: "schedule_grid_view"

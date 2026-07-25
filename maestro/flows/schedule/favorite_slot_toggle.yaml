@@ -1,0 +1,33 @@
+# Covers favoriting a set time from the schedule (ScheduleIntent.ToggleFavorite in
+# ScheduleViewModel.kt, calling ArtistRepository.toggleFavorite). List view (SetTimeListItem.kt)
+# exposes a dedicated heart button tagged "schedule_favorite_button_<setTimeId>", so it's used
+# here rather than the grid/swimlane SetTimeCard, which only exposes favoriting via a long-press
+# on the whole card ("schedule_set_card_<setTimeId>", combinedClickable's onLongClick) — harder to
+# assert against reliably since there's no separate hit target for the toggle in that view.
+#
+# Set time ids are backend data and not known ahead of time, hence the regex id match on the
+# first item. Toggling twice (favorite, then un-favorite) keeps the flow idempotent/repeatable
+# against a shared test account rather than leaving permanent state behind.
+#
+# See reach_schedule_and_switch_view_mode.yaml for the auth/session assumption this flow shares.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "schedule_screen"
+
+- tapOn:
+    id: "schedule_view_mode_list"
+- assertVisible:
+    id: "schedule_list_view"
+
+- tapOn:
+    id: "schedule_favorite_button_.*"
+    index: 0
+# Toggle it back off so re-running this flow doesn't accumulate favorites on a shared account.
+- tapOn:
+    id: "schedule_favorite_button_.*"
+    index: 0
+- assertVisible:
+    id: "schedule_list_view"

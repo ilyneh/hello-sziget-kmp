@@ -1,0 +1,54 @@
+# Confirms the schedule empty state (schedule_empty_state / "No Set Times" text in
+# ScheduleScreen.kt) appears when the active filter excludes every set time.
+#
+# Unchecking all three performance types (Music / Dance / Arts & Culture) is used to force zero
+# results deterministically, rather than the "Favorites only" filter (favorite_slot_toggle.yaml
+# and apply_filter_and_verify_results.yaml), since whether favorites-only yields zero results
+# depends on the test account's current favorites and would make this flow flaky.
+#
+# PerformanceTypeSection.kt (presentation/component/performancetype/) is a shared component
+# outside the schedule feature, so it has no testTag here — its rows are targeted by the
+# PerformanceType.displayName() text per the README's fallback-to-text convention.
+#
+# See reach_schedule_and_switch_view_mode.yaml for the auth/session assumption this flow shares.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "schedule_screen"
+
+- tapOn:
+    text: "Filters"
+- assertVisible:
+    id: "schedule_filter_screen"
+
+- tapOn:
+    text: "Music"
+- tapOn:
+    text: "Dance"
+- tapOn:
+    text: "Arts & Culture"
+
+- tapOn:
+    id: "schedule_filter_save_button"
+
+- assertVisible:
+    id: "schedule_empty_state"
+- assertVisible:
+    text: "No Set Times"
+
+# Restore the default filter so the flow doesn't leave the shared test account's schedule
+# permanently filtered down to nothing.
+- tapOn:
+    text: "Filters"
+- tapOn:
+    text: "Music"
+- tapOn:
+    text: "Dance"
+- tapOn:
+    text: "Arts & Culture"
+- tapOn:
+    id: "schedule_filter_save_button"
+- assertNotVisible:
+    id: "schedule_empty_state"
