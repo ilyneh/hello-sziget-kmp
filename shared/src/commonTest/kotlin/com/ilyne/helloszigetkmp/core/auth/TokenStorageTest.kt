@@ -2,6 +2,7 @@ package com.ilyne.helloszigetkmp.core.auth
 
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
 import com.russhwolf.settings.MapSettings
+import com.russhwolf.settings.Settings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -52,5 +53,23 @@ class TokenStorageTest {
         storage.clear()
 
         assertNull(storage.read())
+    }
+
+    private companion object {
+        const val TOKEN_STORAGE_KEY = "TokenStorage"
+    }
+
+    @Test
+    fun read_corruptStoredJson_returnsNullAndClearsTheEntryInsteadOfThrowing() {
+        // A stored value that fails to decode (e.g. the persisted TokenDto shape changed
+        // incompatibly across an app update) must not crash restoreSession()'s launch-time read -
+        // App.kt's LaunchedEffect has no catch around it.
+        val settings: Settings = MapSettings()
+        settings.putString(TOKEN_STORAGE_KEY, "{not valid json")
+        val storage = TokenStorage(settings)
+
+        assertNull(storage.read())
+        // The corrupt entry is dropped so it doesn't keep failing to decode on every future read.
+        assertNull(settings.getStringOrNull(TOKEN_STORAGE_KEY))
     }
 }

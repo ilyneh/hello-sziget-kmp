@@ -146,8 +146,13 @@ class ProfileViewModel(
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            friendRepository.refresh(force = true)
-            _uiState.update { it.copy(isLoading = false) }
+            try {
+                friendRepository.refresh(force = true)
+                _uiState.update { it.copy(isLoading = false) }
+            } catch (e: Exception) {
+                Logger.e("ProfileViewModel", "refresh: failed to refresh friends", e)
+                _uiState.update { it.copy(isLoading = false, error = ProfileErrorReason.LOAD_PROFILE_FAILED) }
+            }
         }
     }
 

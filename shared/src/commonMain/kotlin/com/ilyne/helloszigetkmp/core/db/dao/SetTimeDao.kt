@@ -21,8 +21,9 @@ interface SetTimeDao {
         """
         SELECT set_times.*, artists.name AS artistName, stages.name AS stageName FROM set_times
         INNER JOIN artists ON set_times.artistId = artists.id
-        INNER JOIN stages ON set_times.stageId = stages.id
+        LEFT JOIN stages ON set_times.stageId = stages.id
         WHERE artists.isFavorited = 1
+        ORDER BY set_times.startTime ASC
         """,
     )
     fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>>

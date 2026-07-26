@@ -15,6 +15,7 @@ import com.ilyne.helloszigetkmp.core.db.entity.UserEntity
 import com.ilyne.helloszigetkmp.core.db.entity.UserFriendEntity
 import com.ilyne.helloszigetkmp.core.db.model.ArtistFriendsFavoritedSummary
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
@@ -57,6 +58,12 @@ import kotlin.time.Duration.Companion.seconds
  * classes whose Android actuals lazily inject an Android `Context` via Koin - unusable from a
  * plain commonTest. [GoogleAuthProviding] and [AppConfiguring] were extracted from them (minimal
  * constructor-injection change, see their kdoc) specifically so this suite can fake both instead.
+ *
+ * A successful [SzigetAuthService.restoreSession] now also kicks off [UsersSyncService.fetchAllUsers]
+ * with the real, network-backed [com.ilyne.helloszigetkmp.core.api.SzigetApiService] loaded by
+ * `loadAuthenticatedModules` (no mock-engine seam there - see the equivalent note in
+ * `LoginViewModelTest`). That call is fire-and-forget on `UsersSyncService`'s own background scope,
+ * so the tests below don't await or assert on it; it fails harmlessly against the fake base URL.
  */
 class SzigetAuthServiceTest {
     private val jsonHeaders = headersOf(HttpHeaders.ContentType, "application/json")
@@ -181,7 +188,7 @@ class SzigetAuthServiceTest {
         }
 
     @Test
-    fun logout_neverSignedIn_isNoOp_doesNotCallServerOrWipeLocalData() =
+    fun logout_neverSignedIn_clearsLocalDataButDoesNotCallServer() =
         runTest {
             val tokenStorage = TokenStorage(MapSettings())
             val userDao = FakeUserDao()
@@ -196,14 +203,16 @@ class SzigetAuthServiceTest {
                 friendDao = friendDao,
             )
 
-            // No prior signIn()/restoreSession(): authenticatedApiModule is still null, so
-            // invalidateSession()'s guard clause returns immediately.
+            // No prior signIn()/restoreSession(): authenticatedApiModule is still null, and
+            // tokenStorage is empty, so there's no server-side token to revoke. Local teardown
+            // still runs unconditionally though (see invalidateSession's kdoc) - it must not be
+            // gated on a Koin module happening to be loaded.
             service.logout()
 
             assertEquals(0, logoutCallCount)
-            assertTrue(userDao.calls.isEmpty())
-            assertTrue(artistDao.calls.isEmpty())
-            assertTrue(friendDao.calls.isEmpty())
+            assertTrue(userDao.calls.contains("user.deleteAll"))
+            assertTrue(artistDao.calls.contains("artist.deleteAll"))
+            assertTrue(friendDao.calls.contains("friend.deleteAllFriendships"))
         }
 
     // --- localSignIn -----------------------------------------------------------------------
@@ -367,6 +376,7 @@ class SzigetAuthServiceTest {
         friendDao: FriendDao = FakeFriendDao(),
         settings: Settings = MapSettings(),
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
+        usersSyncService: UsersSyncService = UsersSyncService(userRepository = UserRepository(dao = userDao)),
     ): SzigetAuthService =
         SzigetAuthService(
             appConfig = appConfig,
@@ -379,6 +389,7 @@ class SzigetAuthServiceTest {
             userDao = userDao,
             friendDao = friendDao,
             settings = settings,
+            usersSyncService = usersSyncService,
         )
 
     private fun authApiService(

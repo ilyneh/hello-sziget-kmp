@@ -66,8 +66,8 @@ class MyLineupViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(status = MyLineupUiState.Status.Loading) }
             try {
-                scheduleRepository.refresh()
-                artistRepository.refresh()
+                scheduleRepository.refresh(force = true)
+                artistRepository.refresh(force = true)
                 _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }

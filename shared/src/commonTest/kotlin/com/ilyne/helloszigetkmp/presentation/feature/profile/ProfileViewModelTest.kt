@@ -127,6 +127,27 @@ class ProfileViewModelTest {
             assertNull(viewModel.uiState.value.error)
         }
 
+    // ---- refresh (pull-to-refresh) ----
+
+    @Test
+    fun refresh_repositoryThrows_setsErrorAndClearsLoadingInsteadOfCrashing() =
+        runTest {
+            // syncApi fails, so init's own friendRepository.refresh() call is skipped entirely
+            // (see init_syncFails_skipsFriendsAndArtistsRefresh above) - isolating this test to
+            // the explicit refresh() call below, which must survive friendsApi throwing instead
+            // of crashing the process (the bug this test guards against: refresh() previously had
+            // no try/catch around friendRepository.refresh(force = true)).
+            val viewModel = buildViewModel(friendsApi = failingApi(), syncApi = failingApi())
+            assertFalse(viewModel.uiState.value.isLoading)
+            assertNull(viewModel.uiState.value.error)
+
+            viewModel.refresh()
+            viewModel.uiState.first { it.error != null }
+
+            assertFalse(viewModel.uiState.value.isLoading)
+            assertEquals(ProfileErrorReason.LOAD_PROFILE_FAILED, viewModel.uiState.value.error)
+        }
+
     // ---- photo upload: optimistic pendingImageUrl + rollback ----
 
     @Test

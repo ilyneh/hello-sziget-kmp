@@ -52,6 +52,7 @@ val appModule = module {
     single { CurrentUserProvider() }
     single { createBaseHttpClient(isDebug = get<AppConfiguring>().isDebug()) }
     single { SzigetAuthApiService(client = get(), appConfig = get()) }
+    single { UsersSyncService(userRepository = get()) }
     single {
         SzigetAuthService(
             appConfig = get(),
@@ -64,6 +65,7 @@ val appModule = module {
             userDao = get(),
             friendDao = get(),
             settings = get(),
+            usersSyncService = get(),
         )
     }
     single { LogoutService(session = get()) }
@@ -81,9 +83,6 @@ val appModule = module {
 
     // Repositories
     single { UserRepository(dao = get()) }
-
-    // Background services
-    single { UsersSyncService(userRepository = get()) }
 
     // View Models
     viewModel {

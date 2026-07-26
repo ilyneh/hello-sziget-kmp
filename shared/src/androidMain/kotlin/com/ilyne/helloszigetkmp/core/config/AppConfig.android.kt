@@ -7,11 +7,15 @@ import org.koin.core.component.inject
 
 actual class AppConfig actual constructor() : AppConfiguring {
     actual override fun baseUrlLocal(): String {
+        // The local-backend override must only ever take effect in a debuggable build - checked
+        // *before* looking at the override, not after, so a stray `local.properties` entry on a
+        // dev machine can't point a release/beta build at a local/cleartext backend.
+        if (!AppConfigContext.isDebuggable) return BASE_URL_PROD
+
         // Point a debug build at a local backend by setting `sziget.localBackendUrl` in
         // local.properties or via `-Psziget.localBackendUrl=...`, e.g. the Android emulator
         // host alias "http://10.0.2.2:8000/api/v1". See local.properties.example.
-        SzigetBuildConfig.LOCAL_BACKEND_URL.takeIf { it.isNotBlank() }?.let { return it }
-        return if (AppConfigContext.isDebuggable) BASE_URL_DEV else BASE_URL_PROD
+        return SzigetBuildConfig.LOCAL_BACKEND_URL.takeIf { it.isNotBlank() } ?: BASE_URL_DEV
     }
 
     actual override fun isDebug(): Boolean = AppConfigContext.isDebuggable

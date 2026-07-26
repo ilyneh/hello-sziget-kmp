@@ -180,6 +180,7 @@ class LoginViewModelTest {
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
     ): LoginViewModel {
         val userRepository = UserRepository(dao = userDao)
+        val usersSyncService = UsersSyncService(userRepository)
         val szigetAuthService = SzigetAuthService(
             appConfig = appConfig,
             authProvider = authProvider,
@@ -191,11 +192,12 @@ class LoginViewModelTest {
             userDao = userDao,
             friendDao = friendDao,
             settings = MapSettings(),
+            usersSyncService = usersSyncService,
         )
         return LoginViewModel(
             szigetAuthService = szigetAuthService,
             userRepository = userRepository,
-            usersSyncService = UsersSyncService(userRepository),
+            usersSyncService = usersSyncService,
             currentUserProvider = currentUserProvider,
         )
     }

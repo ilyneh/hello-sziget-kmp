@@ -7,8 +7,10 @@ import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.repository.SoftRefreshGate
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
+import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.ilyne.helloszigetkmp.di.createAuthenticatedApiModule
 import com.ilyne.helloszigetkmp.di.presentationModule
 import com.ilyne.helloszigetkmp.util.Logger
@@ -21,6 +23,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
@@ -36,7 +40,13 @@ class SzigetAuthService(
     private val userDao: UserDao,
     private val friendDao: FriendDao,
     private val settings: Settings,
-) {
+    private val usersSyncService: UsersSyncService,
+) : KoinComponent {
+    // Resolved lazily: the authenticated SzigetApiService only exists in Koin once
+    // loadAuthenticatedModules() has loaded its module - mirrors LoginViewModel's own
+    // lazy `by inject()` of the same type, for the same reason.
+    private val apiService: SzigetApiService by inject()
+
     private var authenticatedApiModule: Module? = null
 
     // Guards authenticatedApiModule so a logout() racing a concurrent token-refresh-failure
@@ -115,6 +125,11 @@ class SzigetAuthService(
      * `Main` start destination can rely on [CurrentUserProvider.currentUser] being set with no
      * race. A missing DB user means a corrupt/incomplete session — treat it as logged out rather
      * than loading Main with no current user to show.
+     *
+     * Also (re)starts [usersSyncService]'s background fetch, same as a fresh [signIn] does. This
+     * is the only path that keeps `awaitSuccessfulSync()` callers (e.g. ProfileViewModel) from
+     * suspending forever on every launch that isn't a brand-new login - fetchAllUsers is
+     * otherwise never called on a restored session.
      */
     suspend fun restoreSession(): Boolean {
         val tokenFromStorage = tokenStorage.read() ?: return false
@@ -126,22 +141,27 @@ class SzigetAuthService(
             false
         } else {
             currentUserProvider.set(user)
+            usersSyncService.fetchAllUsers(apiService)
             true
         }
     }
 
     suspend fun invalidateSession() {
         val moduleToUnload = sessionMutex.withLock {
-            val current = authenticatedApiModule ?: return@withLock null
+            val current = authenticatedApiModule
             authenticatedApiModule = null
             current
-        } ?: return
+        }
 
+        // Clearing credentials must not be gated on a Koin module happening to be loaded - always
+        // run local teardown; only the module unload itself is conditional on there being one.
         tokenStorage.clear()
         currentUserProvider.clear()
         clearLocalUserData()
-        unloadKoinModules(presentationModule)
-        unloadKoinModules(moduleToUnload)
+        if (moduleToUnload != null) {
+            unloadKoinModules(presentationModule)
+            unloadKoinModules(moduleToUnload)
+        }
 
         _sessionInvalidated.tryEmit(Unit)
     }
@@ -163,6 +183,14 @@ class SzigetAuthService(
         SoftRefreshGate.clearAll(settings)
     }
 
+    /**
+     * Idempotent under [sessionMutex]: if a session module is already loaded (e.g. [restoreSession]
+     * re-entered after an Android Activity recreation, since `MainActivity` has no
+     * `android:configChanges` and this is called unconditionally from a `LaunchedEffect(Unit)`),
+     * the stale module is unloaded first instead of being silently orphaned - otherwise its
+     * `HttpClient` leaks and `presentationModule`'s repository singletons get replaced out from
+     * under any ViewModel still holding the old ones.
+     */
     private suspend fun loadAuthenticatedModules(token: TokenDto) {
         val apiModule = createAuthenticatedApiModule(
             baseUrl = appConfig.baseUrlLocal(),
@@ -172,8 +200,14 @@ class SzigetAuthService(
             onSessionInvalidated = ::invalidateSession,
             isDebug = appConfig.isDebug(),
         )
-        sessionMutex.withLock {
+        val previousModule = sessionMutex.withLock {
+            val previous = authenticatedApiModule
             authenticatedApiModule = apiModule
+            previous
+        }
+        if (previousModule != null) {
+            unloadKoinModules(presentationModule)
+            unloadKoinModules(previousModule)
         }
         loadKoinModules(apiModule)
         loadKoinModules(presentationModule)
