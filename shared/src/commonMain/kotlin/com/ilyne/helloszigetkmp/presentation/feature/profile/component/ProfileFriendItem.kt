@@ -4,6 +4,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.FriendListItem
 import com.ilyne.helloszigetkmp.presentation.component.friendavatarstack.NamedAvatarRow
@@ -28,7 +29,7 @@ fun ProfileFriendItem(
 ) {
     FriendListItem(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.testTag("profile_friend_item_${item.name}"),
     ) {
         NamedAvatarRow(
             avatarText = item.avatarText,
