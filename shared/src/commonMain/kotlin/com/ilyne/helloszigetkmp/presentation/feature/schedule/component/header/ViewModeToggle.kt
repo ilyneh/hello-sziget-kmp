@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.ViewMode
@@ -50,7 +51,8 @@ fun ViewModeToggle(
                     .clip(RoundedCornerShape(6.dp))
                     .background(if (selected) AppTheme.colors.highlightMagenta else Color.Transparent)
                     .clickable { onChange(mode) }
-                    .padding(horizontal = 6.dp, vertical = 9.dp),
+                    .padding(horizontal = 6.dp, vertical = 9.dp)
+                    .testTag("schedule_view_mode_${mode.name.lowercase()}"),
                 contentAlignment = Alignment.Center,
             ) {
                 val (resource, contentDescription) = when (mode) {

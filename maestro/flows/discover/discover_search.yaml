@@ -1,7 +1,8 @@
 # Discover tab: search field narrows the artist grid.
 #
-# Auth note: see discover_view_list.yaml -- no test-only login backdoor exists, so this flow
-# assumes a device/emulator with an already-persisted, signed-in session.
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
 #
 # The search term itself is intentionally generic (a single common letter) rather than a
 # specific artist name, since flows have no fixture data to rely on: this keeps the flow
@@ -10,7 +11,9 @@
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - tapOn:
     text: "Discover"
 - assertVisible:

@@ -1,0 +1,39 @@
+# Covers ScheduleFilterScreen.kt: open the filter sheet, turn on "Favorites" only, save, and
+# confirm the filter bar reflects the change (active filter count + "Favorites" pill).
+#
+# The filter *button* itself lives in FilterButtonChip.kt (presentation/component/filter/, out of
+# scope for testTags here), so it's targeted by its label text ("Filters", common_filters string)
+# rather than an id, per the README's fallback-to-text convention. Everything on the
+# ScheduleFilterScreen itself (under presentation/feature/schedule/filter/) is tagged.
+#
+# See reach_schedule_and_switch_view_mode.yaml for the auth approach this flow shares
+# (-Psziget.skipGoogleSignIn=true + the mocked backend, see maestro/README.md).
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- assertVisible:
+    id: "schedule_screen"
+- assertVisible:
+    id: "schedule_filter_bar"
+
+- tapOn:
+    text: "Filters"
+- assertVisible:
+    id: "schedule_filter_screen"
+
+- tapOn:
+    id: "schedule_filter_switch_favorites"
+- tapOn:
+    id: "schedule_filter_save_button"
+
+# Back on the schedule screen: the filter bar now shows an active filter pill/count and the
+# results underneath reflect the favorites-only filter.
+- assertVisible:
+    id: "schedule_filter_bar"
+- assertVisible:
+    text: "Favorites"
+- assertNotVisible:
+    id: "schedule_filter_screen"

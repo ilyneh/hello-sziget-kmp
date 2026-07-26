@@ -59,7 +59,7 @@ fun SetTimeCard(
             .background(color.copy(alpha = backgroundAlpha))
             .combinedClickable(onClick = onClick, onLongClick = onToggleFavorite)
             .padding(8.dp)
-            .testTag("schedule_set_time_card"),
+            .testTag("schedule_set_card_${setTime.id}"),
     ) {
         val friendsFavorited = setTime.artistFriendsFavorited?.friendsFavorited
         val hasFriendsFavorited = friendsFavorited?.isNotEmpty() == true

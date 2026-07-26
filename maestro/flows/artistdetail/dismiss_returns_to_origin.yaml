@@ -5,9 +5,10 @@
 #
 # Assumptions: same login backdoor as view_and_favorite_artist.yaml. Schedule
 # defaults to its GRID view mode on a fresh launch (state cleared below), so
-# the first set-time entry is reached via SetTimeCard's shared testTag (see
-# component/shared/SetTimeCard.kt) rather than a specific artist/set id,
-# since the schedule isn't fixed test data.
+# the first set-time entry is reached via SetTimeCard's per-item testTag (see
+# "schedule_set_card_${setTime.id}" in component/shared/SetTimeCard.kt) - since
+# the id is unique per set time (not fixed test data), it's matched by regex
+# prefix + index: 0 rather than an exact id.
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
@@ -17,7 +18,7 @@ appId: com.ilyne.helloszigetkmp.debug
 - assertVisible:
     text: "Schedule"
 - tapOn:
-    id: "schedule_set_time_card"
+    id: "schedule_set_card_.*"
     index: 0
 - assertVisible:
     id: "artistdetail_root"

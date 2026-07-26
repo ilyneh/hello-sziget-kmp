@@ -1,7 +1,8 @@
 # Discover tab: tapping an artist card navigates to the artist detail sheet.
 #
-# Auth note: see discover_view_list.yaml -- no test-only login backdoor exists, so this flow
-# assumes a device/emulator with an already-persisted, signed-in session.
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
 #
 # artistdetail/ is a separate feature (out of scope for testTag additions here) and its
 # ModalHeader shows the artist's own name rather than a fixed label, so this flow captures the
@@ -11,7 +12,9 @@
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - tapOn:
     text: "Discover"
 - assertVisible:
