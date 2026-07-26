@@ -24,3 +24,9 @@ appId: com.ilyne.helloszigetkmp.debug
 # https://docs.maestro.dev/reference/workspace-configuration
 flows:
   - flows/**
+
+# Shared subflows (flows/common/*.yaml, referenced via runFlow rather than run directly) are
+# tagged "util" so the full-suite run above doesn't also try to execute them as standalone flows
+# in their own right.
+excludeTags:
+  - util

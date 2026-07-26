@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -110,6 +111,7 @@ fun ProfileScreen(
                 trailingContent = {
                     IconButton(
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
+                        modifier = Modifier.testTag("profile_logout_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
@@ -159,6 +161,7 @@ fun ProfileScreen(
                         onClick = {
                             viewModel.onIntent(ProfileIntent.AddFriend)
                         },
+                        modifier = Modifier.testTag("profile_add_friend_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_person_add),
