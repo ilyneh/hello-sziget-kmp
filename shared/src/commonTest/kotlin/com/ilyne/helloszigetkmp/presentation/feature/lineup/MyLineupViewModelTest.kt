@@ -121,19 +121,24 @@ class MyLineupViewModelTest {
         }
 
     @Test
-    fun refresh_softRefreshGateFresh_skipsNetworkAndTransitionsToSuccess() =
+    fun refresh_softRefreshGateFresh_stillForcesNetworkCall() =
         runTest {
-            // Both repositories' SoftRefreshGates are pre-warmed as fresh, so refresh() never
-            // suspends on the mock HTTP client at all - the Loading -> Success transition
-            // completes synchronously within the single UnconfinedTestDispatcher resumption, so
-            // (as in ScheduleViewModelTest's non-HTTP cases) it's read directly via .value rather
-            // than via turbine, which would otherwise coalesce the intermediate Loading state.
+            // Both repositories' SoftRefreshGates are pre-warmed as fresh. Pull-to-refresh is a
+            // deliberate user action, so refresh() must pass force = true and hit the network
+            // regardless - if it instead passed the repositories' force = false default (the bug
+            // this test guards against), SoftRefreshGate would skip the mock API entirely and the
+            // status would stay Success instead of surfacing this Error from the unparseable
+            // (empty-body) mock response.
             val viewModel = newViewModel(settings = freshSettings())
-            assertIs<MyLineupUiState.Status.Success>(viewModel.uiState.value.status)
 
-            viewModel.refresh()
+            viewModel.uiState.test {
+                assertIs<MyLineupUiState.Status.Success>(awaitItem().status)
 
-            assertIs<MyLineupUiState.Status.Success>(viewModel.uiState.value.status)
+                viewModel.refresh()
+
+                assertIs<MyLineupUiState.Status.Loading>(awaitItem().status)
+                assertIs<MyLineupUiState.Status.Error>(awaitItem().status)
+            }
         }
 
     @Test

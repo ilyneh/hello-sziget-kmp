@@ -86,6 +86,12 @@ fun createApiHttpClient(
                 loadTokens {
                     BearerTokens(accessToken, refreshToken)
                 }
+                // The caller that triggers a refresh (e.g. a screen's viewModelScope) can be
+                // cancelled mid-refresh (user navigates away on flaky festival wifi). Without
+                // this, that cancellation can land between the backend rotating the refresh token
+                // and tokenStorage.save() below persisting it locally - losing a token the server
+                // already invalidated and forcing an unnecessary logout on next launch.
+                nonCancellableRefresh = true
                 refreshTokens {
                     val refreshTokenInfo: TokenDto = try {
                         val refreshToken = oldTokens?.refreshToken

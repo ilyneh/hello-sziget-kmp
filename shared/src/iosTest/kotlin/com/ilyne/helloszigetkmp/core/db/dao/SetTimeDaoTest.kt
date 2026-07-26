@@ -204,4 +204,41 @@ class SetTimeDaoTest {
 
             assertTrue(result.isEmpty())
         }
+
+    @Test
+    fun `observeFavorites includes a favorited set time with no synced stage`() =
+        runTest {
+            // stageId is nullable (a set can be favorited before its stage syncs, or the
+            // backend can omit one) - this must not silently drop the set from My Lineup, so
+            // the stage join has to be a LEFT JOIN rather than an INNER JOIN.
+            seedArtists("favArtist")
+            database.artistDao().setFavorited(id = "favArtist", isFavorited = true)
+            setTimeDao.upsertAll(
+                listOf(setTime(id = "s1", artistId = "favArtist", stageId = null, startTime = 1_000)),
+            )
+
+            val result = setTimeDao.observeFavorites().first()
+
+            assertEquals(listOf("s1"), result.map { it.id })
+            assertEquals(null, result.first().stageName)
+        }
+
+    @Test
+    fun `observeFavorites returns results ordered by startTime`() =
+        runTest {
+            seedArtists("favArtist")
+            seedStages("stage1")
+            database.artistDao().setFavorited(id = "favArtist", isFavorited = true)
+            setTimeDao.upsertAll(
+                listOf(
+                    setTime(id = "late", artistId = "favArtist", stageId = "stage1", startTime = 3_000),
+                    setTime(id = "early", artistId = "favArtist", stageId = "stage1", startTime = 1_000),
+                    setTime(id = "middle", artistId = "favArtist", stageId = "stage1", startTime = 2_000),
+                ),
+            )
+
+            val result = setTimeDao.observeFavorites().first()
+
+            assertEquals(listOf("early", "middle", "late"), result.map { it.id })
+        }
 }

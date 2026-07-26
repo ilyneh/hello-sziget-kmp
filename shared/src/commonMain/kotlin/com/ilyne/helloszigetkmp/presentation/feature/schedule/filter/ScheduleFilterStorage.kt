@@ -12,5 +12,11 @@ class ScheduleFilterStorage(
         settings.putString(KEY, Json.encodeToString(filter))
     }
 
-    fun read(): ScheduleFilter? = settings.getStringOrNull(KEY)?.let { Json.decodeFromString(it) }
+    // A stored value that fails to decode (e.g. the persisted shape changed incompatibly across
+    // an app update) must not crash ScheduleViewModel's construction - fall back to "no filter"
+    // rather than propagating the SerializationException.
+    fun read(): ScheduleFilter? =
+        settings.getStringOrNull(KEY)?.let {
+            runCatching { Json.decodeFromString<ScheduleFilter>(it) }.getOrNull()
+        }
 }
