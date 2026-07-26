@@ -1,0 +1,42 @@
+# Discover tab: search field narrows the artist grid.
+#
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+#
+# The search term itself is intentionally generic (a single common letter) rather than a
+# specific artist name, since flows have no fixture data to rely on: this keeps the flow
+# resilient to whatever the backend currently returns, at the cost of only checking that
+# *some* filtered result still renders rather than a specific one.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_artist_card"
+
+# Capture an on-screen artist name before searching, so the search term is guaranteed to match
+# at least one real result regardless of what the backend currently returns.
+- copyTextFrom:
+    id: "discover_artist_name"
+    index: 0
+- tapOn:
+    id: "discover_search_field"
+- inputText: "${maestro.copiedText}"
+- assertVisible:
+    id: "discover_artist_grid"
+- assertVisible:
+    text: "${maestro.copiedText}"
+
+# Clear the query and confirm the full grid is reachable again.
+- tapOn:
+    id: "discover_search_field"
+- eraseText
+- assertVisible:
+    id: "discover_artist_grid"

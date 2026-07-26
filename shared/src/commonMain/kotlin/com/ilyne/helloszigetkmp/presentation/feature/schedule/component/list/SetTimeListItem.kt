@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +53,8 @@ fun SetTimeListItem(
             .background(color = AppTheme.colors.lightBlue)
             .clickable(enabled = setTime.artistId != null) {
                 setTime.artistId?.let(onArtistClick)
-            }.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+            }.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+            .testTag("schedule_slot_item_${setTime.id}"),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -121,6 +123,7 @@ fun SetTimeListItem(
                     setTime.artist?.isFavorited ?: false,
                 )
             },
+            modifier = Modifier.testTag("schedule_favorite_button_${setTime.id}"),
         )
     }
 }

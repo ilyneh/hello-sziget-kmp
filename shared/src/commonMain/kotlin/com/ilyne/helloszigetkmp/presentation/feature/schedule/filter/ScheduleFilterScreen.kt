@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -92,7 +93,8 @@ private fun ScheduleFilterContent(
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .testTag("schedule_filter_screen"),
     ) {
         ModalHeader(text = stringResource(Res.string.common_filters))
 
@@ -100,24 +102,28 @@ private fun ScheduleFilterContent(
             text = stringResource(Res.string.schedule_filter_favorites),
             checked = uiState.showFavoritesOnly,
             onCheckedChange = { toggleFavoritesOnly(it) },
+            switchModifier = Modifier.testTag("schedule_filter_switch_favorites"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_friends_going),
             checked = uiState.showFriendsGoing,
             onCheckedChange = { toggleFriendsGoing(it) },
+            switchModifier = Modifier.testTag("schedule_filter_switch_friends_going"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_hide_empty_stages),
             checked = uiState.hideEmptyStages,
             onCheckedChange = { toggleHideEmptyStages(it) },
+            switchModifier = Modifier.testTag("schedule_filter_switch_hide_empty_stages"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_show_extra_days),
             checked = uiState.showExtraDays,
             onCheckedChange = { toggleShowExtraDays(it) },
+            switchModifier = Modifier.testTag("schedule_filter_switch_show_extra_days"),
         )
 
         SubHeader2(text = stringResource(Res.string.common_performance_types))
@@ -136,7 +142,7 @@ private fun ScheduleFilterContent(
 
         ActionButton(
             onClick = { saveFilter() },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("schedule_filter_save_button"),
         ) {
             Text(
                 text = stringResource(Res.string.common_save),
@@ -169,8 +175,14 @@ private fun FilterSwitchRow(
     text: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    // Separate from `modifier` (which applies to this composable's own root Row, per convention)
+    // since a UI test tapping the row's id taps the center of its full bounds, which falls on
+    // the label (weight(1f), no click handler of its own) rather than the Switch - so the
+    // testTag needs to live on the Switch itself for the toggle to actually fire.
+    switchModifier: Modifier = Modifier,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             modifier = Modifier.weight(1f),
@@ -178,6 +190,7 @@ private fun FilterSwitchRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            modifier = switchModifier,
         )
     }
 }

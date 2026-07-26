@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,28 +72,29 @@ private fun ArtistDetailContent(
     onFavoriteToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().testTag("artistdetail_root")) {
         ModalHeader(
             text = uiState.artist?.name ?: stringResource(Res.string.artist_detail_no_name),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("artistdetail_header"),
         ) {
             if (uiState.artist != null) {
                 FavoriteIconButton(
                     enabled = uiState.artist.isFavorited,
                     onClick = onFavoriteToggle,
+                    modifier = Modifier.testTag("artistdetail_favorite_button"),
                 )
             }
         }
 
         when (val status = uiState.status) {
             is ArtistDetailUiState.Status.Loading -> {
-                LoadingBox(modifier = Modifier.fillMaxWidth().height(120.dp))
+                LoadingBox(modifier = Modifier.fillMaxWidth().height(120.dp).testTag("artistdetail_loading"))
             }
 
             is ArtistDetailUiState.Status.Error -> {
                 ErrorState(
                     message = status.message ?: stringResource(Res.string.common_something_went_wrong),
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("artistdetail_error"),
                 )
             }
 
@@ -101,7 +103,7 @@ private fun ArtistDetailContent(
                 if (artist == null) {
                     Text(
                         text = stringResource(Res.string.artist_detail_not_found),
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("artistdetail_not_found"),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
@@ -115,14 +117,14 @@ private fun ArtistDetailContent(
                         if (chips.isNotEmpty()) {
                             GenreChips(
                                 chips = chips,
-                                modifier = Modifier.padding(bottom = 16.dp),
+                                modifier = Modifier.padding(bottom = 16.dp).testTag("artistdetail_genre_chips"),
                             )
                         }
 
                         if (uiState.friendsFavorited.isNotEmpty()) {
                             FriendAvatarRow(
                                 friends = uiState.friendsFavorited.map { it.toAvatarData() },
-                                modifier = Modifier.padding(bottom = 16.dp),
+                                modifier = Modifier.padding(bottom = 16.dp).testTag("artistdetail_friends_favorited"),
                             )
                         }
 
@@ -131,7 +133,7 @@ private fun ArtistDetailContent(
                                 ?.htmlToAnnotatedString()
                                 ?: AnnotatedString(stringResource(Res.string.artist_detail_no_bio)),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 24.dp),
+                            modifier = Modifier.padding(bottom = 24.dp).testTag("artistdetail_bio"),
                         )
                     }
                 }

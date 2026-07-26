@@ -7,6 +7,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.ilyne.helloszigetkmp.presentation.util.testTagsAsResourceId
 
 /**
  * Thin wrapper around [ModalBottomSheet] for the repeated
@@ -27,7 +28,11 @@ fun AppModalBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = modifier,
+        // ModalBottomSheet renders its content in a separate Popup window, so it doesn't inherit
+        // App.kt's root-level `testTagsAsResourceId = true` (that only covers the main content
+        // window's semantics tree). Re-applying it here is what lets UI test frameworks like
+        // Maestro find any testTag inside a bottom sheet at all.
+        modifier = modifier.testTagsAsResourceId(),
         containerColor = MaterialTheme.colorScheme.surface,
         content = content,
     )

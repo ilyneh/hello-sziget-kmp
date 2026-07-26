@@ -11,13 +11,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.compose.rememberNavController
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.navigation.AppNavGraph
 import com.ilyne.helloszigetkmp.navigation.Login
 import com.ilyne.helloszigetkmp.navigation.Main
+import com.ilyne.helloszigetkmp.presentation.util.testTagsAsResourceId
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import org.koin.compose.koinInject
 
@@ -63,7 +62,7 @@ fun App(modifier: Modifier = Modifier) {
         // Exposes Compose testTags as Android resource-ids so UI test frameworks like
         // Maestro (which drive the app through the platform accessibility/view tree) can
         // target Compose nodes the same way they'd target a View id.
-        Box(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
+        Box(modifier = Modifier.testTagsAsResourceId()) {
             val destination = startDestination
             if (destination == null) {
                 Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

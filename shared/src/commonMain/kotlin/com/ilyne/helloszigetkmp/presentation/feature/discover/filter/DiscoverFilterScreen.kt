@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,8 @@ private fun DiscoverFilterContent(
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .testTag("discover_filter_sheet"),
     ) {
         ModalHeader(text = stringResource(Res.string.common_filters))
         SubHeader2(text = stringResource(Res.string.common_performance_types))
@@ -96,7 +98,10 @@ private fun DiscoverFilterContent(
 
         ActionButton(
             onClick = { saveFilter() },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .testTag("discover_filter_save_button"),
         ) {
             Text(
                 text = stringResource(Res.string.common_save),
