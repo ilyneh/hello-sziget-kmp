@@ -3,20 +3,43 @@
 # ArtistRepository.toggleFavorite(isFavorited = false), which flows back
 # through ScheduleRepository.observeFavoriteSetTimes()).
 #
-# ASSUMPTION: same as reach_lineup_and_verify_state.yaml -- there is no
-# debug auth backdoor (AppNavGraph.kt starts at Login, LoginScreen only
-# offers real Google Sign-In), so this flow assumes the device already has a
-# persisted, logged-in session. It ALSO assumes the test data/account has at
-# least one favorited artist already in the lineup -- if the account starts
-# with an empty lineup, favorite an artist from the Discover or Schedule tab
-# first (out of scope for this flow, which only touches the lineup screen).
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+#
+# ASSUMPTION: this flow needs at least one favorited artist already in the lineup - the mocked
+# backend's seed data doesn't favorite any artist for the seeded user, so this flow favorites the
+# first Discover card itself before switching to My Lineup, rather than depending on external
+# test-data setup. The favorite button is a toggle with unknown starting state (a prior flow run
+# against the same backend may have left it favorited already), so the favorite step is retried
+# once if Lineup still comes up empty - that means the first tap toggled it off rather than on.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- tapOn:
+    id: "discover_artist_favorite_button"
+    index: 0
 - tapOn:
     text: "My Lineup"
 - assertVisible:
     id: "lineup_screen"
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - tapOn:
+          text: "Discover"
+      - tapOn:
+          id: "discover_artist_favorite_button"
+          index: 0
+      - tapOn:
+          text: "My Lineup"
 - assertVisible:
     id: "lineup_list"
 # Tap the first remove/heart button in the list. Item ids are
