@@ -4,7 +4,10 @@
 # Assumption: same pre-authenticated session assumption as send_friend_request.yaml.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - tapOn:
     text: "Profile"
 - assertVisible:

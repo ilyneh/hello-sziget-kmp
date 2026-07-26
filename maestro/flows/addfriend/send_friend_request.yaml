@@ -13,7 +13,10 @@
 # Swap SEARCH_QUERY for a name that matches your test environment's seed data.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - assertVisible:
     text: "Profile"
 - tapOn:
