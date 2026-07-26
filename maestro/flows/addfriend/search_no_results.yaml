@@ -1,21 +1,16 @@
 # Searching for a user that doesn't exist shows the empty-state message instead
 # of a stale/previous result list.
 #
-# Assumption: same pre-authenticated session assumption as send_friend_request.yaml
-# - no debug auth backdoor exists, so the app must already be logged in when this
-# flow starts.
+# Auth: see maestro/flows/common/sign_in.yaml (same as send_friend_request.yaml).
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp:
-    clearState: true
-- tapOn:
-    text: "Continue with Google"
+- runFlow: ../common/sign_in.yaml
 - tapOn:
     text: "Profile"
 - assertVisible:
     text: "Friends"
 - tapOn:
-    rightOf: "Friends"
+    id: "profile_add_friend_button"
 - assertVisible:
     id: "addfriend_screen"
 - tapOn:
