@@ -34,9 +34,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
-import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.mp.KoinPlatformTools
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -90,7 +90,7 @@ class SzigetAuthServiceTest {
             assertEquals(defaultToken, tokenStorage.read())
             // loadAuthenticatedModules() loaded the session-scoped Koin module - resolving the
             // authenticated API service confirms it actually happened.
-            GlobalContext.get().get<SzigetApiService>() // throws if the session module wasn't loaded
+            KoinPlatformTools.defaultContext().get().get<SzigetApiService>() // throws if the session module wasn't loaded
         }
 
     @Test
@@ -136,7 +136,7 @@ class SzigetAuthServiceTest {
                 authApiService = authApiService(onLogoutCalled = { logoutCalled.complete(Unit) }),
             )
             service.signIn()
-            GlobalContext.get().get<SzigetApiService>() // throws if the session module wasn't loaded
+            KoinPlatformTools.defaultContext().get().get<SzigetApiService>() // throws if the session module wasn't loaded
 
             service.logout()
 
@@ -226,7 +226,7 @@ class SzigetAuthServiceTest {
             val savedToken = tokenStorage.read()
             assertEquals(BEARER_TOKEN_LOCALHOST, savedToken?.accessToken)
             assertEquals("", savedToken?.refreshToken)
-            GlobalContext.get().get<SzigetApiService>() // throws if the session module wasn't loaded
+            KoinPlatformTools.defaultContext().get().get<SzigetApiService>() // throws if the session module wasn't loaded
         }
 
     @Test

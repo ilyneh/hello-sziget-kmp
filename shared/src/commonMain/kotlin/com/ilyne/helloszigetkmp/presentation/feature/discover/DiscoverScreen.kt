@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ilyne.helloszigetkmp.presentation.component.filter.FilterBar
@@ -55,7 +56,7 @@ fun DiscoverScreen(
     PullToRefreshContent(
         isRefreshing = uiState.status == DiscoverUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier,
+        modifier = modifier.testTag("discover_screen"),
     ) {
         DiscoverScreenContent(
             uiState = uiState,
@@ -91,7 +92,8 @@ private fun DiscoverScreenContent(
             onValueChange = { viewModel.onIntent(DiscoverIntent.SearchQueryChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .testTag("discover_search_field"),
         )
         FilterBar(
             data = FilterBarData(
@@ -99,18 +101,21 @@ private fun DiscoverScreenContent(
                 filterTexts = uiState.filterTexts,
             ),
             onFilterButtonClick = { viewModel.onIntent(DiscoverIntent.OpenFilterDialog) },
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 2.dp),
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 2.dp)
+                .testTag("discover_filter_bar"),
         )
 
         when (val status = uiState.status) {
             is DiscoverUiState.Status.Loading if uiState.artists.isEmpty() -> {
-                LoadingBox()
+                LoadingBox(modifier = Modifier.fillMaxSize().testTag("discover_loading"))
             }
 
             is DiscoverUiState.Status.Error -> {
                 ErrorState(
                     message = status.message ?: stringResource(Res.string.common_something_went_wrong),
                     onRetry = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize().testTag("discover_error_state"),
                 )
             }
 
@@ -124,6 +129,7 @@ private fun DiscoverScreenContent(
                     ),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.testTag("discover_artist_grid"),
                 ) {
                     items(uiState.artists, key = { it.id }) { artist ->
                         ArtistCard(

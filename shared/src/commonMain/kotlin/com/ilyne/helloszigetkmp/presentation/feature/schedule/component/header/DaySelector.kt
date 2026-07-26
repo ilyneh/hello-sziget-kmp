@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +56,8 @@ fun DaySelector(
                             this
                         }
                     }.clickable { onDaySelect(day) }
-                    .padding(vertical = 6.dp),
+                    .padding(vertical = 6.dp)
+                    .testTag("schedule_day_item_${day.dateOfMonth}"),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 val textColor = if (isSelected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurfaceVariant

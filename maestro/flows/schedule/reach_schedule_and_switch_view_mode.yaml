@@ -1,0 +1,37 @@
+# Schedule is the app's start tab (see MainScaffold.kt: NavHost startDestination = ScheduleTab),
+# so a logged-in session lands directly on it after sign-in — no extra tab tap needed.
+#
+# NOTE ON AUTH: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running
+# against a mocked backend"), tapping "Continue with Google" routes through
+# SzigetAuthService.localSignIn() instead of launching Google's native Sign-In UI, so this
+# completes deterministically without a persisted session or a real account.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- assertVisible:
+    id: "schedule_screen"
+
+# Default view mode is GRID (see ScheduleViewModel's default ScheduleUiState).
+- assertVisible:
+    id: "schedule_grid_view"
+
+# Switch to swimlane view via the header's view-mode toggle.
+- tapOn:
+    id: "schedule_view_mode_swimlane"
+- assertVisible:
+    id: "schedule_swimlane_view"
+
+# Switch to list view.
+- tapOn:
+    id: "schedule_view_mode_list"
+- assertVisible:
+    id: "schedule_list_view"
+
+# Switch back to grid view.
+- tapOn:
+    id: "schedule_view_mode_grid"
+- assertVisible:
+    id: "schedule_grid_view"
