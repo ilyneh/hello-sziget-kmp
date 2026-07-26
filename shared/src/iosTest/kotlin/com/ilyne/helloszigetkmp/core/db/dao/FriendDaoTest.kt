@@ -331,7 +331,7 @@ class FriendDaoTest {
                 ),
             )
 
-            friendDao.deleteFriendshipsNotIn(listOf("friend2", "friend3"))
+            friendDao.deleteFriendshipsNotIn("me", listOf("friend2", "friend3"))
 
             assertEquals(
                 listOf("friend2", "friend3"),
@@ -351,7 +351,7 @@ class FriendDaoTest {
                 ),
             )
 
-            friendDao.deleteFriendshipsNotIn(emptyList())
+            friendDao.deleteFriendshipsNotIn("me", emptyList())
 
             assertEquals(emptyList(), friendDao.observeFriends().first())
         }

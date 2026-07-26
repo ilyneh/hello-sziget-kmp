@@ -1,0 +1,25 @@
+# Discover tab: launch, land on the tab, and verify the artist grid renders.
+#
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_search_field"
+- assertVisible:
+    id: "discover_filter_bar"
+- assertVisible:
+    text: "Filters"
+- assertVisible:
+    id: "discover_artist_grid"
+- assertVisible:
+    id: "discover_artist_card"

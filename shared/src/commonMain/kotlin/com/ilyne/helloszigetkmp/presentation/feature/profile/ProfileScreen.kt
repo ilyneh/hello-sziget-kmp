@@ -113,6 +113,7 @@ fun ProfileScreen(
                     IconButton(
                         modifier = Modifier.testTag("profile_logout_button"),
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
+                        modifier = Modifier.testTag("profile_logout_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
@@ -164,6 +165,7 @@ fun ProfileScreen(
                         onClick = {
                             viewModel.onIntent(ProfileIntent.AddFriend)
                         },
+                        modifier = Modifier.testTag("profile_add_friend_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_person_add),

@@ -1,0 +1,39 @@
+# Happy path: open Add Friend from the Profile tab, search for a user by name,
+# and send them a friend request.
+#
+# Auth: see maestro/flows/common/sign_in.yaml - built with -Psziget.skipGoogleSignIn=true
+# (see maestro/README.md's "Running against a mocked backend"), so sign-in completes
+# deterministically via SzigetAuthService.localSignIn() rather than real Google Sign-In.
+#
+# Assumption: at least one other user exists (seeded/synced via UserRepository)
+# whose name contains "a" and who is not already a friend, so the search below
+# returns a result in the FriendshipStatus.NONE state (Request button visible).
+# Swap SEARCH_QUERY for a name that matches your test environment's seed data.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- runFlow: ../common/sign_in.yaml
+- assertVisible:
+    text: "Profile"
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    text: "Friends"
+- tapOn:
+    id: "profile_add_friend_button"
+- assertVisible:
+    id: "addfriend_screen"
+- assertVisible:
+    text: "Add Friends"
+- tapOn:
+    id: "addfriend_search_field"
+- inputText: "a"
+- assertVisible:
+    id: "addfriend_results_list"
+- assertVisible:
+    id: "addfriend_user_item"
+- tapOn:
+    id: "addfriend_request_button"
+- assertVisible:
+    id: "addfriend_requested_button"
+- assertNotVisible:
+    id: "addfriend_error_text"

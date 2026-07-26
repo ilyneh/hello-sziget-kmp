@@ -3,9 +3,30 @@
 # Build & install the debug app first:
 #   ./gradlew :androidApp:installDebug
 #
-# Run a single flow:
-#   maestro test maestro/flows/login/login_flow.yaml
+# Run a single flow (works regardless of config.yaml discovery - each flow file carries its own
+# appId header):
+#   maestro test maestro/flows/login/login_initial_render.yaml
 #
 # Run everything:
-#   maestro test maestro/flows
+#   maestro test maestro
+#
+# Note: when the path passed to `maestro test` is a directory, Maestro looks for config.yaml in
+# the ROOT of that exact directory, not in parent directories. So this must be invoked as
+# `maestro test maestro` (this file's own directory), not `maestro test maestro/flows` - the
+# latter wouldn't find this config.yaml at all, since it lives one level up from flows/.
 appId: com.ilyne.helloszigetkmp.debug
+
+# Flows are organized one directory per presentation/feature/<name> screen (see maestro/README.md
+# under "Layout"), e.g. flows/login/*.yaml, flows/artistdetail/*.yaml. Maestro's default `flows`
+# pattern (`*`) only discovers YAML files at the root of the flow directory, so without this it
+# silently skips everything nested under flows/<feature>/ - `flows/**` (relative to this file's
+# directory) picks those up recursively.
+# https://docs.maestro.dev/reference/workspace-configuration
+flows:
+  - flows/**
+
+# Shared subflows (flows/common/*.yaml, referenced via runFlow rather than run directly) are
+# tagged "util" so the full-suite run above doesn't also try to execute them as standalone flows
+# in their own right.
+excludeTags:
+  - util

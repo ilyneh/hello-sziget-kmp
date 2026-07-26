@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,7 @@ private fun AddFriendContent(
     onAccept: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().imePadding()) {
+    Column(modifier = modifier.fillMaxWidth().imePadding().testTag("addfriend_screen")) {
         ModalHeader(
             text = stringResource(Res.string.add_friend_title),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -69,7 +70,8 @@ private fun AddFriendContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                .testTag("addfriend_results_list"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
@@ -79,7 +81,8 @@ private fun AddFriendContent(
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                        .padding(bottom = 8.dp)
+                        .testTag("addfriend_search_field"),
                 )
             }
 
@@ -91,7 +94,7 @@ private fun AddFriendContent(
                         AddFriendErrorReason.ACCEPT_REQUEST_FAILED -> Res.string.add_friend_error_accept_request
                     }
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("addfriend_error_text"),
                         text = stringResource(errorMessageRes),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.error,
@@ -102,7 +105,7 @@ private fun AddFriendContent(
             if (uiState.results.isEmpty()) {
                 item {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp).testTag("addfriend_empty_state_text"),
                         text = stringResource(Res.string.add_friend_no_users_found),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.outline,
@@ -115,6 +118,7 @@ private fun AddFriendContent(
                         status = result.status,
                         onAdd = { onAdd(result.user.id) },
                         onAccept = { onAccept(result.user.id) },
+                        modifier = Modifier.testTag("addfriend_user_item"),
                     )
                 }
             }

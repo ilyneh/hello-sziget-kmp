@@ -16,6 +16,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,12 +109,14 @@ private fun ScheduleContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface),
+                .background(color = MaterialTheme.colorScheme.surface)
+                .testTag("schedule_screen"),
         ) {
             MainHeader(text = stringResource(Res.string.schedule_title)) {
                 ViewModeToggle(
                     current = uiState.viewMode,
                     onChange = onViewModeChange,
+                    modifier = Modifier.testTag("schedule_view_mode_toggle"),
                 )
             }
 
@@ -121,6 +124,7 @@ private fun ScheduleContent(
                 days = uiState.days,
                 selected = uiState.selectedDay,
                 onDaySelect = onDaySelect,
+                modifier = Modifier.testTag("schedule_day_selector"),
             )
 
             FilterBar(
@@ -140,7 +144,9 @@ private fun ScheduleContent(
                     },
                 ),
                 onFilterButtonClick = onFilterButtonClick,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 2.dp),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 2.dp)
+                    .testTag("schedule_filter_bar"),
                 backgroundColor = MaterialTheme.colorScheme.surface,
             )
 
@@ -151,7 +157,7 @@ private fun ScheduleContent(
             when (val status = uiState.status) {
                 is ScheduleUiState.Status.Loading -> {
                     if (uiState.setTimes.isEmpty()) {
-                        LoadingBox()
+                        LoadingBox(modifier = Modifier.fillMaxSize().testTag("schedule_loading_state"))
                     } else {
                         ScheduleSetTimesContent(
                             uiState = uiState,
@@ -170,14 +176,20 @@ private fun ScheduleContent(
                     }
                     ErrorState(
                         message = stringResource(errorMessageRes),
-                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .testTag("schedule_error_state"),
                     )
                 }
 
                 else -> {
                     if (uiState.setTimes.isEmpty()) {
                         Box(
-                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                            Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .testTag("schedule_empty_state"),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(stringResource(Res.string.schedule_no_set_times))
@@ -212,6 +224,7 @@ private fun ScheduleSetTimesContent(
                 gridMaxHour = uiState.gridMaxHour,
                 onArtistClick = onArtistClick,
                 onToggleFavorite = onToggleFavorite,
+                modifier = Modifier.testTag("schedule_grid_view"),
             )
         }
 
@@ -223,6 +236,7 @@ private fun ScheduleSetTimesContent(
                 gridMaxHour = uiState.gridMaxHour,
                 onArtistClick = onArtistClick,
                 onToggleFavorite = onToggleFavorite,
+                modifier = Modifier.testTag("schedule_swimlane_view"),
             )
         }
 
@@ -231,7 +245,7 @@ private fun ScheduleSetTimesContent(
                 uiState.setTimes,
                 onToggleFavorite = onToggleFavorite,
                 onArtistClick = onArtistClick,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().testTag("schedule_list_view"),
             )
         }
     }

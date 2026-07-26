@@ -4,6 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,23 +43,27 @@ fun AddFriendUserItem(
                 FriendshipStatus.NONE -> AddFriendUserItemActionButton(
                     text = stringResource(Res.string.add_friend_request),
                     onClick = onAdd,
+                    modifier = Modifier.testTag("addfriend_request_button"),
                 )
 
                 FriendshipStatus.REQUEST_RECEIVED -> AddFriendUserItemActionButton(
                     text = stringResource(Res.string.add_friend_accept),
                     onClick = onAccept,
+                    modifier = Modifier.testTag("addfriend_accept_button"),
                 )
 
                 FriendshipStatus.REQUEST_SENT -> AddFriendUserItemActionButton(
                     text = stringResource(Res.string.add_friend_requested),
                     onClick = {},
                     enabled = false,
+                    modifier = Modifier.testTag("addfriend_requested_button"),
                 )
 
                 FriendshipStatus.FRIEND -> AddFriendUserItemActionButton(
                     text = stringResource(Res.string.add_friend_friends),
                     onClick = {},
                     enabled = false,
+                    modifier = Modifier.testTag("addfriend_friends_button"),
                 )
             }
         }
