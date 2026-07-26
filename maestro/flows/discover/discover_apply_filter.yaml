@@ -1,8 +1,9 @@
 # Discover tab: open the genre filter sheet, narrow to a single performance type, save, and
 # confirm the filter bar reflects the active filter.
 #
-# Auth note: see discover_view_list.yaml -- no test-only login backdoor exists, so this flow
-# assumes a device/emulator with an already-persisted, signed-in session.
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
 #
 # `common_filters` ("Filters") is the only reliable way to open the sheet: FilterButtonChip
 # lives in presentation/component/filter/ (out of scope for testTag additions here), so this
@@ -10,7 +11,9 @@
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - tapOn:
     text: "Discover"
 - assertVisible:

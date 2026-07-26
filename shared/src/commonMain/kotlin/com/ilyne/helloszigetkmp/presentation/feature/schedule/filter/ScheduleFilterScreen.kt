@@ -102,28 +102,28 @@ private fun ScheduleFilterContent(
             text = stringResource(Res.string.schedule_filter_favorites),
             checked = uiState.showFavoritesOnly,
             onCheckedChange = { toggleFavoritesOnly(it) },
-            modifier = Modifier.testTag("schedule_filter_switch_favorites"),
+            switchModifier = Modifier.testTag("schedule_filter_switch_favorites"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_friends_going),
             checked = uiState.showFriendsGoing,
             onCheckedChange = { toggleFriendsGoing(it) },
-            modifier = Modifier.testTag("schedule_filter_switch_friends_going"),
+            switchModifier = Modifier.testTag("schedule_filter_switch_friends_going"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_hide_empty_stages),
             checked = uiState.hideEmptyStages,
             onCheckedChange = { toggleHideEmptyStages(it) },
-            modifier = Modifier.testTag("schedule_filter_switch_hide_empty_stages"),
+            switchModifier = Modifier.testTag("schedule_filter_switch_hide_empty_stages"),
         )
 
         FilterSwitchRow(
             text = stringResource(Res.string.schedule_filter_show_extra_days),
             checked = uiState.showExtraDays,
             onCheckedChange = { toggleShowExtraDays(it) },
-            modifier = Modifier.testTag("schedule_filter_switch_show_extra_days"),
+            switchModifier = Modifier.testTag("schedule_filter_switch_show_extra_days"),
         )
 
         SubHeader2(text = stringResource(Res.string.common_performance_types))
@@ -176,6 +176,11 @@ private fun FilterSwitchRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    // Separate from `modifier` (which applies to this composable's own root Row, per convention)
+    // since a UI test tapping the row's id taps the center of its full bounds, which falls on
+    // the label (weight(1f), no click handler of its own) rather than the Switch - so the
+    // testTag needs to live on the Switch itself for the toggle to actually fire.
+    switchModifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(
@@ -185,6 +190,7 @@ private fun FilterSwitchRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
+            modifier = switchModifier,
         )
     }
 }

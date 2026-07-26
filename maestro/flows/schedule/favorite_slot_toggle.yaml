@@ -9,11 +9,14 @@
 # first item. Toggling twice (favorite, then un-favorite) keeps the flow idempotent/repeatable
 # against a shared test account rather than leaving permanent state behind.
 #
-# See reach_schedule_and_switch_view_mode.yaml for the auth/session assumption this flow shares.
+# See reach_schedule_and_switch_view_mode.yaml for the auth approach this flow shares
+# (-Psziget.skipGoogleSignIn=true + the mocked backend, see maestro/README.md).
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - assertVisible:
     id: "schedule_screen"
 

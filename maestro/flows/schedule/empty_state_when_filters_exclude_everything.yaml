@@ -1,20 +1,31 @@
 # Confirms the schedule empty state (schedule_empty_state / "No Set Times" text in
 # ScheduleScreen.kt) appears when the active filter excludes every set time.
 #
-# Unchecking all three performance types (Music / Dance / Arts & Culture) is used to force zero
-# results deterministically, rather than the "Favorites only" filter (favorite_slot_toggle.yaml
-# and apply_filter_and_verify_results.yaml), since whether favorites-only yields zero results
-# depends on the test account's current favorites and would make this flow flaky.
+# ScheduleFilter's default `selectedGenreGroups` is Music's genres only (see
+# ScheduleFilter.kt's DEFAULT_GENRE_GROUPS) - Dance and Arts & Culture are already deselected
+# out of the box. So reaching "everything excluded" only requires toggling Music off; tapping
+# Dance's or Arts & Culture's checkbox would instead SELECT them (since they start unselected),
+# which is the opposite of what this flow needs and was the cause of an earlier version of this
+# flow failing - toggling all three left Dance/Arts & Culture turned on and Music off, i.e. more
+# results, not zero.
+#
+# Favorites-only (favorite_slot_toggle.yaml and apply_filter_and_verify_results.yaml) isn't used
+# to force zero results here since whether favorites-only yields zero results depends on the
+# test account's current favorites and would make this flow flaky.
 #
 # PerformanceTypeSection.kt (presentation/component/performancetype/) is a shared component
-# outside the schedule feature, so it has no testTag here — its rows are targeted by the
-# PerformanceType.displayName() text per the README's fallback-to-text convention.
+# outside the schedule feature; its toggle checkbox is tagged "performance_type_<name>_checkbox"
+# (see PerformanceTypeSection.kt). Tapping the row's label text does nothing - it's a plain Text
+# with no click handler, the toggle lives on the TriStateCheckbox next to it.
 #
-# See reach_schedule_and_switch_view_mode.yaml for the auth/session assumption this flow shares.
+# See reach_schedule_and_switch_view_mode.yaml for the auth approach this flow shares
+# (-Psziget.skipGoogleSignIn=true + the mocked backend, see maestro/README.md).
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - assertVisible:
     id: "schedule_screen"
 
@@ -24,11 +35,7 @@ appId: com.ilyne.helloszigetkmp.debug
     id: "schedule_filter_screen"
 
 - tapOn:
-    text: "Music"
-- tapOn:
-    text: "Dance"
-- tapOn:
-    text: "Arts & Culture"
+    id: "performance_type_music_checkbox"
 
 - tapOn:
     id: "schedule_filter_save_button"
@@ -38,16 +45,12 @@ appId: com.ilyne.helloszigetkmp.debug
 - assertVisible:
     text: "No Set Times"
 
-# Restore the default filter so the flow doesn't leave the shared test account's schedule
-# permanently filtered down to nothing.
+# Restore the default filter (Music back on) so the flow doesn't leave the shared test
+# account's schedule permanently filtered down to nothing.
 - tapOn:
     text: "Filters"
 - tapOn:
-    text: "Music"
-- tapOn:
-    text: "Dance"
-- tapOn:
-    text: "Arts & Culture"
+    id: "performance_type_music_checkbox"
 - tapOn:
     id: "schedule_filter_save_button"
 - assertNotVisible:

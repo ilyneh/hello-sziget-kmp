@@ -1,15 +1,16 @@
 # Schedule is the app's start tab (see MainScaffold.kt: NavHost startDestination = ScheduleTab),
-# so a logged-in session lands directly on it after launch — no extra tab tap needed.
+# so a logged-in session lands directly on it after sign-in — no extra tab tap needed.
 #
-# NOTE ON AUTH: Login (LoginScreen.kt) is real Google Sign-In via GoogleAuthProvider; there is no
-# debug/test backdoor in this codebase. This flow assumes the target device/emulator already has
-# a persisted session from a prior successful sign-in (TokenStorage), so `launchApp` deliberately
-# does NOT clear state — clearing state would drop back to the Login screen and this flow would
-# stall waiting for a Google account picker Maestro cannot drive unattended.
+# NOTE ON AUTH: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running
+# against a mocked backend"), tapping "Continue with Google" routes through
+# SzigetAuthService.localSignIn() instead of launching Google's native Sign-In UI, so this
+# completes deterministically without a persisted session or a real account.
 appId: com.ilyne.helloszigetkmp.debug
 ---
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
 - assertVisible:
     id: "schedule_screen"
 

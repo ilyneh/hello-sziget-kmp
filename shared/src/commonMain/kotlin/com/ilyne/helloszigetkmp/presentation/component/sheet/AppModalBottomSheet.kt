@@ -7,8 +7,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
+import com.ilyne.helloszigetkmp.presentation.util.testTagsAsResourceId
 
 /**
  * Thin wrapper around [ModalBottomSheet] for the repeated
@@ -33,7 +32,7 @@ fun AppModalBottomSheet(
         // App.kt's root-level `testTagsAsResourceId = true` (that only covers the main content
         // window's semantics tree). Re-applying it here is what lets UI test frameworks like
         // Maestro find any testTag inside a bottom sheet at all.
-        modifier = modifier.semantics { testTagsAsResourceId = true },
+        modifier = modifier.testTagsAsResourceId(),
         containerColor = MaterialTheme.colorScheme.surface,
         content = content,
     )
