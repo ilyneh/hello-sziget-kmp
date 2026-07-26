@@ -21,6 +21,13 @@ Tests:
 - iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
 - Run a single test class: append `--tests "com.ilyne.helloszigetkmp.SomeTestClass"` to the `testAndroidHostTest` command.
 
+E2E (Maestro, Android only):
+- Flows live under `maestro/flows/<feature>/*.yaml`, one directory per `presentation/feature/<name>` (plus `maestro/flows/common/sign_in.yaml`, a shared subflow tagged `util` so it's excluded from full-suite runs). Config is `maestro/config.yaml`.
+- Run the whole suite: `maestro test maestro` (must point at the `maestro` directory, not `maestro/flows`, or `config.yaml` won't be discovered).
+- Run a single flow: `maestro test maestro/flows/login/login_initial_render.yaml`.
+- Requires a running self-seeded backend: `scripts/run_e2e_backend.sh` (docker-compose, image `hello-sziget-backend:e2e` built from the separate `hello-sziget` backend repo) and a debug app build installed with `local.properties` pointed at it. `scripts/reinstall_e2e_test_app.sh` does the full refresh (restart backend from a clean DB, write `local.properties`, `./gradlew :androidApp:installDebug`) — needed after the bearer token expires (60 min after backend start) since `sziget.skipGoogleSignIn` is a compile-time flag.
+- See the `run-hello-sziget-kmp` skill (`.claude/skills/run-hello-sziget-kmp/SKILL.md`) for the full prerequisites (Android AVD, Docker, Maestro CLI) and step-by-step run path, including screenshotting via `adb exec-out screencap`.
+
 Lint/format:
 - Format: `./gradlew spotlessApply` (ktlint 1.8.0 + the `io.nlopez.compose.rules` Compose ruleset, configured in `shared/build.gradle.kts`).
 - Check formatting only: `./gradlew spotlessCheck`
@@ -35,18 +42,22 @@ Lint/format:
 ### Layering (commonMain)
 
 ```
-presentation/  (feature/<name>/ — Screen + ViewModel + UiState per feature; component/, theme/)
+presentation/  (feature/<name>/ — Screen + ViewModel + UiState per feature; component/, theme/, util/)
 domain/        (model/, usecase/)
 core/
-  api/         (Ktor-based remote API services, incl. api/auth/)
+  api/         (Ktor-based remote API services, incl. api/auth/, api/dto/ for DTOs)
   auth/        (SzigetAuthService, GoogleAuthProvider, TokenStorage, LogoutService)
   config/      (AppConfig — expect/actual per platform)
-  db/          (Room KMP database + DAOs)
+  db/          (Room KMP database + DAOs, plus db/entity/ and db/model/ for entities and derived summary models)
+  image/       (AppImageLoader)
+  media/       (ProfileImagePicker)
   network/     (Ktor HttpClient construction — baseHttpClient, createApiHttpClient)
   repository/  (UserRepository, FriendRepository, ArtistRepository, ScheduleRepository, SoftRefreshGate)
+  settings/    (SecureSettingsFactory)
   sync/        (UsersSyncService and similar background sync services)
 navigation/    (AppNavGraph — single shared nav graph used by both platforms)
 di/            (Koin modules)
+util/          (Logger, plus util/datetime/ and util/text/ helpers)
 ```
 
 Platform-specific implementations of `expect` declarations (e.g. `AppConfig`, DB driver, HTTP engine) live in `androidMain`/`iosMain` mirroring the same package path, e.g. `core/config/AppConfig.android.kt` / `AppConfig.ios.kt`.
@@ -79,6 +90,26 @@ Ktor client, built in `core/network/HttpClients.kt`. `baseHttpClient` is the una
 ### Feature module shape
 
 Each screen under `presentation/feature/<name>/` follows: `<Name>Screen.kt` (Composable), `<Name>ViewModel.kt` (state holder, Koin-injected), and a `<Name>UiState`/`Status` sealed model. Current features: `discover`, `lineup` (MyLineup), `schedule`, `profile`, `addfriend`, `artistdetail`, `login`.
+
+### E2E test scaffolding
+
+Compose testTags are exposed to Maestro as Android resource-ids via `testTagsAsResourceId` (root config in `App.kt`, implemented in `presentation/util/TestTagsAsResourceId.kt`). See the E2E section under Commands above for how to run the suite.
+
+### Release tooling
+
+Two independent beta pipelines, one per platform. Both are manual/on-demand, not run on every push.
+
+**iOS (TestFlight)** — `scripts/release-ios-beta.sh` wraps the command-line equivalent of Xcode Organizer's "Distribute App" flow (documented step-by-step, with troubleshooting, in [docs/notes/ios-testflight-release.md](docs/notes/ios-testflight-release.md)). Must run on macOS with Xcode installed; requires being signed into an Apple ID with access to team `J6TQZMUWUM` and a valid `iPhone Distribution` codesigning identity in Keychain.
+- By default it bumps `CURRENT_PROJECT_VERSION` in `iosApp/Configuration/Release.xcconfig` by 1 (App Store Connect rejects a duplicate build number), then runs `xcodebuild archive` followed by `xcodebuild -exportArchive`. `ExportOptions.plist` has `destination: upload`, so export uploads straight to App Store Connect — there's no separate upload step. Flags: `--build-number N`, `--no-bump`, `--yes`/`-y` to skip the confirmation prompt.
+- The build number bump is left as an uncommitted change in `Release.xcconfig` — commit it once the upload succeeds.
+- Optional `--test-group NAME` (repeatable) adds the uploaded build to named TestFlight beta groups once Apple finishes processing it. This shells out to `scripts/assign_testflight_group.py`, which talks to the App Store Connect API directly (no Fastlane): it signs a short-lived ES256 JWT from an API key (`--asc-key-id`/`--asc-issuer-id`/`--asc-key-path`, or the `ASC_API_KEY_ID`/`ASC_API_ISSUER_ID`/`ASC_API_KEY_PATH` env vars — create the key under App Store Connect → Users and Access → Integrations → App Store Connect API, App Manager role or higher), polls `GET /v1/builds` until `processingState == VALID` (default timeout 1800s, interval 30s), then `POST`s to `/v1/builds/{id}/relationships/betaGroups`. Internal Testing groups are detected and skipped (their members already get every processed build automatically; the API rejects explicit assignment to them).
+- `scripts/upload-ios-dsyms-firebase.sh` is a separate, rarely-needed manual step for Crashlytics symbolication — normal builds already upload dSYMs automatically via the "Crashlytics: Run" build phase in `iosApp.xcodeproj`. Use it only to re-upload after a build-time upload failed, or to upload dSYMs downloaded later from App Store Connect/Xcode Organizer. Takes a `.xcarchive`, a `.zip`, a directory of `.dSYM` bundles, or a single `.dSYM`; auto-discovers Firebase's `upload-symbols` binary under `~/Library/Developer/Xcode/DerivedData` (requires having built/archived at least once so SPM has checked out `firebase-ios-sdk`).
+
+**Android (Play Console)** — `.github/workflows/play-beta-release.yml`, triggered manually via `workflow_dispatch` from the Actions tab (never on push/PR, since publishing to a track is one-way — testers can install immediately). The job checks out full history (`fetch-depth: 0`, needed because `versionCode`/`versionName` in `androidApp/build.gradle.kts` are derived from `git rev-list --count HEAD` and would go non-monotonic on a shallow clone), writes `google-services.json`, the release keystore, and the Play Console service-account key from repo secrets, runs `./gradlew :androidApp:publishBetaBundle`, then always deletes those written secret files.
+- `publishBetaBundle` publishes the `beta` build type's AAB (via the `playPublisher` plugin) to Play Console's **"internal" track** ("Internal testing" — no Google review, capped at 100 testers). Despite the build-type name, this is unrelated to Play Console's separate "beta" track ("Open testing") — the shared name is a coincidence.
+- The `beta` build type carries `applicationIdSuffix = ".beta"`, so it ships as its own package (`com.ilyne.helloszigetkmp.beta`) with its own Play Console listing, distinct from the release app (`com.ilyne.helloszigetkmp`) — that listing must already exist in Play Console, since Play Publisher can only publish to an app that's already been created there.
+- Locally, `serviceAccountCredentials` points at `androidApp/play-service-account.json`, which doesn't exist outside CI — a local `./gradlew publishBetaBundle` fails fast with a clear "file not found" rather than attempting to publish.
+- Root `build.gradle.kts`/`androidApp/build.gradle.kts` apply `googleServices`, `firebaseCrashlytics` (with `mappingFileUploadEnabled = true` on the `release` build type), and `playPublisher` to support this.
 
 ## Parallel fixes in worktrees
 
