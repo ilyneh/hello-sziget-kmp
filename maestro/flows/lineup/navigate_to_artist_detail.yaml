@@ -1,0 +1,65 @@
+# Tap a favorited artist's row in My Lineup and confirm it navigates to the
+# artist detail screen (MyLineupScreen -> onArtistClick -> AppNavGraph's
+# ArtistDetailRoute dialog destination).
+#
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+#
+# ASSUMPTION: this flow needs at least one favorited artist already in the lineup - the mocked
+# backend's seed data (scripts/seed_dev_user.py / seed_e2e_catalog.py in hello-sziget) doesn't
+# favorite any artist for the seeded user, so this flow favorites the first Discover card itself
+# before switching to My Lineup, rather than depending on external test-data setup. The favorite
+# button is a toggle with unknown starting state (a prior flow run against the same backend may
+# have left it favorited already), so the favorite step is retried once if Lineup still comes up
+# empty - that means the first tap toggled it off rather than on.
+#
+# NOTE: ArtistDetailScreen (presentation/feature/artistdetail/) has no
+# testTag of its own -- it's outside this task's scope
+# (presentation/feature/lineup/ only) -- so detail-screen assertions here
+# are limited to confirming we've left the lineup screen, rather than
+# asserting on anything inside the detail screen itself.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- tapOn:
+    id: "discover_artist_favorite_button"
+    index: 0
+- tapOn:
+    text: "My Lineup"
+- assertVisible:
+    id: "lineup_screen"
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - tapOn:
+          text: "Discover"
+      - tapOn:
+          id: "discover_artist_favorite_button"
+          index: 0
+      - tapOn:
+          text: "My Lineup"
+- assertVisible:
+    id: "lineup_list"
+# Tap the first artist row (not its remove button) to trigger onArtistClick.
+- tapOn:
+    id: "lineup_item_.*"
+    index: 0
+# ArtistDetailScreen renders as a full-width dialog over Main; the lineup
+# list/screen root is no longer the visible foreground content.
+- assertNotVisible:
+    id: "lineup_list"
+# Dismiss the detail dialog (ArtistDetailScreen's onDismiss pops the back
+# stack) and confirm we're back on the lineup screen.
+- back
+- assertVisible:
+    id: "lineup_screen"
+- assertVisible:
+    id: "lineup_list"

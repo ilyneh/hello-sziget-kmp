@@ -1,0 +1,26 @@
+# Verifies the logout affordance on Profile: tapping it shows a confirmation dialog,
+# confirming logs the user out (LogoutService) and lands back on the Login screen.
+#
+# Assumption: same as profile_view_flow.yaml - assumes an already-authenticated session
+# is present on the device, since there's no debug auth backdoor to seed one here.
+#
+# Note: ConfirmationDialog (presentation/component/dialog/) is a shared component outside
+# the profile feature's scope for this test suite, so its buttons are targeted by their
+# visible label text rather than a testTag.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- runFlow: ../common/sign_in.yaml
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    id: "profile_screen_root"
+- tapOn:
+    id: "profile_logout_button"
+- assertVisible:
+    text: "Log out?"
+- tapOn:
+    text: "Log out"
+- assertVisible:
+    text: "Plan your festival"
+- assertVisible:
+    text: "Continue with Google"

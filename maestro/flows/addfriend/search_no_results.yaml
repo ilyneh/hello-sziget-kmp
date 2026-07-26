@@ -1,0 +1,25 @@
+# Searching for a user that doesn't exist shows the empty-state message instead
+# of a stale/previous result list.
+#
+# Auth: see maestro/flows/common/sign_in.yaml (same as send_friend_request.yaml).
+appId: com.ilyne.helloszigetkmp.debug
+---
+- runFlow: ../common/sign_in.yaml
+- tapOn:
+    text: "Profile"
+- assertVisible:
+    text: "Friends"
+- tapOn:
+    id: "profile_add_friend_button"
+- assertVisible:
+    id: "addfriend_screen"
+- tapOn:
+    id: "addfriend_search_field"
+# Deliberately implausible query so it can't accidentally match a real seeded user.
+- inputText: "zzznonexistentuserzzz"
+- assertVisible:
+    id: "addfriend_empty_state_text"
+- assertVisible:
+    text: "No users found"
+- assertNotVisible:
+    id: "addfriend_user_item"

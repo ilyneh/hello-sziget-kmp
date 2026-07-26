@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -72,17 +73,21 @@ fun SignInCard(
                         text = error,
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 13.sp,
+                        modifier = Modifier.testTag("login_error_message"),
                     )
                 }
 
                 OutlinedButton(
                     onClick = onSignIn,
                     enabled = !isLoading,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("login_sign_in_button"),
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp).testTag("login_loading_indicator"),
+                            strokeWidth = 2.dp,
+                        )
                     } else {
                         Icon(
                             painter = painterResource(Res.drawable.ic_google),

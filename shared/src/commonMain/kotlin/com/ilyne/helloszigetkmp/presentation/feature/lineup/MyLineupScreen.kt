@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,7 +59,7 @@ fun MyLineupScreen(
     PullToRefreshContent(
         isRefreshing = uiState.status == MyLineupUiState.Status.Loading,
         onRefresh = { viewModel.refresh() },
-        modifier = modifier,
+        modifier = modifier.testTag("lineup_screen"),
     ) {
         MyLineupScreenContent(
             uiState = uiState,
@@ -115,7 +116,8 @@ private fun MyLineupScreenList(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface),
+            .background(color = MaterialTheme.colorScheme.surface)
+            .testTag("lineup_list"),
         contentPadding = PaddingValues(
             start = 16.dp,
             end = 16.dp,
@@ -138,7 +140,11 @@ private fun MyLineupScreenList(
             }
 
             items(setTimes, key = { it.id }) { setTime ->
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("lineup_item_${setTime.artistId}"),
+                ) {
                     // 1. The Shadow Background Layer
                     Box(
                         modifier = Modifier
@@ -174,6 +180,7 @@ private fun MyLineupScreenList(
                         FavoriteIconButton(
                             enabled = true,
                             onClick = { onRemoveFavorite(setTime.artistId) },
+                            modifier = Modifier.testTag("lineup_remove_${setTime.artistId}"),
                         )
                     }
                 }
@@ -221,13 +228,17 @@ private fun StageSetTimeRow(
 @Composable
 private fun EmptyView(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier,
+        modifier = modifier.testTag("lineup_empty_state"),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("♡", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(stringResource(Res.string.lineup_empty_title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(Res.string.lineup_empty_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag("lineup_empty_title"),
+            )
             Text(
                 stringResource(Res.string.lineup_empty_subtitle),
                 style = MaterialTheme.typography.bodySmall,

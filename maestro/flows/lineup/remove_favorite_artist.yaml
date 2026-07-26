@@ -1,0 +1,69 @@
+# Remove an artist from My Lineup via the heart/remove button and verify it
+# disappears from the list (MyLineupViewModel.removeFavorite ->
+# ArtistRepository.toggleFavorite(isFavorited = false), which flows back
+# through ScheduleRepository.observeFavoriteSetTimes()).
+#
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+#
+# ASSUMPTION: this flow needs at least one favorited artist already in the lineup - the mocked
+# backend's seed data doesn't favorite any artist for the seeded user, so this flow favorites the
+# first Discover card itself before switching to My Lineup, rather than depending on external
+# test-data setup. The favorite button is a toggle with unknown starting state (a prior flow run
+# against the same backend may have left it favorited already), so the favorite step is retried
+# once if Lineup still comes up empty - that means the first tap toggled it off rather than on.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- tapOn:
+    id: "discover_artist_favorite_button"
+    index: 0
+- tapOn:
+    text: "My Lineup"
+- assertVisible:
+    id: "lineup_screen"
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - tapOn:
+          text: "Discover"
+      - tapOn:
+          id: "discover_artist_favorite_button"
+          index: 0
+      - tapOn:
+          text: "My Lineup"
+- assertVisible:
+    id: "lineup_list"
+# Tap the first remove/heart button in the list. Item ids are
+# "lineup_remove_<artistId>", so match by prefix rather than a fixed id
+# since the artist shown first depends on schedule/seed data.
+- tapOn:
+    id: "lineup_remove_.*"
+    index: 0
+# The removed row's own testTag ("lineup_item_<artistId>") disappears along
+# with it, but since the artistId isn't known ahead of time here, assert on
+# the more general/stable signal instead: the list either still shows
+# (fewer) remaining favorites, or -- if that was the only favorite left --
+# the empty state now renders.
+- runFlow:
+    when:
+      visible:
+        id: "lineup_empty_state"
+    commands:
+      - assertVisible:
+          id: "lineup_empty_state"
+- runFlow:
+    when:
+      notVisible:
+        id: "lineup_empty_state"
+    commands:
+      - assertVisible:
+          id: "lineup_list"

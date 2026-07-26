@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -102,6 +103,7 @@ fun ProfileScreen(
     ) {
         Column(
             modifier = Modifier
+                .testTag("profile_screen_root")
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background),
         ) {
@@ -110,6 +112,7 @@ fun ProfileScreen(
                 trailingContent = {
                     IconButton(
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
+                        modifier = Modifier.testTag("profile_logout_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_logout),
@@ -128,6 +131,7 @@ fun ProfileScreen(
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
                 ProfileAvatarAndName(
+                    modifier = Modifier.testTag("profile_avatar_and_name"),
                     name = uiState.name.orEmpty(),
                     avatarText = uiState.name.orEmpty().initials(),
                     imageUrl = uiState.pendingImageUrl ?: uiState.imageUrl,
@@ -136,7 +140,7 @@ fun ProfileScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 ProfileEngagementCountCard(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.testTag("profile_engagement_count_card").fillMaxWidth(),
                     items = listOf(
                         ProfileEngagementCountItemState(uiState.likedArtistCount, stringResource(Res.string.profile_hearted)),
                         ProfileEngagementCountItemState(uiState.friends.size, stringResource(Res.string.profile_friends)),
@@ -159,6 +163,7 @@ fun ProfileScreen(
                         onClick = {
                             viewModel.onIntent(ProfileIntent.AddFriend)
                         },
+                        modifier = Modifier.testTag("profile_add_friend_button"),
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_person_add),
@@ -169,7 +174,7 @@ fun ProfileScreen(
 
                 if (uiState.friends.isEmpty() && uiState.friendRequests.isEmpty()) {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        modifier = Modifier.testTag("profile_no_friends_message").fillMaxWidth().padding(top = 32.dp),
                         text = stringResource(Res.string.profile_no_friends),
                         textAlign = TextAlign.Center,
                         color = AppTheme.colors.navy,
@@ -178,6 +183,7 @@ fun ProfileScreen(
 
                 if (uiState.friendRequests.isNotEmpty()) {
                     ProfileFriendRequestsSection(
+                        modifier = Modifier.testTag("profile_friend_requests_section"),
                         friendRequests = uiState.friendRequests,
                         onAccept = {
                             viewModel.onIntent(ProfileIntent.AcceptFriendRequest(friendId = it))
@@ -190,6 +196,7 @@ fun ProfileScreen(
 
                 if (uiState.friends.isNotEmpty()) {
                     ProfileFriendsSection(
+                        modifier = Modifier.testTag("profile_friends_list"),
                         friends = uiState.friends,
                         onClick = {
                             viewModel.onIntent(ProfileIntent.ViewFriend(friendId = it))
@@ -250,6 +257,7 @@ fun ProfileAvatarAndName(
             }
         }
         Text(
+            modifier = Modifier.testTag("profile_name"),
             text = name,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,

@@ -1,0 +1,56 @@
+# Discover tab: open the genre filter sheet, narrow to a single performance type, save, and
+# confirm the filter bar reflects the active filter.
+#
+# Auth note: built with -Psziget.skipGoogleSignIn=true (see maestro/README.md's "Running against
+# a mocked backend"), so "Continue with Google" completes via SzigetAuthService.localSignIn()
+# deterministically instead of launching Google's native Sign-In UI.
+#
+# `common_filters` ("Filters") is the only reliable way to open the sheet: FilterButtonChip
+# lives in presentation/component/filter/ (out of scope for testTag additions here), so this
+# flow falls back to its visible label text per the README's convention.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Continue with Google"
+- tapOn:
+    text: "Discover"
+- assertVisible:
+    id: "discover_screen"
+
+- tapOn:
+    text: "Filters"
+- assertVisible:
+    id: "discover_filter_sheet"
+- assertVisible:
+    text: "Performance Types"
+
+# Turning off "Dance" (leaving Music + Arts & Culture on) exercises an actual filter change:
+# DiscoverFilter's default is "all genre groups selected", so toggling one whole performance
+# type off is the smallest change that both (a) is guaranteed to differ from the default
+# regardless of backend data, and (b) survives Save as a non-trivial filter (activeCount() > 0).
+# Tapping the "Dance" label itself does nothing - it's a plain Text with no click handler; the
+# actual toggle action lives on the TriStateCheckbox next to it (see PerformanceTypeSection.kt).
+- tapOn:
+    id: "performance_type_dance_checkbox"
+- tapOn:
+    id: "discover_filter_save_button"
+
+- assertVisible:
+    id: "discover_screen"
+- assertVisible:
+    id: "discover_filter_bar"
+# activeCount() flips from 0 to 1 the moment selectedGenreGroups differs from "all genres",
+# and FilterButtonChip renders that count as a badge next to the "Filters" label.
+- assertVisible:
+    text: "1"
+
+# Re-open the sheet and reset back to the default (all genres selected) so the flow leaves no
+# persisted filter state behind for subsequent runs.
+- tapOn:
+    text: "Filters"
+- tapOn:
+    id: "performance_type_dance_checkbox"
+- tapOn:
+    id: "discover_filter_save_button"
