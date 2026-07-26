@@ -111,7 +111,6 @@ fun ProfileScreen(
                 text = stringResource(Res.string.profile_title),
                 trailingContent = {
                     IconButton(
-                        modifier = Modifier.testTag("profile_logout_button"),
                         onClick = { viewModel.onIntent(ProfileIntent.LogoutClicked) },
                         modifier = Modifier.testTag("profile_logout_button"),
                     ) {
@@ -161,7 +160,6 @@ fun ProfileScreen(
                     )
 
                     ActionIconButton(
-                        modifier = Modifier.testTag("profile_add_friend_button"),
                         onClick = {
                             viewModel.onIntent(ProfileIntent.AddFriend)
                         },

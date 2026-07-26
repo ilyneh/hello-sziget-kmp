@@ -9,8 +9,7 @@
 # instead - that's expected without a seeded session.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp:
-    clearState: false
+- runFlow: ../common/sign_in.yaml
 - assertVisible:
     text: "Profile"
 - tapOn:

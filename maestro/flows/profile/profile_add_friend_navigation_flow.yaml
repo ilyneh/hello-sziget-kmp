@@ -6,8 +6,7 @@
 # is present on the device, since there's no debug auth backdoor to seed one here.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp:
-    clearState: false
+- runFlow: ../common/sign_in.yaml
 - tapOn:
     text: "Profile"
 - assertVisible:

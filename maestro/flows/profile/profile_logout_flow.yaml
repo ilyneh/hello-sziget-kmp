@@ -9,8 +9,7 @@
 # visible label text rather than a testTag.
 appId: com.ilyne.helloszigetkmp.debug
 ---
-- launchApp:
-    clearState: false
+- runFlow: ../common/sign_in.yaml
 - tapOn:
     text: "Profile"
 - assertVisible:
