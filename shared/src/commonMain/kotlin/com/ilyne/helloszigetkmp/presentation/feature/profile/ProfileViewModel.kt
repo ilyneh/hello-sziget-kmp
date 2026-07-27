@@ -80,6 +80,8 @@ sealed class ProfileIntent {
     object DismissRemoveFriendAlert : ProfileIntent()
 
     object RemoveFriendClicked : ProfileIntent()
+
+    object DismissError : ProfileIntent()
 }
 
 class ProfileViewModel(
@@ -251,6 +253,10 @@ class ProfileViewModel(
                         _uiState.update { it.copy(error = ProfileErrorReason.REMOVE_FRIEND_FAILED) }
                     }
                 }
+            }
+
+            ProfileIntent.DismissError -> {
+                _uiState.update { it.copy(error = null) }
             }
         }
     }

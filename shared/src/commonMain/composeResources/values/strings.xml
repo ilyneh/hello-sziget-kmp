@@ -2,6 +2,7 @@
     <!-- Common -->
     <string name="common_something_went_wrong">Something went wrong</string>
     <string name="common_retry">Retry</string>
+    <string name="common_dismiss">Dismiss</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_unknown">Unknown</string>
     <string name="common_tba">TBA</string>
@@ -21,11 +22,14 @@
     <string name="discover_title">Discover</string>
     <string name="discover_search_placeholder">Search artists…</string>
     <string name="discover_artist_image_content_description">%1$s image</string>
+    <string name="discover_error_refresh">Couldn\'t refresh artists. Pull to refresh to try again.</string>
 
     <!-- My Lineup -->
     <string name="lineup_title">My Lineup</string>
     <string name="lineup_empty_title">No favorites yet</string>
     <string name="lineup_empty_subtitle">Tap the heart on any artist to add them</string>
+    <string name="lineup_error_refresh">Couldn\'t refresh your lineup. Pull to refresh to try again.</string>
+    <string name="lineup_error_remove_favorite">Couldn\'t remove favorite. Please try again.</string>
 
     <!-- Schedule -->
     <string name="schedule_title">Schedule</string>
