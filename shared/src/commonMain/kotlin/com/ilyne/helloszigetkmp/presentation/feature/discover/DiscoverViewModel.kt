@@ -11,11 +11,14 @@ import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
@@ -60,6 +63,7 @@ class DiscoverViewModel(
     private val artistRepository: ArtistRepository,
     private val getActiveDiscoverFiltersTextUseCase: GetActiveDiscoverFiltersTextUseCase,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val searchDebounceMillis: Long = SEARCH_DEBOUNCE_MILLIS,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState = _uiState.asStateFlow()
@@ -130,10 +134,12 @@ class DiscoverViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun observeArtists() {
         viewModelScope.launch {
             searchQuery
+                .debounce(searchDebounceMillis)
+                .distinctUntilChanged()
                 .flatMapLatest { query ->
                     if (query.isBlank()) {
                         artistRepository.observeArtists()
@@ -165,5 +171,9 @@ class DiscoverViewModel(
                 _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
             }
         }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MILLIS = 300L
     }
 }
