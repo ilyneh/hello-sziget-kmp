@@ -252,13 +252,18 @@ class ScheduleViewModel(
                     )
                 }.flowOn(backgroundDispatcher)
                     .collect { filteredData ->
+                        // This DB-backed emission can land after a concurrent operation (e.g.
+                        // ToggleFavorite or the initial refresh) has already set an Error status;
+                        // don't let a routine content reload silently clobber it. See
+                        // DiscoverViewModel.observeArtists() for the same fix applied there.
                         _uiState.update {
+                            val nextStatus = it.status as? ScheduleUiState.Status.Error ?: ScheduleUiState.Status.Success
                             it.copy(
                                 setTimes = filteredData.setTimes,
                                 stages = filteredData.stages,
                                 gridMinHour = filteredData.gridMinHour,
                                 gridMaxHour = filteredData.gridMaxHour,
-                                status = ScheduleUiState.Status.Success,
+                                status = nextStatus,
                             )
                         }
                     }
