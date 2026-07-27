@@ -6,12 +6,7 @@ on:
 
 jobs:
   maestro-tests:
-    # 4-core/16GB tier (vs. ubuntu-latest's 2-core/7GB) - the emulator + Postgres/backend
-    # containers + Gradle build competing for RAM on the standard runner was the likely cause of
-    # an ANR observed in a previous run. Requires a "Larger runner" with this exact label
-    # provisioned first under Settings -> Actions -> Runners (GitHub-hosted, usage-billed
-    # separately from standard included minutes) - see docs/RUNBOOK.md.
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -116,8 +111,14 @@ jobs:
           # rather than a specific flow's logic - is diagnosable from the uploaded artifact
           # instead of a bare "element not found". `|| maestro_exit=$?` + the trailing `exit`
           # preserves maestro's real exit code so the step's pass/fail status is unaffected.
+          #
+          # `./gradlew --stop` kills the Gradle daemon right after install - nothing here needs
+          # it again, and leaving a JVM daemon resident alongside the emulator + backend
+          # containers on this runner's 7GB of RAM is exactly the kind of resource pressure that
+          # plausibly caused an ANR observed in an earlier run.
           script: |
             ./gradlew :androidApp:installDebug -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} -Psziget.skipGoogleSignIn=true
+            ./gradlew --stop
             docker compose -f maestro/docker-compose.e2e.yml up -d --wait
             maestro_exit=0
             "$HOME/.maestro/bin/maestro" test maestro || maestro_exit=$?
