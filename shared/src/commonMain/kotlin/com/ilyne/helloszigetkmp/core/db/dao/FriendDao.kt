@@ -133,6 +133,7 @@ interface FriendDao {
     )
     fun observeSentFriendRequests(): Flow<List<UserEntity>>
 
+    @Transaction
     @Query(
         """
         SELECT DISTINCT artists.* FROM artists
