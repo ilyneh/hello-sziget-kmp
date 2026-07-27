@@ -97,9 +97,20 @@ jobs:
           # One line, no backslash continuation - this action's `script` doesn't handle
           # multi-line-continued commands the way a normal shell script would (a run with
           # continuation lines here failed with Gradle seeing a literal "\" as a task name).
+          #
+          # Captures logcat + a screenshot right after the flows run (while the emulator is
+          # still up) regardless of outcome, so a failure - e.g. every flow timing out including
+          # ones with no backend/auth dependency, which points at the app not rendering at all
+          # rather than a specific flow's logic - is diagnosable from the uploaded artifact
+          # instead of a bare "element not found". `|| maestro_exit=$?` + the trailing `exit`
+          # preserves maestro's real exit code so the step's pass/fail status is unaffected.
           script: |
             ./gradlew :androidApp:installDebug -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} -Psziget.skipGoogleSignIn=true
-            "$HOME/.maestro/bin/maestro" test maestro
+            maestro_exit=0
+            "$HOME/.maestro/bin/maestro" test maestro || maestro_exit=$?
+            adb logcat -d > /tmp/emulator-logcat.txt || true
+            adb exec-out screencap -p > /tmp/emulator-screenshot.png || true
+            exit $maestro_exit
 
       - name: Upload Maestro test report
         if: always()
@@ -107,6 +118,17 @@ jobs:
         with:
           name: maestro-test-report
           path: ~/.maestro/tests
+          retention-days: 7
+
+      - name: Upload debug artifacts (logcat + screenshot)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug-artifacts
+          path: |
+            /tmp/emulator-logcat.txt
+            /tmp/emulator-screenshot.png
+          if-no-files-found: ignore
           retention-days: 7
 
       - name: Tear down seed backend
