@@ -174,6 +174,7 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
             // The mock engine hops off the test dispatcher internally, so the optimistic-update ->
@@ -216,6 +217,7 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
             viewModel.uiState.test {
@@ -252,6 +254,7 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
             viewModel.uiState.test {
@@ -321,6 +324,10 @@ class DiscoverViewModelTest {
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
             backgroundDispatcher = Dispatchers.Main,
+            // Debounce is disabled in tests (0ms) so the search flow still recomputes
+            // synchronously under UnconfinedTestDispatcher, matching this suite's pre-debounce
+            // assertions.
+            searchDebounceMillis = 0L,
         )
     }
 

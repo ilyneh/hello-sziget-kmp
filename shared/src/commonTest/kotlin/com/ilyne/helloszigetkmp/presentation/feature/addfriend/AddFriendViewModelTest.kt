@@ -298,6 +298,9 @@ class AddFriendViewModelTest {
             userRepository = userRepository,
             currentUserProvider = currentUserProvider,
             backgroundDispatcher = Dispatchers.Main,
+            // Debounce is disabled in tests (0ms) so the combine still recomputes synchronously
+            // under UnconfinedTestDispatcher, matching this suite's pre-debounce assertions.
+            searchDebounceMillis = 0L,
         )
     }
 
