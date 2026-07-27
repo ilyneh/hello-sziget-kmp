@@ -83,9 +83,15 @@ fun AppNavGraph(
                 .collectAsStateWithLifecycle()
 
             MainScaffold(
-                openFilterScreen = { filter -> navController.navigate(ScheduleFilterRoute(filter)) },
-                onNavigateToAddFriend = { navController.navigate(AddFriend) },
-                onArtistClick = { artistId -> navController.navigate(ArtistDetailRoute(artistId)) },
+                openFilterScreen = { filter ->
+                    navController.navigate(ScheduleFilterRoute(filter)) { launchSingleTop = true }
+                },
+                onNavigateToAddFriend = {
+                    navController.navigate(AddFriend) { launchSingleTop = true }
+                },
+                onArtistClick = { artistId ->
+                    navController.navigate(ArtistDetailRoute(artistId)) { launchSingleTop = true }
+                },
                 appliedFilter = appliedFilterJson?.let { Json.decodeFromString(it) },
                 onConsumeAppliedFilter = {
                     backStackEntry.savedStateHandle[SCHEDULE_FILTER_RESULT_KEY] = null
