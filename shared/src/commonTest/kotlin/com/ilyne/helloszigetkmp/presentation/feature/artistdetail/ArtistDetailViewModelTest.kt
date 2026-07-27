@@ -261,8 +261,6 @@ class ArtistDetailViewModelTest {
     }
 
     private class FakeSetTimeDao : SetTimeDao {
-        override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(emptyList())
-
         override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = flowOf(emptyList())
 
         override fun observeByDay(
@@ -344,10 +342,6 @@ class ArtistDetailViewModelTest {
 
         override suspend fun deleteAllFriendships() {}
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {}
 
         override suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>) {}
@@ -355,13 +349,6 @@ class ArtistDetailViewModelTest {
         override suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>) {}
 
         override suspend fun deleteAllArtistFriendFavorited() {}
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {}
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {}
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

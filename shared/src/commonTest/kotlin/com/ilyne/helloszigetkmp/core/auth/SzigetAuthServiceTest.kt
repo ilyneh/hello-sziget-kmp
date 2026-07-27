@@ -527,10 +527,6 @@ class SzigetAuthServiceTest {
             calls.add("friend.deleteAllFriendships")
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>): Unit =
             throw NotImplementedError("unused in this test")
 
@@ -543,14 +539,6 @@ class SzigetAuthServiceTest {
         override suspend fun deleteAllArtistFriendFavorited() {
             calls.add("friend.deleteAllArtistFriendFavorited")
         }
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ): Unit = throw NotImplementedError("unused in this test")
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>): Unit =
-            throw NotImplementedError("unused in this test")
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

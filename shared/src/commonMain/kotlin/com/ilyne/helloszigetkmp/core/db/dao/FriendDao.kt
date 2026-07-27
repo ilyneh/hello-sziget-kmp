@@ -32,12 +32,6 @@ interface FriendDao {
     @Query("DELETE FROM users_friends")
     suspend fun deleteAllFriendships()
 
-    @Query("SELECT artistId FROM artist_friend_favorites")
-    suspend fun getArtistIdsFriendsFavorited(): List<String>
-
-    @Query("SELECT * FROM artist_friend_favorites")
-    suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity>
-
     @Upsert
     suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>)
 
@@ -64,41 +58,6 @@ interface FriendDao {
 
     @Query("DELETE FROM artist_friend_favorites")
     suspend fun deleteAllArtistFriendFavorited()
-
-    @Query(
-        """
-        DELETE FROM artist_friend_favorites
-        WHERE artistId = :artistId AND friendId NOT IN (:activeFriendIds)
-        """,
-    )
-    suspend fun deleteStaleFavoritesForArtist(
-        artistId: String,
-        activeFriendIds: List<String>,
-    )
-
-    @Query("DELETE FROM artist_friend_favorites WHERE artistId IN (:artistIds)")
-    suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>)
-
-    @Transaction
-    suspend fun upsertAndPruneArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
-        val currentArtistIds = getArtistIdsFriendsFavorited()
-
-        // Group by artist to safely target the pruning scope
-        val groupedByArtist = artistsFriendFavorited.groupBy { it.artistId }
-
-        // Prune stale artists
-        val currentArtistIdsNotIn = currentArtistIds.filter { !groupedByArtist.containsKey(it) }
-        deleteStaleArtistsFromArtistFriendFavorites(currentArtistIdsNotIn)
-
-        // Insert or update all incoming records
-        upsertArtistFriendFavorited(artistsFriendFavorited)
-
-        // Prune stale relationships for each affected artist
-        for ((artistId, activeFavorites) in groupedByArtist) {
-            val activeFriendIds = activeFavorites.map { it.friendId }
-            deleteStaleFavoritesForArtist(artistId, activeFriendIds)
-        }
-    }
 
     @Query(
         """

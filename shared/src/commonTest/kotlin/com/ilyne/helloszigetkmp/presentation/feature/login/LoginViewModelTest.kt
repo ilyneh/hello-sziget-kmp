@@ -314,10 +314,6 @@ class LoginViewModelTest {
             // Unused in this test.
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>): Unit =
             throw NotImplementedError("unused in this test")
 
@@ -330,14 +326,6 @@ class LoginViewModelTest {
         override suspend fun deleteAllArtistFriendFavorited() {
             // Unused in this test.
         }
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ): Unit = throw NotImplementedError("unused in this test")
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>): Unit =
-            throw NotImplementedError("unused in this test")
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

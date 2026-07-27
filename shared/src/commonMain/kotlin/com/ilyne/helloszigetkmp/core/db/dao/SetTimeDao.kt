@@ -14,9 +14,6 @@ interface SetTimeDao {
         val maxStart: Long,
     )
 
-    @Query("SELECT * FROM set_times ORDER BY startTime ASC")
-    fun observeAll(): Flow<List<SetTimeEntity>>
-
     @Query(
         """
         SELECT set_times.*, artists.name AS artistName, stages.name AS stageName FROM set_times

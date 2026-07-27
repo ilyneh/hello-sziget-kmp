@@ -256,8 +256,6 @@ class MyLineupViewModelTest {
     ) : SetTimeDao {
         private val favoritesFlow = MutableStateFlow(favorites)
 
-        override fun observeAll(): Flow<List<com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity>> = flowOf(emptyList())
-
         override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = favoritesFlow
 
         override fun observeByDay(
