@@ -14,6 +14,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SetTimeDaoTest {
@@ -132,13 +133,15 @@ class SetTimeDaoTest {
     // ---- observeSetTimeRange tests ----
 
     @Test
-    fun `observeSetTimeRange on an empty table does not crash`() =
+    fun `observeSetTimeRange on an empty table returns null bounds instead of epoch 0`() =
         runTest {
             val range = setTimeDao.observeSetTimeRange().first()
 
-            // SQLite's MIN/MAX over zero rows yields NULL; Room maps this into a single
-            // row whose non-null Long columns default to 0 rather than throwing.
-            assertEquals(SetTimeDao.SetTimeRange(minStart = 0, maxStart = 0), range)
+            // SQLite's MIN/MAX over zero rows yields NULL. minStart/maxStart are nullable Longs
+            // specifically so Room preserves that NULL instead of coercing it to 0 (epoch millis
+            // = 1 Jan 1970), which would otherwise render a bogus day tab before any sync.
+            assertNull(range.minStart)
+            assertNull(range.maxStart)
         }
 
     @Test

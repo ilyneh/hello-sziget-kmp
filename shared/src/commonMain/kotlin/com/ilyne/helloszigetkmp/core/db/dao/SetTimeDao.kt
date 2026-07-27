@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SetTimeDao {
+    // Nullable: SQL MIN()/MAX() return NULL over zero rows. If these were non-null Long, Room
+    // would map that into 0 (epoch millis = 1 Jan 1970), producing a bogus single-day schedule
+    // on a fresh install before any sync has happened. Nullable lets callers distinguish "no
+    // data yet" from a real day at epoch 0.
     data class SetTimeRange(
-        val minStart: Long,
-        val maxStart: Long,
+        val minStart: Long?,
+        val maxStart: Long?,
     )
 
     @Query("SELECT * FROM set_times ORDER BY startTime ASC")
