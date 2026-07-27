@@ -254,8 +254,13 @@ on `ubuntu-latest` (no `google-services.json` needed — `:shared` doesn't apply
 `./gradlew :shared:iosSimulatorArm64Test` on `macos-latest`. Both upload their test reports as
 build artifacts.
 
-`.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`).
-Frees disk space first (removes preinstalled toolchains this build doesn't use — `dotnet`,
+`.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`), on a
+4-core/16GB "Larger runner" (`ubuntu-latest-4-cores`) rather than the standard 2-core/7GB
+`ubuntu-latest` — the emulator, Postgres/backend containers, and Gradle build competing for RAM
+on the standard tier caused an ANR in one run. That runner size must be provisioned first under
+**Settings → Actions → Runners** (GitHub-hosted "Larger runners", billed separately from the
+included per-minute quota) with a label matching exactly, or the job will fail to find a runner
+to pick it up. Frees disk space first (removes preinstalled toolchains this build doesn't use — `dotnet`,
 Android NDK, GHC, CodeQL, Boost — since a full run otherwise gets close enough to
 `ubuntu-latest`'s disk limit that the emulator's AVD userdata partition can fail to allocate).
 Writes `androidApp/google-services.json` from the same `GOOGLE_SERVICES_JSON` secret used by the

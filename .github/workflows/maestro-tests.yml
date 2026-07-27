@@ -6,7 +6,12 @@ on:
 
 jobs:
   maestro-tests:
-    runs-on: ubuntu-latest
+    # 4-core/16GB tier (vs. ubuntu-latest's 2-core/7GB) - the emulator + Postgres/backend
+    # containers + Gradle build competing for RAM on the standard runner was the likely cause of
+    # an ANR observed in a previous run. Requires a "Larger runner" with this exact label
+    # provisioned first under Settings -> Actions -> Runners (GitHub-hosted, usage-billed
+    # separately from standard included minutes) - see docs/RUNBOOK.md.
+    runs-on: ubuntu-latest-4-cores
     steps:
       - name: Checkout
         uses: actions/checkout@v4
