@@ -373,9 +373,8 @@ class ScheduleViewModelTest {
 
             // An explicit pull-to-refresh always forces the network call, which fails here
             // because the mock engine returns a response the API DTOs can't be parsed from. The
-            // ktor client engine hops off the test dispatcher internally, so the Loading ->
-            // Error transition isn't synchronous like the rest of this suite - collect for it
-            // via turbine instead of reading uiState.value immediately.
+            // Loading -> Error transition isn't synchronous like the rest of this suite - collect
+            // for it via turbine instead of reading uiState.value immediately.
             viewModel.uiState.test {
                 assertIs<LoadStatus.Success>(awaitItem().status)
 
@@ -505,9 +504,16 @@ class ScheduleViewModelTest {
         return settings
     }
 
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // refresh_forcedRefreshFailsBecauseUnparseableApiResponse_setsErrorStatus test below (StateFlow
+    // only guarantees the latest value reaches a collector, so a Loading state emitted and
+    // overwritten before the collector is rescheduled is silently dropped instead of observed).
+    // Pinning the engine to Dispatchers.Main (the test dispatcher installed in setUp) keeps
+    // everything on one deterministic dispatcher.
     private fun mockApi(): SzigetApiService =
         SzigetApiService(
-            client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+            client = HttpClient(MockEngine) { engine { addHandler { respondOk() }; dispatcher = Dispatchers.Main } },
             baseUrl = "https://unused.test",
         )
 
