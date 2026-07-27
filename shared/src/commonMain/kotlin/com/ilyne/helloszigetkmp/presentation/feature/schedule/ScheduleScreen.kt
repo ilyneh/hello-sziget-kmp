@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -174,13 +175,27 @@ private fun ScheduleContent(
                         ScheduleErrorReason.LOAD_DAY_FAILED -> Res.string.schedule_error_load_day
                         ScheduleErrorReason.LOAD_DAYS_FAILED -> Res.string.schedule_error_load_days
                     }
-                    ErrorState(
-                        message = stringResource(errorMessageRes),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .testTag("schedule_error_state"),
-                    )
+                    if (uiState.setTimes.isEmpty()) {
+                        ErrorState(
+                            message = stringResource(errorMessageRes),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .testTag("schedule_error_state"),
+                        )
+                    } else {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ErrorState(
+                                message = stringResource(errorMessageRes),
+                                modifier = Modifier.fillMaxWidth().testTag("schedule_error_banner"),
+                            )
+                            ScheduleSetTimesContent(
+                                uiState = uiState,
+                                onToggleFavorite = onToggleFavorite,
+                                onArtistClick = onArtistClick,
+                            )
+                        }
+                    }
                 }
 
                 else -> {
