@@ -94,11 +94,11 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
+          # One line, no backslash continuation - this action's `script` doesn't handle
+          # multi-line-continued commands the way a normal shell script would (a run with
+          # continuation lines here failed with Gradle seeing a literal "\" as a task name).
           script: |
-            ./gradlew :androidApp:installDebug \
-              -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 \
-              -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} \
-              -Psziget.skipGoogleSignIn=true
+            ./gradlew :androidApp:installDebug -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} -Psziget.skipGoogleSignIn=true
             "$HOME/.maestro/bin/maestro" test maestro
 
       - name: Upload Maestro test report
