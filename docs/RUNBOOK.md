@@ -255,18 +255,25 @@ on `ubuntu-latest` (no `google-services.json` needed — `:shared` doesn't apply
 build artifacts.
 
 `.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`).
+Frees disk space first (removes preinstalled toolchains this build doesn't use — `dotnet`,
+Android NDK, GHC, CodeQL, Boost — since a full run otherwise gets close enough to
+`ubuntu-latest`'s disk limit that the emulator's AVD userdata partition can fail to allocate).
 Writes `androidApp/google-services.json` from the same `GOOGLE_SERVICES_JSON` secret used by the
 beta release workflow, pulls the self-seeded backend image (`ghcr.io/ilyneh/hello-sziget-backend:e2e`
 — built by the separate `hello-sziget` backend repo's own CI, see
 [`maestro/README.md`](../maestro/README.md)) and tags it locally as `hello-sziget-backend:e2e`,
-then boots a KVM-accelerated `google_apis`/API 34 emulator via
-[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner).
-Once the emulator is up (and `adb` is available), it runs `scripts/reinstall_e2e_test_app.sh`,
-which restarts the seed backend from a clean DB, writes `local.properties` with a fresh bearer
-token and `sziget.skipGoogleSignIn=true`, and builds + installs the debug APK — then runs
-`maestro test maestro` (all the flows under [`maestro/flows/`](../maestro/flows)) against it with
-the [Maestro CLI](https://maestro.mobile.dev). The seed backend container is always torn down
-afterward regardless of outcome. See `maestro/README.md` for how to run this same flow locally.
+then starts it via `scripts/run_e2e_backend.sh` (a plain step — this only needs `docker`, not an
+emulator, so it runs before/independently of the emulator boot rather than being gated behind
+it) and captures the printed bearer token as a step output. Then it boots a KVM-accelerated
+`google_apis`/API 34 emulator via
+[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner),
+builds and installs the debug APK against the already-running backend via `-P` Gradle properties
+(`sziget.localBackendUrl`, `sziget.localBearerToken`, `sziget.skipGoogleSignIn=true` — bypassing
+`local.properties` entirely), and runs `maestro test maestro` (all the flows under
+[`maestro/flows/`](../maestro/flows)) with the [Maestro CLI](https://maestro.mobile.dev). The
+seed backend container is always torn down afterward regardless of outcome. See
+`maestro/README.md` for how to run the same backend locally (`scripts/reinstall_e2e_test_app.sh`
+is the equivalent one-shot local convenience wrapper, not used directly by this workflow).
 
 `.github/workflows/play-beta-release.yml` — manual (`workflow_dispatch`-only) Android beta
 release to Google Play Console, using the
