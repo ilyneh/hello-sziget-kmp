@@ -24,8 +24,16 @@ class GetSetTimeDaysUseCase(
 
     operator fun invoke(): Flow<SetTimeDays> =
         scheduleRepository.observeSetTimeRange().map { setTimeRange ->
-            val startDate = setTimeRange.minStart.toFestivalDate()
-            val endDate = setTimeRange.maxStart.toFestivalDate()
+            val minStart = setTimeRange.minStart
+            val maxStart = setTimeRange.maxStart
+            if (minStart == null || maxStart == null) {
+                // No set times synced yet (fresh install / empty table) - don't render a
+                // spurious epoch-0 ("31 Dec 1969") day tab, just report no days.
+                return@map SetTimeDays(days = emptyList())
+            }
+
+            val startDate = minStart.toFestivalDate()
+            val endDate = maxStart.toFestivalDate()
 
             val days = generateSequence(seed = startDate) { it.plus(1, DateTimeUnit.DAY) }
                 .takeWhile { it <= endDate }

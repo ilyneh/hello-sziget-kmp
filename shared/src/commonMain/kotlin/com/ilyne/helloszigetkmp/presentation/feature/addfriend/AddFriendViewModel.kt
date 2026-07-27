@@ -9,9 +9,12 @@ import com.ilyne.helloszigetkmp.domain.model.User
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -61,6 +64,7 @@ class AddFriendViewModel(
     private val userRepository: UserRepository,
     currentUserProvider: CurrentUserProvider,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val searchDebounceMillis: Long = SEARCH_DEBOUNCE_MILLIS,
 ) : ViewModel() {
     private val searchQuery = MutableStateFlow("")
 
@@ -139,6 +143,7 @@ class AddFriendViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun observeResults() {
         viewModelScope.launch {
             combine(
@@ -146,7 +151,7 @@ class AddFriendViewModel(
                 friendRepository.observeFriends(),
                 friendRepository.observeSentFriendRequests(),
                 friendRepository.observeFriendRequests(),
-                searchQuery,
+                searchQuery.debounce(searchDebounceMillis).distinctUntilChanged(),
             ) { users, friends, sentRequests, receivedRequests, query ->
                 val friendIds = friends.map { it.id }.toSet()
                 val sentIds = sentRequests.map { it.id }.toSet()
@@ -170,5 +175,9 @@ class AddFriendViewModel(
                     _uiState.update { it.copy(results = results) }
                 }
         }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MILLIS = 300L
     }
 }

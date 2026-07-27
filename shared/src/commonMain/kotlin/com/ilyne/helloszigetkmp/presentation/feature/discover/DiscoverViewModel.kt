@@ -7,15 +7,19 @@ import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.passesGenreFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
@@ -27,18 +31,8 @@ data class DiscoverUiState(
     val filter: DiscoverFilter = DiscoverFilter(),
     val filterCount: Int = 0,
     val filterTexts: List<String> = emptyList(),
-    val status: Status = Status.Loading,
-) {
-    sealed class Status {
-        object Success : Status()
-
-        object Loading : Status()
-
-        data class Error(
-            val message: String?,
-        ) : Status()
-    }
-}
+    val status: LoadStatus<String?> = LoadStatus.Loading,
+)
 
 sealed class DiscoverIntent {
     data class SearchQueryChanged(
@@ -60,6 +54,7 @@ class DiscoverViewModel(
     private val artistRepository: ArtistRepository,
     private val getActiveDiscoverFiltersTextUseCase: GetActiveDiscoverFiltersTextUseCase,
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val searchDebounceMillis: Long = SEARCH_DEBOUNCE_MILLIS,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState = _uiState.asStateFlow()
@@ -130,10 +125,12 @@ class DiscoverViewModel(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun observeArtists() {
         viewModelScope.launch {
             searchQuery
+                .debounce(searchDebounceMillis)
+                .distinctUntilChanged()
                 .flatMapLatest { query ->
                     if (query.isBlank()) {
                         artistRepository.observeArtists()
@@ -148,7 +145,7 @@ class DiscoverViewModel(
                     // can now land after a concurrent operation (e.g. toggleFavorite) has already
                     // set an Error status; don't let a routine list refresh silently clobber it.
                     _uiState.update {
-                        val nextStatus = it.status as? DiscoverUiState.Status.Error ?: DiscoverUiState.Status.Success
+                        val nextStatus = it.status as? LoadStatus.Error ?: LoadStatus.Success
                         it.copy(artists = artists, status = nextStatus)
                     }
                 }
@@ -157,13 +154,17 @@ class DiscoverViewModel(
 
     private fun refreshArtists(force: Boolean) {
         viewModelScope.launch {
-            _uiState.update { it.copy(status = DiscoverUiState.Status.Loading) }
+            _uiState.update { it.copy(status = LoadStatus.Loading) }
             try {
                 artistRepository.refresh(force = force)
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Success) }
+                _uiState.update { it.copy(status = LoadStatus.Success) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = DiscoverUiState.Status.Error(message = e.message)) }
+                _uiState.update { it.copy(status = LoadStatus.Error(reason = e.message)) }
             }
         }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MILLIS = 300L
     }
 }

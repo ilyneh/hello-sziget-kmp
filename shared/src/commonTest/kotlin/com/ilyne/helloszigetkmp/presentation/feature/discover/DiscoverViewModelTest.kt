@@ -9,10 +9,13 @@ import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
@@ -85,7 +88,7 @@ class DiscoverViewModelTest {
             val viewModel = newViewModel(artistDao = artistDao)
 
             val state = viewModel.uiState.value
-            assertIs<DiscoverUiState.Status.Success>(state.status)
+            assertIs<LoadStatus.Success>(state.status)
             assertEquals(listOf("artist-1", "artist-2"), state.artists.map { it.id })
         }
 
@@ -161,7 +164,7 @@ class DiscoverViewModelTest {
             viewModel.toggleFavorite(artistId = "artist-1", current = false)
 
             assertEquals(true, artistDao.currentArtists.first { it.id == "artist-1" }.isFavorited)
-            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
         }
 
     @Test
@@ -174,12 +177,12 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
-            // The mock engine hops off the test dispatcher internally, so the optimistic-update ->
-            // revert isn't synchronous like the rest of this suite - collect for the reverted
-            // artist state via turbine instead of reading artistDao.currentArtists immediately
-            // after advanceUntilIdle().
+            // The optimistic-update -> revert isn't synchronous like the rest of this suite -
+            // collect for the reverted artist state via turbine instead of reading
+            // artistDao.currentArtists immediately after advanceUntilIdle().
             artistDao.observeById("artist-1").test {
                 assertEquals(false, awaitItem()?.isFavorited)
 
@@ -190,7 +193,7 @@ class DiscoverViewModelTest {
 
                 cancelAndIgnoreRemainingEvents()
             }
-            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
         }
 
     @Test
@@ -216,14 +219,15 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
             viewModel.uiState.test {
-                assertIs<DiscoverUiState.Status.Success>(awaitItem().status) // initial empty list, gate already fresh
+                assertIs<LoadStatus.Success>(awaitItem().status) // initial empty list, gate already fresh
 
                 viewModel.refresh()
 
-                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
 
                 // The dao's upsert (triggering observeArtists' own reactive emission) and
                 // refreshArtists' explicit post-fetch Success update can arrive as separate
@@ -232,7 +236,7 @@ class DiscoverViewModelTest {
                 while (state.artists.isEmpty()) {
                     state = awaitItem()
                 }
-                assertIs<DiscoverUiState.Status.Success>(state.status)
+                assertIs<LoadStatus.Success>(state.status)
                 assertEquals(listOf("artist-3"), state.artists.map { it.id })
 
                 cancelAndIgnoreRemainingEvents()
@@ -252,16 +256,17 @@ class DiscoverViewModelTest {
                 artistRepository = repository,
                 getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
                 backgroundDispatcher = Dispatchers.Main,
+                searchDebounceMillis = 0L,
             )
 
             viewModel.uiState.test {
-                assertIs<DiscoverUiState.Status.Success>(awaitItem().status)
+                assertIs<LoadStatus.Success>(awaitItem().status)
 
                 viewModel.refresh()
 
-                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
                 val errored = awaitItem()
-                assertIs<DiscoverUiState.Status.Error>(errored.status)
+                assertIs<LoadStatus.Error<*>>(errored.status)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -289,12 +294,12 @@ class DiscoverViewModelTest {
 
     private fun mockApi(): SzigetApiService =
         SzigetApiService(
-            client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+            client = HttpClient(MockEngine) { engine { addHandler { respondOk() }; dispatcher = Dispatchers.Main } },
             baseUrl = "https://unused.test",
         )
 
     private fun artistsListApi(artists: List<ArtistDto>): SzigetApiService {
-        val engine = MockEngine { request ->
+        val engine = mockEngine { request ->
             when {
                 request.url.encodedPath.endsWith("/artists") -> respond(json.encodeToString(artists), headers = jsonHeaders)
                 else -> respondError(HttpStatusCode.NotFound)
@@ -305,10 +310,22 @@ class DiscoverViewModelTest {
     }
 
     private fun failingFavoriteApi(): SzigetApiService {
-        val engine = MockEngine { throw ApiFailureException() }
+        val engine = mockEngine { throw ApiFailureException() }
         val client = HttpClient(engine)
         return SzigetApiService(client = client, baseUrl = "https://unused.test")
     }
+
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in Turbine-based
+    // tests below (StateFlow only guarantees the latest value reaches a collector, so a
+    // Loading state emitted and overwritten before the collector is rescheduled is silently
+    // dropped instead of observed). Pinning the engine to Dispatchers.Main (the test dispatcher
+    // installed in setUp) keeps everything on one deterministic dispatcher.
+    private fun mockEngine(handler: MockRequestHandler) =
+        MockEngine(MockEngineConfig().apply {
+            addHandler(handler)
+            dispatcher = Dispatchers.Main
+        })
 
     private class ApiFailureException : Exception("simulated api failure")
 
@@ -321,6 +338,10 @@ class DiscoverViewModelTest {
             artistRepository = repository,
             getActiveDiscoverFiltersTextUseCase = GetActiveDiscoverFiltersTextUseCase(),
             backgroundDispatcher = Dispatchers.Main,
+            // Debounce is disabled in tests (0ms) so the search flow still recomputes
+            // synchronously under UnconfinedTestDispatcher, matching this suite's pre-debounce
+            // assertions.
+            searchDebounceMillis = 0L,
         )
     }
 

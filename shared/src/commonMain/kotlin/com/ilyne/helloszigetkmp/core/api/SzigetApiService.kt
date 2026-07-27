@@ -34,11 +34,7 @@ class SzigetApiService(
 
     suspend fun getArtists(): List<ArtistDto> = client.get("$baseUrl/artists").body()
 
-    suspend fun getArtist(id: String): ArtistDto = client.get("$baseUrl/artists/$id").body()
-
     suspend fun getStages(): List<StageDto> = client.get("$baseUrl/stages").body()
-
-    suspend fun getStage(id: String): StageDto = client.get("$baseUrl/stages/$id").body()
 
     suspend fun getSetTimes(): List<SetTimeDto> = client.get("$baseUrl/set_times").body()
 

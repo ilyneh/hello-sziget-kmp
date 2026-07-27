@@ -213,14 +213,24 @@ class GetSetTimeDaysUseCaseTest {
             ) // Aug 9 2026, Sun
         }
 
+    @Test
+    fun emptyRange_producesNoDays() =
+        runTest {
+            // Fresh install / no sync yet: SetTimeDao.observeSetTimeRange() reports null bounds
+            // rather than epoch 0, so this must not produce a spurious "31 Dec 1969" day tab.
+            val range = SetTimeDao.SetTimeRange(minStart = null, maxStart = null)
+
+            val result = useCase(range)().first()
+
+            assertEquals(emptyList(), result.days)
+        }
+
     private fun millisAt(isoLocalDateTime: String): Long = LocalDateTime.parse(isoLocalDateTime).toInstant(budapest).toEpochMilliseconds()
 
     private fun useCase(range: SetTimeDao.SetTimeRange): GetSetTimeDaysUseCase = GetSetTimeDaysUseCase(repository(range))
 
     private fun repository(range: SetTimeDao.SetTimeRange): ScheduleRepository {
         val setTimeDao = object : SetTimeDao {
-            override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(emptyList())
-
             override fun observeByDay(
                 dayStartMillis: Long,
                 dayEndMillis: Long,

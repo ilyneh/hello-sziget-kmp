@@ -26,6 +26,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.ActiveFilterItem
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
@@ -131,7 +132,7 @@ class ScheduleViewModelTest {
             )
 
             val state = viewModel.uiState.value
-            assertIs<ScheduleUiState.Status.Success>(state.status)
+            assertIs<LoadStatus.Success>(state.status)
             assertEquals(1, state.days.size)
             assertEquals(6, state.days.first().dateOfMonth)
             assertEquals(state.days.first(), state.selectedDay)
@@ -358,7 +359,7 @@ class ScheduleViewModelTest {
 
             viewModel.onIntent(ScheduleIntent.ToggleFavorite(artistId = "boom-artist", current = false))
 
-            val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
+            val status = assertIs<LoadStatus.Error<*>>(viewModel.uiState.value.status)
             assertEquals(ScheduleErrorReason.UPDATE_FAVORITE_FAILED, status.reason)
         }
 
@@ -368,20 +369,19 @@ class ScheduleViewModelTest {
             val viewModel = newViewModel()
             // Construction succeeds because the soft-refresh gate is pre-warmed as "fresh" so
             // init's non-forced refresh skips the network call entirely.
-            assertIs<ScheduleUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
 
             // An explicit pull-to-refresh always forces the network call, which fails here
             // because the mock engine returns a response the API DTOs can't be parsed from. The
-            // ktor client engine hops off the test dispatcher internally, so the Loading ->
-            // Error transition isn't synchronous like the rest of this suite - collect for it
-            // via turbine instead of reading uiState.value immediately.
+            // Loading -> Error transition isn't synchronous like the rest of this suite - collect
+            // for it via turbine instead of reading uiState.value immediately.
             viewModel.uiState.test {
-                assertIs<ScheduleUiState.Status.Success>(awaitItem().status)
+                assertIs<LoadStatus.Success>(awaitItem().status)
 
                 viewModel.refresh()
 
-                assertIs<ScheduleUiState.Status.Loading>(awaitItem().status)
-                val status = assertIs<ScheduleUiState.Status.Error>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
+                val status = assertIs<LoadStatus.Error<*>>(awaitItem().status)
                 assertEquals(ScheduleErrorReason.REFRESH_FAILED, status.reason)
             }
         }
@@ -396,7 +396,7 @@ class ScheduleViewModelTest {
 
             val viewModel = newViewModel(setTimeDao = throwingSetTimeDao)
 
-            val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
+            val status = assertIs<LoadStatus.Error<*>>(viewModel.uiState.value.status)
             assertEquals(ScheduleErrorReason.LOAD_DAYS_FAILED, status.reason)
         }
 
@@ -419,7 +419,7 @@ class ScheduleViewModelTest {
 
             val viewModel = newViewModel(setTimeDao = throwingSetTimeDao)
 
-            val status = assertIs<ScheduleUiState.Status.Error>(viewModel.uiState.value.status)
+            val status = assertIs<LoadStatus.Error<*>>(viewModel.uiState.value.status)
             assertEquals(ScheduleErrorReason.LOAD_DAY_FAILED, status.reason)
         }
 
@@ -504,9 +504,16 @@ class ScheduleViewModelTest {
         return settings
     }
 
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // refresh_forcedRefreshFailsBecauseUnparseableApiResponse_setsErrorStatus test below (StateFlow
+    // only guarantees the latest value reaches a collector, so a Loading state emitted and
+    // overwritten before the collector is rescheduled is silently dropped instead of observed).
+    // Pinning the engine to Dispatchers.Main (the test dispatcher installed in setUp) keeps
+    // everything on one deterministic dispatcher.
     private fun mockApi(): SzigetApiService =
         SzigetApiService(
-            client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+            client = HttpClient(MockEngine) { engine { addHandler { respondOk() }; dispatcher = Dispatchers.Main } },
             baseUrl = "https://unused.test",
         )
 
@@ -547,8 +554,6 @@ class ScheduleViewModelTest {
     ) : SetTimeDao {
         private val setTimesFlow = MutableStateFlow(setTimes)
         private val rangeFlow = MutableStateFlow(range)
-
-        override fun observeAll(): Flow<List<SetTimeEntity>> = setTimesFlow
 
         override fun observeByDay(
             dayStartMillis: Long,
@@ -627,10 +632,6 @@ class ScheduleViewModelTest {
 
         override suspend fun deleteAllFriendships() {}
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {}
 
         override suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>) {}
@@ -638,13 +639,6 @@ class ScheduleViewModelTest {
         override suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>) {}
 
         override suspend fun deleteAllArtistFriendFavorited() {}
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {}
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {}
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

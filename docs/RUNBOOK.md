@@ -247,6 +247,43 @@ Android and iOS version independently — there is no single source of truth acr
 
 ## CI/CD status
 
+`.github/workflows/unit-tests.yml` — runs on every push to `main` and every PR (plus manual
+`workflow_dispatch`). Two jobs: `android-unit-tests` runs `./gradlew :shared:testAndroidHostTest`
+on `ubuntu-latest` (no `google-services.json` needed — `:shared` doesn't apply the
+`google-services` plugin, only `:androidApp` does); `ios-unit-tests` runs
+`./gradlew :shared:iosSimulatorArm64Test` on `macos-latest`. Both upload their test reports as
+build artifacts.
+
+`.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`) on the
+standard `ubuntu-latest` runner (2-core/7GB — no "Larger runner" access on this repo). The
+emulator, Postgres/backend containers, and Gradle daemon competing for that RAM caused an ANR in
+one run, so the workflow minimizes concurrent memory pressure instead of throwing more hardware
+at it: the seed backend is stopped (not `down` — that would rotate the bearer token already baked
+into the install command) right after its bearer token is captured and only restarted right
+before `maestro test` runs, and `./gradlew --stop` kills the Gradle daemon immediately after
+`installDebug` finishes, since nothing needs it again. Frees disk space first (removes preinstalled toolchains this build doesn't use — `dotnet`,
+Android NDK, GHC, CodeQL, Boost — since a full run otherwise gets close enough to
+`ubuntu-latest`'s disk limit that the emulator's AVD userdata partition can fail to allocate).
+Writes `androidApp/google-services.json` from the same `GOOGLE_SERVICES_JSON` secret used by the
+beta release workflow, pulls the self-seeded backend image (`ghcr.io/ilyneh/hello-sziget-backend:e2e`
+— built by the separate `hello-sziget` backend repo's own CI, see
+[`maestro/README.md`](../maestro/README.md)) and tags it locally as `hello-sziget-backend:e2e`,
+then starts it via `scripts/run_e2e_backend.sh` (a plain step — this only needs `docker`, not an
+emulator, so it runs before/independently of the emulator boot rather than being gated behind
+it). That script writes the bearer token to a file (`/tmp/hello-sziget-e2e-bearer-token` by
+default) rather than printing the raw value under CI; the workflow reads it from there and
+registers it with `::add-mask::` so it's redacted in the log from that point on, including where
+it's interpolated into the emulator step's script below. Then it boots a KVM-accelerated
+`google_apis`/API 34 emulator via
+[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner),
+builds and installs the debug APK against the already-running backend via `-P` Gradle properties
+(`sziget.localBackendUrl`, `sziget.localBearerToken`, `sziget.skipGoogleSignIn=true` — bypassing
+`local.properties` entirely), and runs `maestro test maestro` (all the flows under
+[`maestro/flows/`](../maestro/flows)) with the [Maestro CLI](https://maestro.mobile.dev). The
+seed backend container is always torn down afterward regardless of outcome. See
+`maestro/README.md` for how to run the same backend locally (`scripts/reinstall_e2e_test_app.sh`
+is the equivalent one-shot local convenience wrapper, not used directly by this workflow).
+
 `.github/workflows/play-beta-release.yml` — manual (`workflow_dispatch`-only) Android beta
 release to Google Play Console, using the
 [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin
@@ -291,16 +328,19 @@ changes):
 Committed templates to copy from instead: `local.properties.example`,
 `androidApp/keystore.properties.example`.
 
-### GitHub Actions secrets (`play-beta-release.yml`)
+### GitHub Actions secrets
 
-Repo secrets consumed by the Play Console beta release workflow — set these under
-**Settings → Secrets and variables → Actions**:
+`GOOGLE_SERVICES_JSON` is also consumed by `maestro-tests.yml` (needed to build the debug APK) —
+same value as below. `unit-tests.yml` needs no secrets.
 
-| Secret | Contents |
-|---|---|
-| `GOOGLE_SERVICES_JSON` | Full contents of `androidApp/google-services.json` |
-| `ANDROID_KEYSTORE_BASE64` | Release keystore file, base64-encoded (`base64 -i release.keystore \| pbcopy` or equivalent) |
-| `ANDROID_KEYSTORE_STORE_PASSWORD` | `storePassword` from `keystore.properties` |
-| `ANDROID_KEYSTORE_KEY_ALIAS` | `keyAlias` from `keystore.properties` |
-| `ANDROID_KEYSTORE_KEY_PASSWORD` | `keyPassword` from `keystore.properties` |
-| `PLAY_SERVICE_ACCOUNT_JSON` | Full contents of a Play Console API service account JSON key with Release Manager access to the `com.ilyne.helloszigetkmp.beta` app listing (Play Console → Setup → API access) |
+Repo secrets — set these under **Settings → Secrets and variables → Actions**:
+
+| Secret | Used by | Contents |
+|---|---|---|
+| `GOOGLE_SERVICES_JSON` | `play-beta-release.yml`, `maestro-tests.yml` | Full contents of `androidApp/google-services.json` |
+| `ANDROID_KEYSTORE_BASE64` | `play-beta-release.yml` | Release keystore file, base64-encoded (`base64 -i release.keystore \| pbcopy` or equivalent) |
+| `ANDROID_KEYSTORE_STORE_PASSWORD` | `play-beta-release.yml` | `storePassword` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_ALIAS` | `play-beta-release.yml` | `keyAlias` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_PASSWORD` | `play-beta-release.yml` | `keyPassword` from `keystore.properties` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | `play-beta-release.yml` | Full contents of a Play Console API service account JSON key with Release Manager access to the `com.ilyne.helloszigetkmp.beta` app listing (Play Console → Setup → API access) |
+| `GHCR_PULL_TOKEN` | `maestro-tests.yml` | A GitHub PAT (classic or fine-grained) with `read:packages` scope and access to `ilyneh/hello-sziget`, used to `docker login ghcr.io` and pull the private `ghcr.io/ilyneh/hello-sziget-backend:e2e` seed backend image. See `maestro/README.md` for the companion workflow that publishes that image from the backend repo. |

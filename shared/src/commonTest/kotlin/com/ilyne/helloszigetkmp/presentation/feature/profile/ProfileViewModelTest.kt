@@ -26,6 +26,8 @@ import com.ilyne.helloszigetkmp.domain.usecase.GetLikedArtistCountUseCase
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
@@ -407,10 +409,22 @@ class ProfileViewModelTest {
 
     private fun api(engine: MockEngine): SzigetApiService = SzigetApiService(client = jsonClient(engine), baseUrl = "https://unused.test")
 
-    private fun successApi(getUsers: List<UserDto>): SzigetApiService =
-        api(MockEngine { respond(json.encodeToString(getUsers), headers = jsonHeaders) })
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // tests below (StateFlow only guarantees the latest value reaches a collector, so an
+    // intermediate isLoading/pending state emitted and overwritten before the collector is
+    // rescheduled is silently dropped instead of observed). Pinning the engine to Dispatchers.Main
+    // (the test dispatcher installed in setUp) keeps everything on one deterministic dispatcher.
+    private fun mockEngine(handler: MockRequestHandler) =
+        MockEngine(MockEngineConfig().apply {
+            addHandler(handler)
+            dispatcher = Dispatchers.Main
+        })
 
-    private fun failingApi(): SzigetApiService = api(MockEngine { respondError(HttpStatusCode.InternalServerError) })
+    private fun successApi(getUsers: List<UserDto>): SzigetApiService =
+        api(mockEngine { respond(json.encodeToString(getUsers), headers = jsonHeaders) })
+
+    private fun failingApi(): SzigetApiService = api(mockEngine { respondError(HttpStatusCode.InternalServerError) })
 
     private fun friendApi(
         friends: List<UserDto> = emptyList(),
@@ -418,7 +432,7 @@ class ProfileViewModelTest {
         actionsShouldFail: Boolean = false,
     ): SzigetApiService =
         api(
-            MockEngine { request ->
+            mockEngine { request ->
                 val path = request.url.encodedPath
                 when {
                     path.endsWith("/friends/requests") -> {
@@ -449,14 +463,14 @@ class ProfileViewModelTest {
         )
 
     private fun artistApi(artists: List<ArtistDto> = emptyList()): SzigetApiService =
-        api(MockEngine { respond(json.encodeToString(artists), headers = jsonHeaders) })
+        api(mockEngine { respond(json.encodeToString(artists), headers = jsonHeaders) })
 
     private fun uploadApi(
         resultImageUrl: String? = "https://cdn.test/new.png",
         shouldFail: Boolean = false,
     ): SzigetApiService =
         api(
-            MockEngine {
+            mockEngine {
                 if (shouldFail) {
                     respondError(HttpStatusCode.InternalServerError)
                 } else {
@@ -552,10 +566,6 @@ class ProfileViewModelTest {
             // Unused in this test.
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
             // Unused in this test.
         }
@@ -569,17 +579,6 @@ class ProfileViewModelTest {
         }
 
         override suspend fun deleteAllArtistFriendFavorited() {
-            // Unused in this test.
-        }
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {
-            // Unused in this test.
-        }
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {
             // Unused in this test.
         }
 

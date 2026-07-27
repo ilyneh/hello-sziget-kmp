@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
@@ -29,8 +30,10 @@ fun SetTimeListView(
     onArtistClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val grouped = setTimes.groupBy { setTime ->
-        formatTimeForHeader(epochMillis = setTime.startTime)
+    val grouped = remember(setTimes) {
+        setTimes.groupBy { setTime ->
+            formatTimeForHeader(epochMillis = setTime.startTime)
+        }
     }
 
     Column(

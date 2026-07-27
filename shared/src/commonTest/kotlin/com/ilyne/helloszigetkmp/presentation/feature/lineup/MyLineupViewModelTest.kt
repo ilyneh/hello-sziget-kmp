@@ -10,6 +10,7 @@ import com.ilyne.helloszigetkmp.core.db.entity.StageEntity
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.datetime.formatDate
 import com.ilyne.helloszigetkmp.util.datetime.toFestivalDate
 import com.russhwolf.settings.MapSettings
@@ -42,7 +43,7 @@ import kotlin.time.Clock
  * results by "festival date" (the 6am-to-6am day used across the app, see
  * [com.ilyne.helloszigetkmp.util.datetime.toFestivalDate]) into formatted day labels, and exposes
  * two independent try/catch paths - [MyLineupViewModel.refresh] and
- * [MyLineupViewModel.removeFavorite] - that both fall back to an [MyLineupUiState.Status.Error]
+ * [MyLineupViewModel.removeFavorite] - that both fall back to an [LoadStatus.Error]
  * on repository failure. These tests drive it through real [ScheduleRepository]/[ArtistRepository]
  * instances backed by fake DAOs, matching the approach used in
  * [com.ilyne.helloszigetkmp.presentation.feature.schedule.ScheduleViewModelTest] and
@@ -94,7 +95,7 @@ class MyLineupViewModelTest {
             val viewModel = newViewModel(setTimeDao = setTimeDao)
 
             val state = viewModel.uiState.value
-            assertIs<MyLineupUiState.Status.Success>(state.status)
+            assertIs<LoadStatus.Success>(state.status)
 
             val dayOneLabel = dayLabel("2026-08-06T20:00:00")
             val dayTwoLabel = dayLabel("2026-08-07T20:00:00")
@@ -116,7 +117,7 @@ class MyLineupViewModelTest {
             val viewModel = newViewModel()
 
             val state = viewModel.uiState.value
-            assertIs<MyLineupUiState.Status.Success>(state.status)
+            assertIs<LoadStatus.Success>(state.status)
             assertEquals(emptyMap(), state.favoritesGroupedByDay)
         }
 
@@ -132,12 +133,12 @@ class MyLineupViewModelTest {
             val viewModel = newViewModel(settings = freshSettings())
 
             viewModel.uiState.test {
-                assertIs<MyLineupUiState.Status.Success>(awaitItem().status)
+                assertIs<LoadStatus.Success>(awaitItem().status)
 
                 viewModel.refresh()
 
-                assertIs<MyLineupUiState.Status.Loading>(awaitItem().status)
-                assertIs<MyLineupUiState.Status.Error>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Error<*>>(awaitItem().status)
             }
         }
 
@@ -150,12 +151,12 @@ class MyLineupViewModelTest {
             val viewModel = newViewModel(settings = MapSettings())
 
             viewModel.uiState.test {
-                assertIs<MyLineupUiState.Status.Success>(awaitItem().status)
+                assertIs<LoadStatus.Success>(awaitItem().status)
 
                 viewModel.refresh()
 
-                assertIs<MyLineupUiState.Status.Loading>(awaitItem().status)
-                assertIs<MyLineupUiState.Status.Error>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Error<*>>(awaitItem().status)
             }
         }
 
@@ -178,7 +179,7 @@ class MyLineupViewModelTest {
 
             viewModel.removeFavorite("artist-1")
 
-            assertIs<MyLineupUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
             assertEquals(false, artistDao.isFavorited("artist-1"))
         }
 
@@ -202,8 +203,8 @@ class MyLineupViewModelTest {
 
             viewModel.removeFavorite("boom-artist")
 
-            val status = assertIs<MyLineupUiState.Status.Error>(viewModel.uiState.value.status)
-            assertEquals("setFavorited boom for boom-artist", status.message)
+            val status = assertIs<LoadStatus.Error<*>>(viewModel.uiState.value.status)
+            assertEquals("setFavorited boom for boom-artist", status.reason)
         }
 
     // --- test fixtures -------------------------------------------------------------------
@@ -222,9 +223,15 @@ class MyLineupViewModelTest {
         return settings
     }
 
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // refresh tests below (StateFlow only guarantees the latest value reaches a collector, so a
+    // Loading state emitted and overwritten before the collector is rescheduled is silently
+    // dropped instead of observed). Pinning the engine to Dispatchers.Main (the test dispatcher
+    // installed in setUp) keeps everything on one deterministic dispatcher.
     private fun mockApi(): SzigetApiService =
         SzigetApiService(
-            client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+            client = HttpClient(MockEngine) { engine { addHandler { respondOk() }; dispatcher = Dispatchers.Main } },
             baseUrl = "https://unused.test",
         )
 
@@ -254,8 +261,6 @@ class MyLineupViewModelTest {
         favorites: List<SetTimeWithArtistStageSummary>,
     ) : SetTimeDao {
         private val favoritesFlow = MutableStateFlow(favorites)
-
-        override fun observeAll(): Flow<List<com.ilyne.helloszigetkmp.core.db.entity.SetTimeEntity>> = flowOf(emptyList())
 
         override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = favoritesFlow
 

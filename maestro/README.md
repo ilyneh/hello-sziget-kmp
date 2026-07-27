@@ -93,3 +93,53 @@ With `sziget.skipGoogleSignIn=true`, tapping "Continue with Google" routes throu
 `SzigetAuthService.localSignIn()` instead of launching Google's native Sign-In UI — see
 `maestro/flows/login/README.md` for why that native UI can't be driven by Maestro directly, and
 why this bypass is the path taken instead.
+
+## CI
+
+`.github/workflows/maestro-tests.yml` runs the same mocked-backend flow as above on every PR,
+non-interactively: it pulls the seed backend image from `ghcr.io/ilyneh/hello-sziget-backend:e2e`
+(rather than building it from a `hello-sziget` checkout, which this repo's CI doesn't have) and
+tags it locally as `hello-sziget-backend:e2e` — the same name `docker-compose.e2e.yml` and
+`scripts/reinstall_e2e_test_app.sh`/`run_e2e_backend.sh` already expect, so nothing else in this
+repo needs to know the image came from a registry. See `docs/RUNBOOK.md`'s "GitHub Actions
+secrets" section for the `GHCR_PULL_TOKEN` secret this requires.
+
+That GHCR package is private and lives under the `hello-sziget` repo, so it needs its own
+workflow there to build `Dockerfile.e2e` and push it on a relevant change (this repo's CI can
+only pull it, not build it — building needs the backend source, which lives in that repo). A
+starting point to drop in as `hello-sziget/.github/workflows/publish-e2e-image.yml`:
+
+```yaml
+name: Publish e2e backend image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile.e2e"
+      # add any other paths that should trigger a rebuild, e.g. source/migration/seed dirs
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          docker build -f Dockerfile.e2e -t ghcr.io/ilyneh/hello-sziget-backend:e2e .
+          docker push ghcr.io/ilyneh/hello-sziget-backend:e2e
+```
+
+`GITHUB_TOKEN` there is that workflow's own repo-scoped token (sufficient to push, since the
+package lives under the same repo) — separate from this repo's `GHCR_PULL_TOKEN`, which needs
+cross-repo `read:packages` access instead. After adding it, make sure the resulting package's
+visibility is set to match what CI here expects (private) under the backend repo's
+**Packages → hello-sziget-backend → Package settings**.
