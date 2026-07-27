@@ -24,6 +24,8 @@ import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -207,7 +209,7 @@ class LoginViewModelTest {
         googleLoginResult: TokenDto = defaultToken,
         googleLoginShouldFail: Boolean = false,
     ): SzigetAuthApiService {
-        val engine = MockEngine { request ->
+        val engine = mockEngine { request ->
             val path = request.url.encodedPath
             when {
                 path.endsWith("/google/mobile") && googleLoginShouldFail -> respondError(HttpStatusCode.Unauthorized)
@@ -221,6 +223,18 @@ class LoginViewModelTest {
         }
         return SzigetAuthApiService(client = client, appConfig = appConfig)
     }
+
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // tests above (StateFlow only guarantees the latest value reaches a collector, so an
+    // isLoading=true state emitted and overwritten before the collector is rescheduled is
+    // silently dropped instead of observed). Pinning the engine to Dispatchers.Main (the test
+    // dispatcher installed in setUp) keeps everything on one deterministic dispatcher.
+    private fun mockEngine(handler: MockRequestHandler) =
+        MockEngine(MockEngineConfig().apply {
+            addHandler(handler)
+            dispatcher = Dispatchers.Main
+        })
 
     private class FakeAppConfig(
         private val isDebug: Boolean = false,
