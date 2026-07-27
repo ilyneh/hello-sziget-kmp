@@ -21,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +79,7 @@ fun SwimLaneView(
             contentPadding = PaddingValues(bottom = LocalBottomBarPadding.contentBottomInset),
         ) {
             items(stages, key = { it.id }) { stage ->
-                val stageSets = setTimes.filter { it.stageId == stage.id }
+                val stageSets = remember(setTimes, stage.id) { setTimes.filter { it.stageId == stage.id } }
                 Row(
                     modifier = Modifier
                         .height(80.dp)

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.formatDate
 import com.ilyne.helloszigetkmp.util.datetime.toFestivalDate
@@ -19,18 +20,8 @@ import kotlinx.coroutines.launch
 
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),
-    val status: Status = Status.Loading,
-) {
-    sealed class Status {
-        object Success : Status()
-
-        object Loading : Status()
-
-        data class Error(
-            val reason: MyLineupErrorReason,
-        ) : Status()
-    }
-}
+    val status: LoadStatus<MyLineupErrorReason> = LoadStatus.Loading,
+)
 
 enum class MyLineupErrorReason {
     REFRESH_FAILED,
@@ -55,7 +46,7 @@ class MyLineupViewModel(
                     _uiState.update {
                         it.copy(
                             favoritesGroupedByDay = groupedByDay,
-                            status = MyLineupUiState.Status.Success,
+                            status = LoadStatus.Success,
                         )
                     }
                 }
@@ -70,18 +61,18 @@ class MyLineupViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(status = MyLineupUiState.Status.Loading) }
+            _uiState.update { it.copy(status = LoadStatus.Loading) }
             try {
                 scheduleRepository.refresh(force = true)
                 artistRepository.refresh(force = true)
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
+                _uiState.update { it.copy(status = LoadStatus.Success) }
             } catch (e: Exception) {
                 // Log the real exception rather than surfacing e.message directly: for a
                 // network/auth failure the message can carry a raw backend HTTP response body,
                 // which isn't meant for end users, instead of user-facing copy.
                 Logger.e("MyLineupViewModel", "refresh(): failed to refresh lineup", e)
                 _uiState.update {
-                    it.copy(status = MyLineupUiState.Status.Error(MyLineupErrorReason.REFRESH_FAILED))
+                    it.copy(status = LoadStatus.Error(reason = MyLineupErrorReason.REFRESH_FAILED))
                 }
             }
         }
@@ -94,7 +85,7 @@ class MyLineupViewModel(
             } catch (e: Exception) {
                 Logger.e("MyLineupViewModel", "removeFavorite(): failed to remove favorite for $artistId", e)
                 _uiState.update {
-                    it.copy(status = MyLineupUiState.Status.Error(MyLineupErrorReason.REMOVE_FAVORITE_FAILED))
+                    it.copy(status = LoadStatus.Error(reason = MyLineupErrorReason.REMOVE_FAVORITE_FAILED))
                 }
             }
         }

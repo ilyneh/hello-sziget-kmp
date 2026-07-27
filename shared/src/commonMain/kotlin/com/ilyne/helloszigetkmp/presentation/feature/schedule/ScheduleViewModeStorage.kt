@@ -1,18 +1,21 @@
 package com.ilyne.helloszigetkmp.presentation.feature.schedule
 
+import com.ilyne.helloszigetkmp.core.settings.SettingsStore
 import com.russhwolf.settings.Settings
 
 private const val KEY = "ScheduleViewModeStorage"
 
 class ScheduleViewModeStorage(
-    private val settings: Settings,
+    settings: Settings,
 ) {
-    fun save(viewMode: ViewMode) {
-        settings.putString(KEY, viewMode.name)
-    }
+    private val store = SettingsStore<ViewMode>(
+        settings = settings,
+        key = KEY,
+        encode = { it.name },
+        decode = { name -> ViewMode.entries.firstOrNull { it.name == name } },
+    )
 
-    fun read(): ViewMode? {
-        val name = settings.getStringOrNull(KEY) ?: return null
-        return ViewMode.entries.firstOrNull { it.name == name }
-    }
+    fun save(viewMode: ViewMode) = store.save(viewMode)
+
+    fun read(): ViewMode? = store.read()
 }

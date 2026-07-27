@@ -477,10 +477,6 @@ class FriendRepositoryTest {
             friendships.clear()
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = artistFriendFavorites.map { it.artistId }.distinct()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = artistFriendFavorites.toList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
             artistsFriendFavorited.forEach { new ->
                 this.artistFriendFavorites.removeAll { it.artistId == new.artistId && it.friendId == new.friendId }
@@ -498,17 +494,6 @@ class FriendRepositoryTest {
 
         override suspend fun deleteAllArtistFriendFavorited() {
             artistFriendFavorites.clear()
-        }
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {
-            artistFriendFavorites.removeAll { it.artistId == artistId && it.friendId !in activeFriendIds }
-        }
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {
-            artistFriendFavorites.removeAll { it.artistId in artistIds }
         }
 
         override fun observeFriends(): Flow<List<UserEntity>> = throw NotImplementedError("unused in this test")

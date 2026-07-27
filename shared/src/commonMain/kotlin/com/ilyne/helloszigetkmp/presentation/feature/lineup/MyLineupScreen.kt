@@ -38,6 +38,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.SetTimeListHeader
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.common_tba
@@ -58,7 +59,7 @@ fun MyLineupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     PullToRefreshContent(
-        isRefreshing = uiState.status == MyLineupUiState.Status.Loading,
+        isRefreshing = uiState.status == LoadStatus.Loading,
         onRefresh = { viewModel.refresh() },
         modifier = modifier.testTag("lineup_screen"),
     ) {
@@ -81,11 +82,11 @@ private fun MyLineupScreenContent(
         MainHeader(text = stringResource(Res.string.lineup_title))
 
         when (val status = uiState.status) {
-            MyLineupUiState.Status.Loading -> {
+            LoadStatus.Loading -> {
                 LoadingBox()
             }
 
-            is MyLineupUiState.Status.Error -> {
+            is LoadStatus.Error -> {
                 ErrorState(
                     message = stringResource(lineupErrorMessageRes(status.reason)),
                     onRetry = { viewModel.refresh() },

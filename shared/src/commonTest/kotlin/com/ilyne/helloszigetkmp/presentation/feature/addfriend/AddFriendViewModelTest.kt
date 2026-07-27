@@ -298,6 +298,9 @@ class AddFriendViewModelTest {
             userRepository = userRepository,
             currentUserProvider = currentUserProvider,
             backgroundDispatcher = Dispatchers.Main,
+            // Debounce is disabled in tests (0ms) so the combine still recomputes synchronously
+            // under UnconfinedTestDispatcher, matching this suite's pre-debounce assertions.
+            searchDebounceMillis = 0L,
         )
     }
 
@@ -373,10 +376,6 @@ class AddFriendViewModelTest {
 
         override suspend fun deleteAllFriendships(): Unit = throw NotImplementedError("unused in this test")
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
             // Unused in this test.
         }
@@ -390,14 +389,6 @@ class AddFriendViewModelTest {
         }
 
         override suspend fun deleteAllArtistFriendFavorited(): Unit = throw NotImplementedError("unused in this test")
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ): Unit = throw NotImplementedError("unused in this test")
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>): Unit =
-            throw NotImplementedError("unused in this test")
 
         override fun observeFriends(): Flow<List<UserEntity>> = friendsFlow
 

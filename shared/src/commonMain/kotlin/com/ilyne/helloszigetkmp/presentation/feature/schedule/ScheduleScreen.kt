@@ -36,6 +36,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.timeline
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFilter
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.ActiveFilterItem
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.schedule_active_filter_friends_going
 import hello_sziget_kmp.shared.generated.resources.schedule_error_load_day
@@ -103,7 +104,7 @@ private fun ScheduleContent(
     modifier: Modifier = Modifier,
 ) {
     PullToRefreshContent(
-        isRefreshing = uiState.status == ScheduleUiState.Status.Loading,
+        isRefreshing = uiState.status == LoadStatus.Loading,
         onRefresh = onRefresh,
         modifier = modifier,
     ) {
@@ -156,7 +157,7 @@ private fun ScheduleContent(
             // (e.g. first load); a pull-to-refresh with existing data keeps rendering that
             // data underneath PullToRefreshBox's own refresh indicator instead of flashing empty.
             when (val status = uiState.status) {
-                is ScheduleUiState.Status.Loading -> {
+                is LoadStatus.Loading -> {
                     if (uiState.setTimes.isEmpty()) {
                         LoadingBox(modifier = Modifier.fillMaxSize().testTag("schedule_loading_state"))
                     } else {
@@ -168,7 +169,7 @@ private fun ScheduleContent(
                     }
                 }
 
-                is ScheduleUiState.Status.Error -> {
+                is LoadStatus.Error -> {
                     val errorMessageRes = when (status.reason) {
                         ScheduleErrorReason.REFRESH_FAILED -> Res.string.schedule_error_refresh
                         ScheduleErrorReason.UPDATE_FAVORITE_FAILED -> Res.string.schedule_error_update_favorite
