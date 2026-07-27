@@ -51,9 +51,19 @@ compose_up_with_retry() {
 
 compose_up_with_retry
 
-token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//')"
+# The backend's healthcheck (which --wait above blocks on) can pass slightly before the seed
+# step finishes and actually logs E2E_BEARER_TOKEN, so a single immediate grep can race and come
+# up empty - poll for it instead of checking exactly once.
+token=""
+for _ in $(seq 1 15); do
+    token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//')"
+    if [[ -n "$token" ]]; then
+        break
+    fi
+    sleep 2
+done
 if [[ -z "$token" ]]; then
-    echo "error: couldn't find E2E_BEARER_TOKEN in backend logs — it may still be seeding." >&2
+    echo "error: couldn't find E2E_BEARER_TOKEN in backend logs after 30s — it may still be seeding." >&2
     echo "Check with: docker compose -f \"$compose_file\" logs backend" >&2
     exit 1
 fi
