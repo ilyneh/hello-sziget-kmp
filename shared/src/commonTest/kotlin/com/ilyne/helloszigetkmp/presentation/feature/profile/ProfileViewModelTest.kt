@@ -552,10 +552,6 @@ class ProfileViewModelTest {
             // Unused in this test.
         }
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {
             // Unused in this test.
         }
@@ -569,17 +565,6 @@ class ProfileViewModelTest {
         }
 
         override suspend fun deleteAllArtistFriendFavorited() {
-            // Unused in this test.
-        }
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {
-            // Unused in this test.
-        }
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {
             // Unused in this test.
         }
 

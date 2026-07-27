@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.datetime.formatDate
 import com.ilyne.helloszigetkmp.util.datetime.toFestivalDate
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,18 +19,8 @@ import kotlinx.coroutines.launch
 
 data class MyLineupUiState(
     val favoritesGroupedByDay: Map<String, List<SetTimeWithArtistStageSummary>> = emptyMap(),
-    val status: Status = Status.Loading,
-) {
-    sealed class Status {
-        object Success : Status()
-
-        object Loading : Status()
-
-        data class Error(
-            val message: String?,
-        ) : Status()
-    }
-}
+    val status: LoadStatus<String?> = LoadStatus.Loading,
+)
 
 class MyLineupViewModel(
     private val artistRepository: ArtistRepository,
@@ -49,7 +40,7 @@ class MyLineupViewModel(
                     _uiState.update {
                         it.copy(
                             favoritesGroupedByDay = groupedByDay,
-                            status = MyLineupUiState.Status.Success,
+                            status = LoadStatus.Success,
                         )
                     }
                 }
@@ -64,13 +55,13 @@ class MyLineupViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(status = MyLineupUiState.Status.Loading) }
+            _uiState.update { it.copy(status = LoadStatus.Loading) }
             try {
                 scheduleRepository.refresh(force = true)
                 artistRepository.refresh(force = true)
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
+                _uiState.update { it.copy(status = LoadStatus.Success) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
+                _uiState.update { it.copy(status = LoadStatus.Error(reason = e.message)) }
             }
         }
     }
@@ -80,7 +71,7 @@ class MyLineupViewModel(
             try {
                 artistRepository.toggleFavorite(artistId, isFavorited = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
+                _uiState.update { it.copy(status = LoadStatus.Error(reason = e.message)) }
             }
         }
     }

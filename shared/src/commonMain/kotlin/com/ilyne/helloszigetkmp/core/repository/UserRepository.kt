@@ -13,8 +13,6 @@ class UserRepository(
 ) {
     fun observeUsers(): Flow<List<User>> = dao.observeAll().map { entities -> entities.map { it.toDomain() } }
 
-    fun observeUser(id: String): Flow<User?> = dao.observeById(id).map { it?.toDomain() }
-
     suspend fun getCurrentUser(): User? = dao.getCurrentUser()?.toDomain()
 
     fun observeCurrentUser(): Flow<User?> = dao.observeCurrentUser().map { it?.toDomain() }

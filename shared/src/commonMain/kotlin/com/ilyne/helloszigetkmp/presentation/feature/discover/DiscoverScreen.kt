@@ -29,6 +29,7 @@ import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.feature.LocalBottomBarPadding
 import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import hello_sziget_kmp.shared.generated.resources.Res
 import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
 import hello_sziget_kmp.shared.generated.resources.discover_search_placeholder
@@ -54,7 +55,7 @@ fun DiscoverScreen(
     }
 
     PullToRefreshContent(
-        isRefreshing = uiState.status == DiscoverUiState.Status.Loading,
+        isRefreshing = uiState.status == LoadStatus.Loading,
         onRefresh = { viewModel.refresh() },
         modifier = modifier.testTag("discover_screen"),
     ) {
@@ -107,13 +108,13 @@ private fun DiscoverScreenContent(
         )
 
         when (val status = uiState.status) {
-            is DiscoverUiState.Status.Loading if uiState.artists.isEmpty() -> {
+            is LoadStatus.Loading if uiState.artists.isEmpty() -> {
                 LoadingBox(modifier = Modifier.fillMaxSize().testTag("discover_loading"))
             }
 
-            is DiscoverUiState.Status.Error -> {
+            is LoadStatus.Error -> {
                 ErrorState(
-                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
+                    message = status.reason ?: stringResource(Res.string.common_something_went_wrong),
                     onRetry = { viewModel.refresh() },
                     modifier = Modifier.fillMaxSize().testTag("discover_error_state"),
                 )

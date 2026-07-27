@@ -231,8 +231,6 @@ class GetSetTimeDaysUseCaseTest {
 
     private fun repository(range: SetTimeDao.SetTimeRange): ScheduleRepository {
         val setTimeDao = object : SetTimeDao {
-            override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(emptyList())
-
             override fun observeByDay(
                 dayStartMillis: Long,
                 dayEndMillis: Long,

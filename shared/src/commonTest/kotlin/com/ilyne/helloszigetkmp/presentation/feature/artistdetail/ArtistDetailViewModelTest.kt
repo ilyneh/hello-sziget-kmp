@@ -19,6 +19,7 @@ import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.FriendRepository
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -73,7 +74,7 @@ class ArtistDetailViewModelTest {
                 fakeDao.emit("artist-1", entity("artist-1", "Artist One"))
 
                 val loaded = awaitItem()
-                assertIs<ArtistDetailUiState.Status.Success>(loaded.status)
+                assertIs<LoadStatus.Success>(loaded.status)
                 assertEquals("artist-1", loaded.artist?.id)
                 assertEquals("Artist One", loaded.artist?.name)
             }
@@ -148,8 +149,8 @@ class ArtistDetailViewModelTest {
                 viewModel.load("artist-1")
 
                 val errored = awaitItem()
-                val status = assertIs<ArtistDetailUiState.Status.Error>(errored.status)
-                assertEquals("boom", status.message)
+                val status = assertIs<LoadStatus.Error<*>>(errored.status)
+                assertEquals("boom", status.reason)
                 assertNull(errored.artist)
             }
         }
@@ -260,8 +261,6 @@ class ArtistDetailViewModelTest {
     }
 
     private class FakeSetTimeDao : SetTimeDao {
-        override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(emptyList())
-
         override fun observeFavorites(): Flow<List<SetTimeWithArtistStageSummary>> = flowOf(emptyList())
 
         override fun observeByDay(
@@ -343,10 +342,6 @@ class ArtistDetailViewModelTest {
 
         override suspend fun deleteAllFriendships() {}
 
-        override suspend fun getArtistIdsFriendsFavorited(): List<String> = emptyList()
-
-        override suspend fun getAllArtistFriendFavorites(): List<ArtistFriendFavoritedEntity> = emptyList()
-
         override suspend fun upsertArtistFriendFavorited(artistsFriendFavorited: List<ArtistFriendFavoritedEntity>) {}
 
         override suspend fun deleteArtistFriendFavoritesForFriends(friendIds: List<String>) {}
@@ -354,13 +349,6 @@ class ArtistDetailViewModelTest {
         override suspend fun deleteArtistFriendFavoritesNotIn(friendIds: List<String>) {}
 
         override suspend fun deleteAllArtistFriendFavorited() {}
-
-        override suspend fun deleteStaleFavoritesForArtist(
-            artistId: String,
-            activeFriendIds: List<String>,
-        ) {}
-
-        override suspend fun deleteStaleArtistsFromArtistFriendFavorites(artistIds: List<String>) {}
 
         override fun observeFriends(): Flow<List<UserEntity>> = flowOf(emptyList())
 

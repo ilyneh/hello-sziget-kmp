@@ -9,6 +9,7 @@ import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.domain.model.GenreGroup
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilter
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.usecase.GetActiveDiscoverFiltersTextUseCase
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
@@ -85,7 +86,7 @@ class DiscoverViewModelTest {
             val viewModel = newViewModel(artistDao = artistDao)
 
             val state = viewModel.uiState.value
-            assertIs<DiscoverUiState.Status.Success>(state.status)
+            assertIs<LoadStatus.Success>(state.status)
             assertEquals(listOf("artist-1", "artist-2"), state.artists.map { it.id })
         }
 
@@ -161,7 +162,7 @@ class DiscoverViewModelTest {
             viewModel.toggleFavorite(artistId = "artist-1", current = false)
 
             assertEquals(true, artistDao.currentArtists.first { it.id == "artist-1" }.isFavorited)
-            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
         }
 
     @Test
@@ -191,7 +192,7 @@ class DiscoverViewModelTest {
 
                 cancelAndIgnoreRemainingEvents()
             }
-            assertIs<DiscoverUiState.Status.Success>(viewModel.uiState.value.status)
+            assertIs<LoadStatus.Success>(viewModel.uiState.value.status)
         }
 
     @Test
@@ -221,11 +222,11 @@ class DiscoverViewModelTest {
             )
 
             viewModel.uiState.test {
-                assertIs<DiscoverUiState.Status.Success>(awaitItem().status) // initial empty list, gate already fresh
+                assertIs<LoadStatus.Success>(awaitItem().status) // initial empty list, gate already fresh
 
                 viewModel.refresh()
 
-                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
 
                 // The dao's upsert (triggering observeArtists' own reactive emission) and
                 // refreshArtists' explicit post-fetch Success update can arrive as separate
@@ -234,7 +235,7 @@ class DiscoverViewModelTest {
                 while (state.artists.isEmpty()) {
                     state = awaitItem()
                 }
-                assertIs<DiscoverUiState.Status.Success>(state.status)
+                assertIs<LoadStatus.Success>(state.status)
                 assertEquals(listOf("artist-3"), state.artists.map { it.id })
 
                 cancelAndIgnoreRemainingEvents()
@@ -258,13 +259,13 @@ class DiscoverViewModelTest {
             )
 
             viewModel.uiState.test {
-                assertIs<DiscoverUiState.Status.Success>(awaitItem().status)
+                assertIs<LoadStatus.Success>(awaitItem().status)
 
                 viewModel.refresh()
 
-                assertIs<DiscoverUiState.Status.Loading>(awaitItem().status)
+                assertIs<LoadStatus.Loading>(awaitItem().status)
                 val errored = awaitItem()
-                assertIs<DiscoverUiState.Status.Error>(errored.status)
+                assertIs<LoadStatus.Error<*>>(errored.status)
 
                 cancelAndIgnoreRemainingEvents()
             }

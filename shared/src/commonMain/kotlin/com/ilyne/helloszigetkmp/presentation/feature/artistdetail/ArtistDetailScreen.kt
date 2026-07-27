@@ -32,6 +32,7 @@ import com.ilyne.helloszigetkmp.presentation.component.sheet.AppModalBottomSheet
 import com.ilyne.helloszigetkmp.presentation.component.status.ErrorState
 import com.ilyne.helloszigetkmp.presentation.component.status.LoadingBox
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.datetime.formatDayAndTime
 import com.ilyne.helloszigetkmp.util.text.htmlToAnnotatedString
 import hello_sziget_kmp.shared.generated.resources.Res
@@ -87,18 +88,18 @@ private fun ArtistDetailContent(
         }
 
         when (val status = uiState.status) {
-            is ArtistDetailUiState.Status.Loading -> {
+            is LoadStatus.Loading -> {
                 LoadingBox(modifier = Modifier.fillMaxWidth().height(120.dp).testTag("artistdetail_loading"))
             }
 
-            is ArtistDetailUiState.Status.Error -> {
+            is LoadStatus.Error -> {
                 ErrorState(
-                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
+                    message = status.reason ?: stringResource(Res.string.common_something_went_wrong),
                     modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("artistdetail_error"),
                 )
             }
 
-            is ArtistDetailUiState.Status.Success -> {
+            is LoadStatus.Success -> {
                 val artist = uiState.artist
                 if (artist == null) {
                     Text(
@@ -219,7 +220,7 @@ private fun ArtistDetailContentPreview() {
                     endTime = 1_723_712_400_000L,
                     hideEndTime = false,
                 ),
-                status = ArtistDetailUiState.Status.Success,
+                status = LoadStatus.Success,
             ),
             onFavoriteToggle = {},
         )

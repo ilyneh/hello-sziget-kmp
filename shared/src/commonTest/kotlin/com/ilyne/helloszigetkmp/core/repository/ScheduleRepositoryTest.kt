@@ -196,8 +196,6 @@ class ScheduleRepositoryTest {
         artists: List<ArtistEntity>,
     ): ScheduleRepository {
         val setTimeDao = object : SetTimeDao {
-            override fun observeAll(): Flow<List<SetTimeEntity>> = flowOf(setTimes)
-
             override fun observeByDay(
                 dayStartMillis: Long,
                 dayEndMillis: Long,
