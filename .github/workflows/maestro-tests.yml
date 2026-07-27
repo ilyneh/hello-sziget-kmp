@@ -64,6 +64,12 @@ jobs:
       # anywhere it would otherwise appear in the log from here on, including the "Install
       # Maestro CLI" step below echoing its own resolved script (which interpolates this step's
       # output directly into a shell command).
+      # Stops (not `down` - that would wipe the DB and rotate the bearer token we just captured)
+      # the containers right after grabbing the token: they're not needed again until flows
+      # actually run, and leaving them up burns CPU/RAM for the ~8 minute Gradle build below for
+      # no benefit, on a standard 2-core/7GB ubuntu-latest runner that's already running an
+      # emulator - resource pressure tight enough there to plausibly cause an ANR mid-flow.
+      # Restarted (same containers, same token) right before `maestro test` in the emulator step.
       - name: Start seed backend
         id: seed_backend
         run: |
@@ -71,6 +77,7 @@ jobs:
           token="$(cat /tmp/hello-sziget-e2e-bearer-token)"
           echo "::add-mask::$token"
           echo "token=$token" >> "$GITHUB_OUTPUT"
+          docker compose -f maestro/docker-compose.e2e.yml stop
 
       - name: Enable KVM group perms
         run: |
@@ -106,6 +113,7 @@ jobs:
           # preserves maestro's real exit code so the step's pass/fail status is unaffected.
           script: |
             ./gradlew :androidApp:installDebug -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} -Psziget.skipGoogleSignIn=true
+            docker compose -f maestro/docker-compose.e2e.yml up -d --wait
             maestro_exit=0
             "$HOME/.maestro/bin/maestro" test maestro || maestro_exit=$?
             adb logcat -d > /tmp/emulator-logcat.txt || true
@@ -121,7 +129,7 @@ jobs:
           retention-days: 7
 
       - name: Upload debug artifacts (logcat + screenshot)
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-debug-artifacts
