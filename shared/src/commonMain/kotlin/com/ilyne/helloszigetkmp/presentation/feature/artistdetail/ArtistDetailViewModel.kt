@@ -8,6 +8,7 @@ import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
 import com.ilyne.helloszigetkmp.domain.model.Artist
 import com.ilyne.helloszigetkmp.domain.model.SetTime
 import com.ilyne.helloszigetkmp.domain.model.User
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,18 +21,8 @@ data class ArtistDetailUiState(
     val artist: Artist? = null,
     val friendsFavorited: List<User> = emptyList(),
     val nextSetTime: SetTime? = null,
-    val status: Status = Status.Loading,
-) {
-    sealed class Status {
-        data object Loading : Status()
-
-        data object Success : Status()
-
-        data class Error(
-            val message: String?,
-        ) : Status()
-    }
-}
+    val status: LoadStatus<String?> = LoadStatus.Loading,
+)
 
 class ArtistDetailViewModel(
     private val artistRepository: ArtistRepository,
@@ -67,13 +58,13 @@ class ArtistDetailViewModel(
                             artist = artist,
                             friendsFavorited = friendsFavorited,
                             nextSetTime = nextSetTime,
-                            status = ArtistDetailUiState.Status.Success,
+                            status = LoadStatus.Success,
                         )
                     }
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(status = ArtistDetailUiState.Status.Error(e.message))
+                    it.copy(status = LoadStatus.Error(e.message))
                 }
             }
         }

@@ -15,6 +15,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.ScheduleFil
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.ActiveFilterItem
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.filter.usecase.GetActiveFiltersTextUseCase
 import com.ilyne.helloszigetkmp.presentation.feature.schedule.usecase.GetFilteredScheduleContentUseCase
+import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import com.ilyne.helloszigetkmp.util.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ data class ScheduleUiState(
     val gridMaxHour: Int = 0,
     val activeFilterCount: Int = 0,
     val activeFilterItems: List<ActiveFilterItem> = emptyList(),
-    val status: Status = Status.Success,
+    val status: LoadStatus<ScheduleErrorReason> = LoadStatus.Success,
 ) {
     data class SetTime(
         val id: String,
@@ -63,16 +64,6 @@ data class ScheduleUiState(
     ) {
         val artistId: String? = artist?.id
         val stageId: String? = stage?.id
-    }
-
-    sealed class Status {
-        object Success : Status()
-
-        object Loading : Status()
-
-        data class Error(
-            val reason: ScheduleErrorReason,
-        ) : Status()
     }
 }
 
@@ -152,11 +143,11 @@ class ScheduleViewModel(
     private fun refreshData(force: Boolean) {
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(status = ScheduleUiState.Status.Loading) }
+                _uiState.update { it.copy(status = LoadStatus.Loading) }
                 scheduleRepository.refresh(force = force)
                 artistRepository.refresh(force = force)
                 friendRepository.refresh(force = force)
-                _uiState.update { it.copy(status = ScheduleUiState.Status.Success) }
+                _uiState.update { it.copy(status = LoadStatus.Success) }
             } catch (e: Exception) {
                 // Log the real exception rather than surfacing e.message directly: for a
                 // network/auth failure (e.g. an expired session after the app sat idle for a
@@ -164,7 +155,7 @@ class ScheduleViewModel(
                 // meant for end users, instead of user-facing copy.
                 Logger.e(TAG, "refreshData(): failed to refresh schedule", e)
                 _uiState.update {
-                    it.copy(status = ScheduleUiState.Status.Error(ScheduleErrorReason.REFRESH_FAILED))
+                    it.copy(status = LoadStatus.Error(ScheduleErrorReason.REFRESH_FAILED))
                 }
             }
         }
@@ -196,7 +187,7 @@ class ScheduleViewModel(
                     } catch (e: Exception) {
                         Logger.e(TAG, "onIntent(): failed to toggle favorite", e)
                         _uiState.update {
-                            it.copy(status = ScheduleUiState.Status.Error(ScheduleErrorReason.UPDATE_FAVORITE_FAILED))
+                            it.copy(status = LoadStatus.Error(ScheduleErrorReason.UPDATE_FAVORITE_FAILED))
                         }
                     }
                 }
@@ -258,14 +249,14 @@ class ScheduleViewModel(
                                 stages = filteredData.stages,
                                 gridMinHour = filteredData.gridMinHour,
                                 gridMaxHour = filteredData.gridMaxHour,
-                                status = ScheduleUiState.Status.Success,
+                                status = LoadStatus.Success,
                             )
                         }
                     }
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSelectedDay(): failed to load schedule for the selected day", e)
                 _uiState.update {
-                    it.copy(status = ScheduleUiState.Status.Error(ScheduleErrorReason.LOAD_DAY_FAILED))
+                    it.copy(status = LoadStatus.Error(ScheduleErrorReason.LOAD_DAY_FAILED))
                 }
             }
         }
@@ -307,7 +298,7 @@ class ScheduleViewModel(
             } catch (e: Exception) {
                 Logger.e(TAG, "observeSetTimeDays(): failed to load festival days", e)
                 _uiState.update {
-                    it.copy(status = ScheduleUiState.Status.Error(ScheduleErrorReason.LOAD_DAYS_FAILED))
+                    it.copy(status = LoadStatus.Error(ScheduleErrorReason.LOAD_DAYS_FAILED))
                 }
             }
         }
