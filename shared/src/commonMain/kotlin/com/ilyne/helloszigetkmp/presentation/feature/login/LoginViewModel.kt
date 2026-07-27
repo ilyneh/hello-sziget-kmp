@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
+import com.ilyne.helloszigetkmp.core.config.AppConfiguring
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
 import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
@@ -20,6 +22,13 @@ import org.koin.core.component.inject
 data class LoginUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
+    // Gates the debug bottom-sheet button entirely - false in any non-debug build (see
+    // AppConfiguring.isDebug()), so the button/sheet never render outside a debug build.
+    val isDebugBuild: Boolean = false,
+    val isDebugSheetVisible: Boolean = false,
+    val debugBaseUrl: String = "",
+    val debugToken: String = "",
+    val debugSkipGoogleSignIn: Boolean = false,
 )
 
 sealed class LoginEffect {
@@ -31,13 +40,22 @@ class LoginViewModel(
     private val userRepository: UserRepository,
     private val usersSyncService: UsersSyncService,
     private val currentUserProvider: CurrentUserProvider,
+    private val appConfig: AppConfiguring,
+    private val debugConfigStore: DebugConfigStore,
 ) : ViewModel(),
     KoinComponent {
     // Resolved lazily: the authenticated SzigetApiService only exists in Koin
     // once szigetAuthService.signIn() has loaded its module below.
     private val apiService: SzigetApiService by inject()
 
-    private val _uiState = MutableStateFlow(LoginUiState())
+    private val _uiState = MutableStateFlow(
+        LoginUiState(
+            isDebugBuild = appConfig.isDebug(),
+            debugBaseUrl = debugConfigStore.getBaseUrlOverride().orEmpty(),
+            debugToken = debugConfigStore.getTokenOverride().orEmpty(),
+            debugSkipGoogleSignIn = debugConfigStore.getSkipGoogleSignIn(),
+        ),
+    )
     val uiState = _uiState.asStateFlow()
 
     private val _effects = MutableSharedFlow<LoginEffect>()
@@ -47,7 +65,11 @@ class LoginViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                if (SKIP_GOOGLE_SIGN_IN) {
+                // In a debug build, DebugConfigStore's runtime override (defaulting to the
+                // compile-time SKIP_GOOGLE_SIGN_IN flag until the debug sheet changes it) decides
+                // this; outside debug, only the compile-time flag is ever consulted.
+                val skipGoogleSignIn = if (appConfig.isDebug()) debugConfigStore.getSkipGoogleSignIn() else SKIP_GOOGLE_SIGN_IN
+                if (skipGoogleSignIn) {
                     szigetAuthService.localSignIn()
                 } else {
                     szigetAuthService.signIn()
@@ -62,5 +84,47 @@ class LoginViewModel(
                 _uiState.update { it.copy(error = e.message, isLoading = false) }
             }
         }
+    }
+
+    fun showDebugSheet() {
+        if (!appConfig.isDebug()) return
+        _uiState.update { it.copy(isDebugSheetVisible = true) }
+    }
+
+    fun dismissDebugSheet() {
+        // Discards any unsaved edits (base URL/token/switch) by resetting the draft fields back
+        // to what's actually persisted in DebugConfigStore - otherwise dismissing without tapping
+        // Save (e.g. swipe-down or scrim tap, both wired to this via AppModalBottomSheet's
+        // onDismissRequest) would leave the sheet showing stale edits next time it's reopened,
+        // even though they were never applied.
+        _uiState.update {
+            it.copy(
+                isDebugSheetVisible = false,
+                debugBaseUrl = debugConfigStore.getBaseUrlOverride().orEmpty(),
+                debugToken = debugConfigStore.getTokenOverride().orEmpty(),
+                debugSkipGoogleSignIn = debugConfigStore.getSkipGoogleSignIn(),
+            )
+        }
+    }
+
+    fun updateDebugBaseUrl(value: String) {
+        _uiState.update { it.copy(debugBaseUrl = value) }
+    }
+
+    fun updateDebugToken(value: String) {
+        _uiState.update { it.copy(debugToken = value) }
+    }
+
+    fun updateDebugSkipGoogleSignIn(value: Boolean) {
+        _uiState.update { it.copy(debugSkipGoogleSignIn = value) }
+    }
+
+    fun saveDebugConfig() {
+        if (!appConfig.isDebug()) return
+        val state = _uiState.value
+        debugConfigStore.setBaseUrlOverride(state.debugBaseUrl)
+        debugConfigStore.setTokenOverride(state.debugToken)
+        debugConfigStore.setSkipGoogleSignIn(state.debugSkipGoogleSignIn)
+        _uiState.update { it.copy(isDebugSheetVisible = false) }
     }
 }

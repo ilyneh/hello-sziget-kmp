@@ -1,13 +1,14 @@
 package com.ilyne.helloszigetkmp.core.auth
 
+import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
-import com.ilyne.helloszigetkmp.core.api.SzigetApiService
 import com.ilyne.helloszigetkmp.core.repository.SoftRefreshGate
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
@@ -41,6 +42,7 @@ class SzigetAuthService(
     private val friendDao: FriendDao,
     private val settings: Settings,
     private val usersSyncService: UsersSyncService,
+    private val debugConfigStore: DebugConfigStore,
 ) : KoinComponent {
     // Resolved lazily: the authenticated SzigetApiService only exists in Koin once
     // loadAuthenticatedModules() has loaded its module - mirrors LoginViewModel's own
@@ -96,13 +98,14 @@ class SzigetAuthService(
 
     /**
      * Dev-only shortcut that bypasses Google sign-in entirely and logs in as a fixed backend
-     * account using [BEARER_TOKEN_LOCALHOST]. Callers gate this behind [SKIP_GOOGLE_SIGN_IN], but
-     * that flag alone is not a safe-enough rail: it's trivial to leave set to `true` by accident.
-     * So the real guarantee lives here, next to the bypass itself - if this is ever invoked in a
-     * non-debug (release) build, we ignore the bypass and fall back to the real [signIn] flow
-     * instead of throwing or silently no-op-ing, so the app doesn't get stuck for the user. A
-     * release build therefore behaves as if [SKIP_GOOGLE_SIGN_IN] were always `false`, regardless
-     * of its actual value.
+     * account using [BEARER_TOKEN_LOCALHOST], or [DebugConfigStore]'s token override if the login
+     * screen's debug bottom sheet has set one. Callers gate this behind [SKIP_GOOGLE_SIGN_IN] (or
+     * its runtime [DebugConfigStore] counterpart), but that alone is not a safe-enough rail: it's
+     * trivial to leave set to `true` by accident. So the real guarantee lives here, next to the
+     * bypass itself - if this is ever invoked in a non-debug (release) build, we ignore the
+     * bypass and fall back to the real [signIn] flow instead of throwing or silently no-op-ing,
+     * so the app doesn't get stuck for the user. A release build therefore behaves as if
+     * [SKIP_GOOGLE_SIGN_IN] were always `false`, regardless of its actual value.
      */
     suspend fun localSignIn() {
         if (!appConfig.isDebug()) {
@@ -111,7 +114,7 @@ class SzigetAuthService(
         }
 
         val token = TokenDto(
-            accessToken = BEARER_TOKEN_LOCALHOST,
+            accessToken = debugConfigStore.getTokenOverride() ?: BEARER_TOKEN_LOCALHOST,
             refreshToken = "",
             tokenType = "bearer",
         )

@@ -1,0 +1,26 @@
+# Verifies the login screen's debug-only "DEBUG" button opens the debug config bottom sheet with
+# its base URL / token inputs and skip-Google-sign-in switch, and that saving dismisses it.
+#
+# The button only renders when AppConfiguring.isDebug() is true (any debug build - not gated
+# behind sziget.skipGoogleSignIn, unlike the compile-time-only bypass documented in
+# maestro/flows/login/README.md), so this flow works against a plain (unmodified) debug APK.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "login_debug_button"
+- tapOn:
+    id: "login_debug_button"
+- assertVisible:
+    id: "login_debug_config_sheet"
+- assertVisible:
+    id: "login_debug_base_url_input"
+- assertVisible:
+    id: "login_debug_token_input"
+- assertVisible:
+    id: "login_debug_skip_google_sign_in_switch"
+- tapOn:
+    id: "login_debug_save_button"
+- assertNotVisible:
+    id: "login_debug_config_sheet"
