@@ -27,7 +27,26 @@ if ! docker image inspect hello-sziget-backend:e2e >/dev/null 2>&1; then
     exit 1
 fi
 
-docker compose -f "$compose_file" up -d --wait
+# Retries a few times before giving up - transient registry timeouts pulling postgres:16 (seen
+# on GH Actions shared runners, likely Docker Hub rate-limiting/slow-responding to anonymous
+# pulls) are common enough to be worth a retry rather than failing the whole run outright.
+compose_up_with_retry() {
+    local attempt max_attempts=3
+    for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+        if docker compose -f "$compose_file" up -d --wait; then
+            return 0
+        fi
+        if ((attempt < max_attempts)); then
+            echo "docker compose up failed (attempt $attempt/$max_attempts) - retrying in 10s..." >&2
+            docker compose -f "$compose_file" down -v >/dev/null 2>&1 || true
+            sleep 10
+        fi
+    done
+    echo "error: docker compose up failed after $max_attempts attempts." >&2
+    return 1
+}
+
+compose_up_with_retry
 
 echo
 echo "Backend is up at http://localhost:8081/api/v1"
