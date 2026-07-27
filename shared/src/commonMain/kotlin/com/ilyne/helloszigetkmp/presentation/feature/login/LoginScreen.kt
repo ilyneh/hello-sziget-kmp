@@ -3,6 +3,7 @@ package com.ilyne.helloszigetkmp.presentation.feature.login
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -55,6 +56,13 @@ fun LoginScreen(
                 onClick = viewModel::showDebugSheet,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    // The app draws edge-to-edge (enableEdgeToEdge() in MainActivity) with no
+                    // other insets handling, so without this the button renders under the status
+                    // bar - visually fine, but the status bar's own window consumes touches
+                    // landing in its rectangle before they ever reach this Composable's hit test,
+                    // making the button look clickable (visible, testTagsAsResourceId reports
+                    // clickable=true) while taps silently do nothing.
+                    .statusBarsPadding()
                     .padding(16.dp)
                     .testTag("login_debug_button"),
             ) {
