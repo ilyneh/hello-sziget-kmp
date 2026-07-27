@@ -29,11 +29,44 @@ fi
 
 echo "==> Restarting the e2e backend from a clean DB (fresh bearer token, fresh seed data)..."
 docker compose -f "$compose_file" down -v >/dev/null 2>&1 || true
-docker compose -f "$compose_file" up -d --wait
 
-token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//')"
+# Retries a few times before giving up - transient registry timeouts pulling postgres:16 (seen
+# on GH Actions shared runners, likely Docker Hub rate-limiting/slow-responding to anonymous
+# pulls) are common enough to be worth a retry rather than failing the whole run outright.
+compose_up_with_retry() {
+    local attempt max_attempts=3
+    for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+        if docker compose -f "$compose_file" up -d --wait; then
+            return 0
+        fi
+        if ((attempt < max_attempts)); then
+            echo "docker compose up failed (attempt $attempt/$max_attempts) - retrying in 10s..." >&2
+            docker compose -f "$compose_file" down -v >/dev/null 2>&1 || true
+            sleep 10
+        fi
+    done
+    echo "error: docker compose up failed after $max_attempts attempts." >&2
+    return 1
+}
+
+compose_up_with_retry
+
+# The backend's healthcheck (which --wait above blocks on) can pass slightly before the seed
+# step finishes and actually logs E2E_BEARER_TOKEN, so a single immediate grep can race and come
+# up empty - poll for it instead of checking exactly once. The `|| true` matters: under
+# `pipefail`, grep finding no match yet is a normal "still seeding" outcome, not a real error -
+# without it, `set -e` would kill the whole script on the very first empty check instead of
+# letting the loop retry.
+token=""
+for _ in $(seq 1 15); do
+    token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//' || true)"
+    if [[ -n "$token" ]]; then
+        break
+    fi
+    sleep 2
+done
 if [[ -z "$token" ]]; then
-    echo "error: couldn't find E2E_BEARER_TOKEN in backend logs — it may still be seeding." >&2
+    echo "error: couldn't find E2E_BEARER_TOKEN in backend logs after 30s — it may still be seeding." >&2
     echo "Check with: docker compose -f \"$compose_file\" logs backend" >&2
     exit 1
 fi
@@ -41,9 +74,14 @@ fi
 echo "==> Writing config into local.properties..."
 touch "$local_properties"
 set_property() {
-    local key="$1" value="$2"
+    local key="$1" value="$2" tmp
     if grep -q "^${key}=" "$local_properties" 2>/dev/null; then
-        sed -i '' "s#^${key}=.*#${key}=${value}#" "$local_properties"
+        # Redirect-to-temp-file-then-move instead of `sed -i` — `-i` takes its backup-suffix
+        # argument differently between BSD sed (macOS) and GNU sed (Linux CI runners), and this
+        # form works identically on both without needing to detect which one is running.
+        tmp="$(mktemp)"
+        sed "s#^${key}=.*#${key}=${value}#" "$local_properties" > "$tmp"
+        mv "$tmp" "$local_properties"
     else
         printf '%s=%s\n' "$key" "$value" >> "$local_properties"
     fi

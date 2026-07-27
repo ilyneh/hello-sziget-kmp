@@ -1,0 +1,154 @@
+name: Maestro tests
+
+on:
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  maestro-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ubuntu-latest's free disk space is close to what an API 34 AVD's userdata partition
+      # needs (~7.4GB) once the seed backend's docker images are pulled on top of it — a run
+      # failed with "Not enough space to create userdata partition" after adding the docker pull
+      # step below. None of these preinstalled toolchains are used by this build (Kotlin/JVM/
+      # Android only, no native/NDK code, no .NET/Haskell/CodeQL), so removing them is safe and
+      # frees several GB of headroom.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/share/boost
+          df -h /
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The google-services plugin is applied unconditionally in androidApp/build.gradle.kts, so
+      # any Gradle task touching :androidApp (including the installDebug below) fails without
+      # this file.
+      - name: Write google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" > androidApp/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      # Pulls the self-seeded backend image from GHCR (built by the separate hello-sziget
+      # backend repo's own CI — see maestro/README.md) and tags it under the plain local name
+      # that maestro/docker-compose.e2e.yml already expects, so that file doesn't need to know
+      # anything about where the image actually came from.
+      - name: Pull seed backend image
+        run: |
+          echo "${{ secrets.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull ghcr.io/ilyneh/hello-sziget-backend:e2e
+          docker tag ghcr.io/ilyneh/hello-sziget-backend:e2e hello-sziget-backend:e2e
+
+      # Explicit step (rather than folding this into the emulator step below) so the backend
+      # actually starting is visible in the Actions UI, and so it's up before the emulator boots
+      # instead of being gated behind that boot succeeding. scripts/run_e2e_backend.sh doesn't
+      # need adb/an emulator — it just needs docker — so it can run here.
+      #
+      # The bearer token is read from the file scripts/run_e2e_backend.sh writes it to (it
+      # doesn't print the raw value to stdout under CI - see that script) rather than scraped out
+      # of log output. ::add-mask:: registers it with the runner so it's redacted (as `***`)
+      # anywhere it would otherwise appear in the log from here on, including the "Install
+      # Maestro CLI" step below echoing its own resolved script (which interpolates this step's
+      # output directly into a shell command).
+      # Stops (not `down` - that would wipe the DB and rotate the bearer token we just captured)
+      # the containers right after grabbing the token: they're not needed again until flows
+      # actually run, and leaving them up burns CPU/RAM for the ~8 minute Gradle build below for
+      # no benefit, on a standard 2-core/7GB ubuntu-latest runner that's already running an
+      # emulator - resource pressure tight enough there to plausibly cause an ANR mid-flow.
+      # Restarted (same containers, same token) right before `maestro test` in the emulator step.
+      - name: Start seed backend
+        id: seed_backend
+        run: |
+          ./scripts/run_e2e_backend.sh
+          token="$(cat /tmp/hello-sziget-e2e-bearer-token)"
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+          docker compose -f maestro/docker-compose.e2e.yml stop
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      # Builds+installs against the already-running seed backend via -P flags (bypassing
+      # local.properties entirely — a -P value always wins, see docs/RUNBOOK.md), then runs the
+      # full flow suite.
+      - name: Run Maestro flows on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          # One line, no backslash continuation - this action's `script` doesn't handle
+          # multi-line-continued commands the way a normal shell script would (a run with
+          # continuation lines here failed with Gradle seeing a literal "\" as a task name).
+          #
+          # Captures logcat + a screenshot right after the flows run (while the emulator is
+          # still up) regardless of outcome, so a failure - e.g. every flow timing out including
+          # ones with no backend/auth dependency, which points at the app not rendering at all
+          # rather than a specific flow's logic - is diagnosable from the uploaded artifact
+          # instead of a bare "element not found". `|| maestro_exit=$?` + the trailing `exit`
+          # preserves maestro's real exit code so the step's pass/fail status is unaffected.
+          #
+          # `./gradlew --stop` kills the Gradle daemon right after install - nothing here needs
+          # it again, and leaving a JVM daemon resident alongside the emulator + backend
+          # containers on this runner's 7GB of RAM is exactly the kind of resource pressure that
+          # plausibly caused an ANR observed in an earlier run.
+          script: |
+            ./gradlew :androidApp:installDebug -Psziget.localBackendUrl=http://10.0.2.2:8081/api/v1 -Psziget.localBearerToken=${{ steps.seed_backend.outputs.token }} -Psziget.skipGoogleSignIn=true
+            ./gradlew --stop
+            docker compose -f maestro/docker-compose.e2e.yml up -d --wait
+            maestro_exit=0
+            "$HOME/.maestro/bin/maestro" test maestro || maestro_exit=$?
+            adb logcat -d > /tmp/emulator-logcat.txt || true
+            adb exec-out screencap -p > /tmp/emulator-screenshot.png || true
+            exit $maestro_exit
+
+      - name: Upload Maestro test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-test-report
+          path: ~/.maestro/tests
+          retention-days: 7
+
+      - name: Upload debug artifacts (logcat + screenshot)
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug-artifacts
+          path: |
+            /tmp/emulator-logcat.txt
+            /tmp/emulator-screenshot.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Tear down seed backend
+        if: always()
+        run: ./scripts/run_e2e_backend.sh down
+
+      - name: Clean up google-services.json
+        if: always()
+        run: rm -f androidApp/google-services.json
