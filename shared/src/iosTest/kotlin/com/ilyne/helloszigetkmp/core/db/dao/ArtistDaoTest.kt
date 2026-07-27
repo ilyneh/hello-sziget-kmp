@@ -61,6 +61,31 @@ class ArtistDaoTest {
         }
 
     @Test
+    fun `searchByName treats percent and underscore as literal characters rather than SQL LIKE wildcards`() =
+        runTest {
+            artistDao.upsertAll(listOf(artist("1", "50% Off"), artist("2", "Foo_Bar"), artist("3", "FooXBar")))
+
+            // A literal '%' must only match names containing that character, not act as a
+            // wildcard matching everything.
+            assertEquals(listOf(artist("1", "50% Off")), artistDao.searchByName("%").first())
+
+            // A literal '_' must only match names containing that character, not act as a
+            // single-character wildcard (which would also match "FooXBar").
+            assertEquals(listOf(artist("2", "Foo_Bar")), artistDao.searchByName("_").first())
+        }
+
+    @Test
+    fun `searchByName is diacritic-aware when case-folding`() =
+        runTest {
+            // SQL LOWER()/UPPER() are ASCII-only, so "Á" would not case-fold to match "á" via
+            // SQL LIKE ... COLLATE NOCASE. Kotlin's String.lowercase() is Unicode-aware.
+            artistDao.upsertAll(listOf(artist("1", "Ökrös Együttes")))
+
+            assertEquals(listOf(artist("1", "Ökrös Együttes")), artistDao.searchByName("ökrös").first())
+            assertEquals(listOf(artist("1", "Ökrös Együttes")), artistDao.searchByName("ÖKRÖS").first())
+        }
+
+    @Test
     fun `searchByName returns empty list when nothing matches`() =
         runTest {
             artistDao.upsertAll(listOf(artist("1", "ABBA"), artist("2", "Queen")))
