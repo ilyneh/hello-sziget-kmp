@@ -40,10 +40,11 @@ import com.ilyne.helloszigetkmp.presentation.feature.schedule.component.list.Set
 import com.ilyne.helloszigetkmp.presentation.theme.AppTheme
 import com.ilyne.helloszigetkmp.util.datetime.formatTime
 import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
 import hello_sziget_kmp.shared.generated.resources.common_tba
 import hello_sziget_kmp.shared.generated.resources.lineup_empty_subtitle
 import hello_sziget_kmp.shared.generated.resources.lineup_empty_title
+import hello_sziget_kmp.shared.generated.resources.lineup_error_refresh
+import hello_sziget_kmp.shared.generated.resources.lineup_error_remove_favorite
 import hello_sziget_kmp.shared.generated.resources.lineup_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -86,7 +87,7 @@ private fun MyLineupScreenContent(
 
             is MyLineupUiState.Status.Error -> {
                 ErrorState(
-                    message = status.message ?: stringResource(Res.string.common_something_went_wrong),
+                    message = stringResource(lineupErrorMessageRes(status.reason)),
                     onRetry = { viewModel.refresh() },
                 )
             }
@@ -224,6 +225,12 @@ private fun StageSetTimeRow(
         )
     }
 }
+
+private fun lineupErrorMessageRes(reason: MyLineupErrorReason) =
+    when (reason) {
+        MyLineupErrorReason.REFRESH_FAILED -> Res.string.lineup_error_refresh
+        MyLineupErrorReason.REMOVE_FAVORITE_FAILED -> Res.string.lineup_error_remove_favorite
+    }
 
 @Composable
 private fun EmptyView(modifier: Modifier = Modifier) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilyne.helloszigetkmp.core.db.model.SetTimeWithArtistStageSummary
 import com.ilyne.helloszigetkmp.core.repository.ArtistRepository
 import com.ilyne.helloszigetkmp.core.repository.ScheduleRepository
+import com.ilyne.helloszigetkmp.util.Logger
 import com.ilyne.helloszigetkmp.util.datetime.formatDate
 import com.ilyne.helloszigetkmp.util.datetime.toFestivalDate
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,9 +27,14 @@ data class MyLineupUiState(
         object Loading : Status()
 
         data class Error(
-            val message: String?,
+            val reason: MyLineupErrorReason,
         ) : Status()
     }
+}
+
+enum class MyLineupErrorReason {
+    REFRESH_FAILED,
+    REMOVE_FAVORITE_FAILED,
 }
 
 class MyLineupViewModel(
@@ -70,7 +76,13 @@ class MyLineupViewModel(
                 artistRepository.refresh(force = true)
                 _uiState.update { it.copy(status = MyLineupUiState.Status.Success) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
+                // Log the real exception rather than surfacing e.message directly: for a
+                // network/auth failure the message can carry a raw backend HTTP response body,
+                // which isn't meant for end users, instead of user-facing copy.
+                Logger.e("MyLineupViewModel", "refresh(): failed to refresh lineup", e)
+                _uiState.update {
+                    it.copy(status = MyLineupUiState.Status.Error(MyLineupErrorReason.REFRESH_FAILED))
+                }
             }
         }
     }
@@ -80,7 +92,10 @@ class MyLineupViewModel(
             try {
                 artistRepository.toggleFavorite(artistId, isFavorited = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = MyLineupUiState.Status.Error(message = e.message)) }
+                Logger.e("MyLineupViewModel", "removeFavorite(): failed to remove favorite for $artistId", e)
+                _uiState.update {
+                    it.copy(status = MyLineupUiState.Status.Error(MyLineupErrorReason.REMOVE_FAVORITE_FAILED))
+                }
             }
         }
     }
