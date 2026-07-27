@@ -13,6 +13,36 @@ Covers `presentation/feature/login` (`LoginScreen`, `SignInCard`,
   end-to-end when the debug app under test was built with
   `-Psziget.skipGoogleSignIn=true` (see `maestro/README.md`'s "Running
   against a mocked backend" section) — see below for why.
+- `login_debug_config_sheet.yaml` — asserts the debug-only "DEBUG" button
+  opens the debug config bottom sheet (base URL/token inputs, skip-Google-
+  sign-in switch) and that saving dismisses it. Works against any debug
+  build, not just one built with `-Psziget.skipGoogleSignIn=true` — see
+  "Runtime debug config" below.
+
+## Runtime debug config
+
+`LoginScreen` shows a "DEBUG" button (`login_debug_button`) whenever
+`AppConfiguring.isDebug()` is true. It opens a bottom sheet
+(`DebugConfigSheet.kt`) backed by `core/config/DebugConfigStore.kt` that lets
+a base URL, auth token, and "skip Google sign-in" be set **at runtime**,
+persisted across app restarts (until changed again or the app is
+uninstalled) — the runtime counterpart to the compile-time-baked
+`sziget.localBackendUrl`/`sziget.localBearerToken`/`sziget.skipGoogleSignIn`
+Gradle properties described above, useful when the backend/token needs to
+change between Maestro runs without a rebuild+reinstall.
+
+Saving with "Skip Google Sign-In" on makes `login_sign_in_button` route
+through `SzigetAuthService.localSignIn()` exactly like the compile-time flag
+does (see `LoginViewModel.signInWithGoogle()`), using the sheet's token
+override in place of `BEARER_TOKEN_LOCALHOST` and the sheet's base URL
+override in place of `sziget.localBackendUrl` — same debug-only guarantees
+apply (`appConfig.isDebug()` gate in `SzigetAuthService.localSignIn()`), so
+this can never activate outside a debug build.
+
+Use `maestro/flows/common/set_debug_config.yaml` (a `runFlow`-only shared
+subflow, see `maestro/README.md`'s "Sharing actions between flows") to drive
+this from another flow — it reads `BASE_URL`/`TOKEN` env vars via
+`maestro test --env`.
 
 ## Why this only works with the debug-only local-auth bypass
 

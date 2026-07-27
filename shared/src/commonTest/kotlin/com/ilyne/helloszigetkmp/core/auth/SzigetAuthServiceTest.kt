@@ -5,6 +5,7 @@ import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
@@ -377,6 +378,7 @@ class SzigetAuthServiceTest {
         settings: Settings = MapSettings(),
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
         usersSyncService: UsersSyncService = UsersSyncService(userRepository = UserRepository(dao = userDao)),
+        debugConfigStore: DebugConfigStore = DebugConfigStore(MapSettings()),
     ): SzigetAuthService =
         SzigetAuthService(
             appConfig = appConfig,
@@ -390,6 +392,7 @@ class SzigetAuthServiceTest {
             friendDao = friendDao,
             settings = settings,
             usersSyncService = usersSyncService,
+            debugConfigStore = debugConfigStore,
         )
 
     private fun authApiService(

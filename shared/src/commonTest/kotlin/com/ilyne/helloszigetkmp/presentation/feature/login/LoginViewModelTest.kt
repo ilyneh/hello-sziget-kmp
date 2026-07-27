@@ -10,6 +10,7 @@ import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProviding
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
@@ -178,6 +179,7 @@ class LoginViewModelTest {
         artistDao: ArtistDao = FakeArtistDao(),
         friendDao: FriendDao = FakeFriendDao(),
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
+        debugConfigStore: DebugConfigStore = DebugConfigStore(MapSettings()),
     ): LoginViewModel {
         val userRepository = UserRepository(dao = userDao)
         val usersSyncService = UsersSyncService(userRepository)
@@ -193,12 +195,15 @@ class LoginViewModelTest {
             friendDao = friendDao,
             settings = MapSettings(),
             usersSyncService = usersSyncService,
+            debugConfigStore = debugConfigStore,
         )
         return LoginViewModel(
             szigetAuthService = szigetAuthService,
             userRepository = userRepository,
             usersSyncService = usersSyncService,
             currentUserProvider = currentUserProvider,
+            appConfig = appConfig,
+            debugConfigStore = debugConfigStore,
         )
     }
 
