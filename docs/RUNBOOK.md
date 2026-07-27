@@ -247,6 +247,23 @@ Android and iOS version independently — there is no single source of truth acr
 
 ## CI/CD status
 
+`.github/workflows/unit-tests.yml` — runs on every push to `main` and every PR (plus manual
+`workflow_dispatch`). Two jobs: `android-unit-tests` runs `./gradlew :shared:testAndroidHostTest`
+on `ubuntu-latest` (no `google-services.json` needed — `:shared` doesn't apply the
+`google-services` plugin, only `:androidApp` does); `ios-unit-tests` runs
+`./gradlew :shared:iosSimulatorArm64Test` on `macos-latest`. Both upload their test reports as
+build artifacts.
+
+`.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`).
+Writes `androidApp/google-services.json` from the same `GOOGLE_SERVICES_JSON` secret used by the
+beta release workflow (required because `assembleDebug` also touches `:androidApp`), builds the
+debug APK, then boots a KVM-accelerated `google_apis`/API 34 emulator via
+[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner)
+and runs the flows under [`.maestro/`](../.maestro) against it with the
+[Maestro CLI](https://maestro.mobile.dev). Currently just `.maestro/smoke_test.yaml`, a
+launch-and-assert-login-screen check — flows past sign-in need a CI-friendly way to bypass Google
+Sign-In first (see the `sziget.skipGoogleSignIn` flag above).
+
 `.github/workflows/play-beta-release.yml` — manual (`workflow_dispatch`-only) Android beta
 release to Google Play Console, using the
 [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher) plugin
@@ -291,7 +308,10 @@ changes):
 Committed templates to copy from instead: `local.properties.example`,
 `androidApp/keystore.properties.example`.
 
-### GitHub Actions secrets (`play-beta-release.yml`)
+### GitHub Actions secrets
+
+`GOOGLE_SERVICES_JSON` is also consumed by `maestro-tests.yml` (needed to build the debug APK) —
+same value as below. `unit-tests.yml` needs no secrets.
 
 Repo secrets consumed by the Play Console beta release workflow — set these under
 **Settings → Secrets and variables → Actions**:

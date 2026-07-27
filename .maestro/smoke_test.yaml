@@ -1,0 +1,10 @@
+# Minimal smoke flow: launches the debug build and confirms the login screen renders.
+# Deeper flows (past sign-in) need a way to stub/bypass Google Sign-In in CI; the
+# `sziget.skipGoogleSignIn` local.properties flag (see docs/RUNBOOK.md) is the likely hook for
+# that once the CI build wires it in, but that isn't set up yet — this flow only covers the
+# unauthenticated entry point.
+appId: com.ilyne.helloszigetkmp.debug
+---
+- launchApp
+- assertVisible: "Plan your festival"
+- assertVisible: "Continue with Google"
