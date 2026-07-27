@@ -264,7 +264,10 @@ beta release workflow, pulls the self-seeded backend image (`ghcr.io/ilyneh/hell
 [`maestro/README.md`](../maestro/README.md)) and tags it locally as `hello-sziget-backend:e2e`,
 then starts it via `scripts/run_e2e_backend.sh` (a plain step — this only needs `docker`, not an
 emulator, so it runs before/independently of the emulator boot rather than being gated behind
-it) and captures the printed bearer token as a step output. Then it boots a KVM-accelerated
+it). That script writes the bearer token to a file (`/tmp/hello-sziget-e2e-bearer-token` by
+default) rather than printing the raw value under CI; the workflow reads it from there and
+registers it with `::add-mask::` so it's redacted in the log from that point on, including where
+it's interpolated into the emulator step's script below. Then it boots a KVM-accelerated
 `google_apis`/API 34 emulator via
 [`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner),
 builds and installs the debug APK against the already-running backend via `-P` Gradle properties

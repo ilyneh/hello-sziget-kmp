@@ -53,10 +53,13 @@ compose_up_with_retry
 
 # The backend's healthcheck (which --wait above blocks on) can pass slightly before the seed
 # step finishes and actually logs E2E_BEARER_TOKEN, so a single immediate grep can race and come
-# up empty - poll for it instead of checking exactly once.
+# up empty - poll for it instead of checking exactly once. The `|| true` matters: under
+# `pipefail`, grep finding no match yet is a normal "still seeding" outcome, not a real error -
+# without it, `set -e` would kill the whole script on the very first empty check instead of
+# letting the loop retry.
 token=""
 for _ in $(seq 1 15); do
-    token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//')"
+    token="$(docker compose -f "$compose_file" logs backend | grep '^backend.*E2E_BEARER_TOKEN=' | tail -n 1 | sed 's/.*E2E_BEARER_TOKEN=//' || true)"
     if [[ -n "$token" ]]; then
         break
     fi

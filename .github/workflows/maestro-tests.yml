@@ -57,15 +57,19 @@ jobs:
       # actually starting is visible in the Actions UI, and so it's up before the emulator boots
       # instead of being gated behind that boot succeeding. scripts/run_e2e_backend.sh doesn't
       # need adb/an emulator — it just needs docker — so it can run here.
+      #
+      # The bearer token is read from the file scripts/run_e2e_backend.sh writes it to (it
+      # doesn't print the raw value to stdout under CI - see that script) rather than scraped out
+      # of log output. ::add-mask:: registers it with the runner so it's redacted (as `***`)
+      # anywhere it would otherwise appear in the log from here on, including the "Install
+      # Maestro CLI" step below echoing its own resolved script (which interpolates this step's
+      # output directly into a shell command).
       - name: Start seed backend
         id: seed_backend
         run: |
-          ./scripts/run_e2e_backend.sh | tee /tmp/run_e2e_backend.log
-          token="$(sed -n 's/^\s*sziget.localBearerToken=//p' /tmp/run_e2e_backend.log)"
-          if [[ -z "$token" ]]; then
-            echo "error: couldn't parse sziget.localBearerToken out of run_e2e_backend.sh's output" >&2
-            exit 1
-          fi
+          ./scripts/run_e2e_backend.sh
+          token="$(cat /tmp/hello-sziget-e2e-bearer-token)"
+          echo "::add-mask::$token"
           echo "token=$token" >> "$GITHUB_OUTPUT"
 
       - name: Enable KVM group perms
