@@ -41,9 +41,14 @@ fi
 echo "==> Writing config into local.properties..."
 touch "$local_properties"
 set_property() {
-    local key="$1" value="$2"
+    local key="$1" value="$2" tmp
     if grep -q "^${key}=" "$local_properties" 2>/dev/null; then
-        sed -i '' "s#^${key}=.*#${key}=${value}#" "$local_properties"
+        # Redirect-to-temp-file-then-move instead of `sed -i` — `-i` takes its backup-suffix
+        # argument differently between BSD sed (macOS) and GNU sed (Linux CI runners), and this
+        # form works identically on both without needing to detect which one is running.
+        tmp="$(mktemp)"
+        sed "s#^${key}=.*#${key}=${value}#" "$local_properties" > "$tmp"
+        mv "$tmp" "$local_properties"
     else
         printf '%s=%s\n' "$key" "$value" >> "$local_properties"
     fi

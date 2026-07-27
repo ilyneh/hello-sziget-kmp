@@ -20,19 +20,23 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # The google-services plugin is applied unconditionally in androidApp/build.gradle.kts,
-      # so any Gradle task touching :androidApp (including assembleDebug) fails without this file.
+      # The google-services plugin is applied unconditionally in androidApp/build.gradle.kts, so
+      # any Gradle task touching :androidApp (including the installDebug that
+      # reinstall_e2e_test_app.sh runs below) fails without this file.
       - name: Write google-services.json
         run: echo "$GOOGLE_SERVICES_JSON" > androidApp/google-services.json
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
-      - name: Build debug APK
-        run: ./gradlew :androidApp:assembleDebug --stacktrace
-
-      - name: Clean up google-services.json
-        if: always()
-        run: rm -f androidApp/google-services.json
+      # Pulls the self-seeded backend image from GHCR (built by the separate hello-sziget
+      # backend repo's own CI — see maestro/README.md) and tags it under the plain local name
+      # that maestro/docker-compose.e2e.yml and scripts/reinstall_e2e_test_app.sh already expect,
+      # so those files don't need to know anything about where the image actually came from.
+      - name: Pull seed backend image
+        run: |
+          echo "${{ secrets.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull ghcr.io/ilyneh/hello-sziget-backend:e2e
+          docker tag ghcr.io/ilyneh/hello-sziget-backend:e2e hello-sziget-backend:e2e
 
       - name: Enable KVM group perms
         run: |
@@ -45,6 +49,10 @@ jobs:
           curl -fsSL "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
+      # reinstall_e2e_test_app.sh needs `adb` to install the APK, so it can only run once the
+      # emulator below has booted — hence it's part of this step's script, not an earlier one.
+      # It (re)starts the seed backend from a clean DB, writes local.properties with a fresh
+      # bearer token + sziget.skipGoogleSignIn=true, then builds and installs the debug APK.
       - name: Run Maestro flows on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -54,8 +62,8 @@ jobs:
           profile: pixel_6
           disable-animations: true
           script: |
-            adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            "$HOME/.maestro/bin/maestro" test .maestro/
+            ./scripts/reinstall_e2e_test_app.sh
+            "$HOME/.maestro/bin/maestro" test maestro
 
       - name: Upload Maestro test report
         if: always()
@@ -64,3 +72,11 @@ jobs:
           name: maestro-test-report
           path: ~/.maestro/tests
           retention-days: 7
+
+      - name: Tear down seed backend
+        if: always()
+        run: docker compose -f maestro/docker-compose.e2e.yml down -v
+
+      - name: Clean up google-services.json
+        if: always()
+        run: rm -f androidApp/google-services.json

@@ -256,13 +256,17 @@ build artifacts.
 
 `.github/workflows/maestro-tests.yml` — runs on every PR (plus manual `workflow_dispatch`).
 Writes `androidApp/google-services.json` from the same `GOOGLE_SERVICES_JSON` secret used by the
-beta release workflow (required because `assembleDebug` also touches `:androidApp`), builds the
-debug APK, then boots a KVM-accelerated `google_apis`/API 34 emulator via
-[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner)
-and runs the flows under [`.maestro/`](../.maestro) against it with the
-[Maestro CLI](https://maestro.mobile.dev). Currently just `.maestro/smoke_test.yaml`, a
-launch-and-assert-login-screen check — flows past sign-in need a CI-friendly way to bypass Google
-Sign-In first (see the `sziget.skipGoogleSignIn` flag above).
+beta release workflow, pulls the self-seeded backend image (`ghcr.io/ilyneh/hello-sziget-backend:e2e`
+— built by the separate `hello-sziget` backend repo's own CI, see
+[`maestro/README.md`](../maestro/README.md)) and tags it locally as `hello-sziget-backend:e2e`,
+then boots a KVM-accelerated `google_apis`/API 34 emulator via
+[`reactivecircus/android-emulator-runner`](https://github.com/ReactiveCircus/android-emulator-runner).
+Once the emulator is up (and `adb` is available), it runs `scripts/reinstall_e2e_test_app.sh`,
+which restarts the seed backend from a clean DB, writes `local.properties` with a fresh bearer
+token and `sziget.skipGoogleSignIn=true`, and builds + installs the debug APK — then runs
+`maestro test maestro` (all the flows under [`maestro/flows/`](../maestro/flows)) against it with
+the [Maestro CLI](https://maestro.mobile.dev). The seed backend container is always torn down
+afterward regardless of outcome. See `maestro/README.md` for how to run this same flow locally.
 
 `.github/workflows/play-beta-release.yml` — manual (`workflow_dispatch`-only) Android beta
 release to Google Play Console, using the
@@ -313,14 +317,14 @@ Committed templates to copy from instead: `local.properties.example`,
 `GOOGLE_SERVICES_JSON` is also consumed by `maestro-tests.yml` (needed to build the debug APK) —
 same value as below. `unit-tests.yml` needs no secrets.
 
-Repo secrets consumed by the Play Console beta release workflow — set these under
-**Settings → Secrets and variables → Actions**:
+Repo secrets — set these under **Settings → Secrets and variables → Actions**:
 
-| Secret | Contents |
-|---|---|
-| `GOOGLE_SERVICES_JSON` | Full contents of `androidApp/google-services.json` |
-| `ANDROID_KEYSTORE_BASE64` | Release keystore file, base64-encoded (`base64 -i release.keystore \| pbcopy` or equivalent) |
-| `ANDROID_KEYSTORE_STORE_PASSWORD` | `storePassword` from `keystore.properties` |
-| `ANDROID_KEYSTORE_KEY_ALIAS` | `keyAlias` from `keystore.properties` |
-| `ANDROID_KEYSTORE_KEY_PASSWORD` | `keyPassword` from `keystore.properties` |
-| `PLAY_SERVICE_ACCOUNT_JSON` | Full contents of a Play Console API service account JSON key with Release Manager access to the `com.ilyne.helloszigetkmp.beta` app listing (Play Console → Setup → API access) |
+| Secret | Used by | Contents |
+|---|---|---|
+| `GOOGLE_SERVICES_JSON` | `play-beta-release.yml`, `maestro-tests.yml` | Full contents of `androidApp/google-services.json` |
+| `ANDROID_KEYSTORE_BASE64` | `play-beta-release.yml` | Release keystore file, base64-encoded (`base64 -i release.keystore \| pbcopy` or equivalent) |
+| `ANDROID_KEYSTORE_STORE_PASSWORD` | `play-beta-release.yml` | `storePassword` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_ALIAS` | `play-beta-release.yml` | `keyAlias` from `keystore.properties` |
+| `ANDROID_KEYSTORE_KEY_PASSWORD` | `play-beta-release.yml` | `keyPassword` from `keystore.properties` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | `play-beta-release.yml` | Full contents of a Play Console API service account JSON key with Release Manager access to the `com.ilyne.helloszigetkmp.beta` app listing (Play Console → Setup → API access) |
+| `GHCR_PULL_TOKEN` | `maestro-tests.yml` | A GitHub PAT (classic or fine-grained) with `read:packages` scope and access to `ilyneh/hello-sziget`, used to `docker login ghcr.io` and pull the private `ghcr.io/ilyneh/hello-sziget-backend:e2e` seed backend image. See `maestro/README.md` for the companion workflow that publishes that image from the backend repo. |
