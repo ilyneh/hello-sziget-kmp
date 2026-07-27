@@ -33,7 +33,17 @@ tags:
     id: "login_debug_token_input"
 - eraseText
 - inputText: ${TOKEN}
-- tapOn:
-    id: "login_debug_skip_google_sign_in_switch"
+# The switch's initial state is DebugConfigStore.getSkipGoogleSignIn(), which defaults to the
+# compile-time SKIP_GOOGLE_SIGN_IN flag (see AppConfig.kt) - not always off. Only tap it if it's
+# not already on, so this flow reliably ends with it on regardless of that starting state, instead
+# of unconditionally tapping and sometimes toggling it off.
+- runFlow:
+    when:
+      visible:
+        id: "login_debug_skip_google_sign_in_switch"
+        checked: false
+    commands:
+      - tapOn:
+          id: "login_debug_skip_google_sign_in_switch"
 - tapOn:
     id: "login_debug_save_button"

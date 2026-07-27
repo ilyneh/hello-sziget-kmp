@@ -92,7 +92,19 @@ class LoginViewModel(
     }
 
     fun dismissDebugSheet() {
-        _uiState.update { it.copy(isDebugSheetVisible = false) }
+        // Discards any unsaved edits (base URL/token/switch) by resetting the draft fields back
+        // to what's actually persisted in DebugConfigStore - otherwise dismissing without tapping
+        // Save (e.g. swipe-down or scrim tap, both wired to this via AppModalBottomSheet's
+        // onDismissRequest) would leave the sheet showing stale edits next time it's reopened,
+        // even though they were never applied.
+        _uiState.update {
+            it.copy(
+                isDebugSheetVisible = false,
+                debugBaseUrl = debugConfigStore.getBaseUrlOverride().orEmpty(),
+                debugToken = debugConfigStore.getTokenOverride().orEmpty(),
+                debugSkipGoogleSignIn = debugConfigStore.getSkipGoogleSignIn(),
+            )
+        }
     }
 
     fun updateDebugBaseUrl(value: String) {

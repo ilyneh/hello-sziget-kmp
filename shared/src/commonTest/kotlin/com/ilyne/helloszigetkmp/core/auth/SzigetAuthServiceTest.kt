@@ -240,6 +240,29 @@ class SzigetAuthServiceTest {
         }
 
     @Test
+    fun localSignIn_debugBuild_withTokenOverride_usesOverrideTokenInsteadOfLocalBearerToken() =
+        runTest {
+            val tokenStorage = TokenStorage(MapSettings())
+            val authProvider = FakeGoogleAuthProvider()
+            val debugConfigStore = DebugConfigStore(MapSettings())
+            debugConfigStore.setTokenOverride("debug-sheet-token")
+            val service = service(
+                appConfig = FakeAppConfig(isDebug = true),
+                authProvider = authProvider,
+                tokenStorage = tokenStorage,
+                authApiService = authApiService(),
+                debugConfigStore = debugConfigStore,
+            )
+
+            service.localSignIn()
+
+            assertEquals(0, authProvider.signInCallCount)
+            val savedToken = tokenStorage.read()
+            assertEquals("debug-sheet-token", savedToken?.accessToken)
+            assertEquals("", savedToken?.refreshToken)
+        }
+
+    @Test
     fun localSignIn_releaseBuild_ignoresBypass_fallsBackToRealSignIn() =
         runTest {
             val tokenStorage = TokenStorage(MapSettings())
