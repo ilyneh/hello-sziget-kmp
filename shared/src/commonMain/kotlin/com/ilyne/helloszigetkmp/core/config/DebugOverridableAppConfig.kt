@@ -14,9 +14,7 @@ package com.ilyne.helloszigetkmp.core.config
 class DebugOverridableAppConfig(
     private val delegate: AppConfiguring,
     private val debugConfigStore: DebugConfigStore,
-) : AppConfiguring {
-    override fun isDebug(): Boolean = delegate.isDebug()
-
+) : AppConfiguring by delegate {
     override fun baseUrlLocal(): String {
         if (!delegate.isDebug()) return delegate.baseUrlLocal()
         return debugConfigStore.getBaseUrlOverride() ?: delegate.baseUrlLocal()
