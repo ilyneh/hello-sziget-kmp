@@ -15,7 +15,11 @@ class SzigetAuthApiService(
     private val client: HttpClient,
     private val appConfig: AppConfiguring,
 ) {
-    private val baseUrl = "${appConfig.baseUrlLocal()}/auth"
+    // Read fresh on every call rather than cached at construction - this is a long-lived Koin
+    // singleton, so a cached value would never pick up the login screen's debug bottom sheet
+    // changing the base URL override at runtime (see DebugConfigStore/DebugOverridableAppConfig).
+    private val baseUrl: String
+        get() = "${appConfig.baseUrlLocal()}/auth"
 
     suspend fun googleLogin(googleToken: String): TokenDto =
         client

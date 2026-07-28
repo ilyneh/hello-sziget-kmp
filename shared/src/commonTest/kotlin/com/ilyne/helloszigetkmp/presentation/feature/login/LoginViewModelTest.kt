@@ -54,10 +54,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 /**
- * [LoginViewModel.signInWithGoogle] drives [SzigetAuthService.signIn] (the Google path -
- * [com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN] is baked in at build time from
- * `sziget.skipGoogleSignIn`, which defaults to `false` and is not overridden in this repo, so
- * `localSignIn`'s bypass branch is not reachable from a plain unit test), then syncs the signed-in
+ * [LoginViewModel.signInWithGoogle] drives [SzigetAuthService.signIn] (the Google path - the
+ * local-sign-in bypass is only reachable when [AppConfiguring.isDebug] is true, and
+ * [FakeAppConfig] below defaults to `false`, so `localSignIn`'s bypass branch is not reachable
+ * from a plain unit test), then syncs the signed-in
  * user, sets [CurrentUserProvider], kicks off a background [UsersSyncService] fetch, and emits
  * [LoginEffect.NavigateToMain] - or surfaces an error with no navigation if any step throws.
  *
