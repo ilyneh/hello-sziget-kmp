@@ -31,7 +31,7 @@ import com.ilyne.helloszigetkmp.presentation.feature.contentBottomInset
 import com.ilyne.helloszigetkmp.presentation.feature.discover.filter.DiscoverFilterScreen
 import com.ilyne.helloszigetkmp.presentation.util.LoadStatus
 import hello_sziget_kmp.shared.generated.resources.Res
-import hello_sziget_kmp.shared.generated.resources.common_something_went_wrong
+import hello_sziget_kmp.shared.generated.resources.discover_error_refresh
 import hello_sziget_kmp.shared.generated.resources.discover_search_placeholder
 import hello_sziget_kmp.shared.generated.resources.discover_title
 import org.jetbrains.compose.resources.stringResource
@@ -107,40 +107,57 @@ private fun DiscoverScreenContent(
                 .testTag("discover_filter_bar"),
         )
 
+        // Loading/Error only replace the screen when there's no cached data to show yet (e.g.
+        // first load); once artists are cached, a background refresh failure or reload keeps
+        // showing that data with a non-blocking indicator instead of blanking the whole screen.
         when (val status = uiState.status) {
             is LoadStatus.Loading if uiState.artists.isEmpty() -> {
                 LoadingBox(modifier = Modifier.fillMaxSize().testTag("discover_loading"))
             }
 
-            is LoadStatus.Error -> {
+            is LoadStatus.Error if uiState.artists.isEmpty() -> {
                 ErrorState(
-                    message = status.reason ?: stringResource(Res.string.common_something_went_wrong),
+                    message = stringResource(discoverErrorMessageRes(status.reason)),
                     onRetry = { viewModel.refresh() },
                     modifier = Modifier.fillMaxSize().testTag("discover_error_state"),
                 )
             }
 
             else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = LocalBottomBarPadding.contentBottomInset,
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.testTag("discover_artist_grid"),
-                ) {
-                    items(uiState.artists, key = { it.id }) { artist ->
-                        ArtistCard(
-                            artist = artist,
-                            onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
-                            onClick = { onArtistClick(artist.id) },
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (status is LoadStatus.Error) {
+                        ErrorState(
+                            message = stringResource(discoverErrorMessageRes(status.reason)),
+                            onRetry = { viewModel.refresh() },
+                            modifier = Modifier.fillMaxWidth().testTag("discover_error_banner"),
                         )
+                    }
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = LocalBottomBarPadding.contentBottomInset,
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize().testTag("discover_artist_grid"),
+                    ) {
+                        items(uiState.artists, key = { it.id }) { artist ->
+                            ArtistCard(
+                                artist = artist,
+                                onFavoriteToggle = { viewModel.toggleFavorite(artist.id, artist.isFavorited) },
+                                onClick = { onArtistClick(artist.id) },
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+private fun discoverErrorMessageRes(reason: DiscoverErrorReason) =
+    when (reason) {
+        DiscoverErrorReason.REFRESH_FAILED -> Res.string.discover_error_refresh
+    }

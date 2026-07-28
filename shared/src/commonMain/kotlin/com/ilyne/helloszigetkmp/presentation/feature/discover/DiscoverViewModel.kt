@@ -31,8 +31,12 @@ data class DiscoverUiState(
     val filter: DiscoverFilter = DiscoverFilter(),
     val filterCount: Int = 0,
     val filterTexts: List<String> = emptyList(),
-    val status: LoadStatus<String?> = LoadStatus.Loading,
+    val status: LoadStatus<DiscoverErrorReason> = LoadStatus.Loading,
 )
+
+enum class DiscoverErrorReason {
+    REFRESH_FAILED,
+}
 
 sealed class DiscoverIntent {
     data class SearchQueryChanged(
@@ -159,7 +163,13 @@ class DiscoverViewModel(
                 artistRepository.refresh(force = force)
                 _uiState.update { it.copy(status = LoadStatus.Success) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(status = LoadStatus.Error(reason = e.message)) }
+                // Log the real exception rather than surfacing e.message directly: for a
+                // network/auth failure the message can carry a raw backend HTTP response body,
+                // which isn't meant for end users, instead of user-facing copy.
+                Logger.e("DiscoverViewModel", "refreshArtists(): failed to refresh artists", e)
+                _uiState.update {
+                    it.copy(status = LoadStatus.Error(reason = DiscoverErrorReason.REFRESH_FAILED))
+                }
             }
         }
     }

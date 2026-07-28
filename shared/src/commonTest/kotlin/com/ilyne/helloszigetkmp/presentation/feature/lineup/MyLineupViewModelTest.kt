@@ -203,8 +203,8 @@ class MyLineupViewModelTest {
 
             viewModel.removeFavorite("boom-artist")
 
-            val status = assertIs<LoadStatus.Error<*>>(viewModel.uiState.value.status)
-            assertEquals("setFavorited boom for boom-artist", status.reason)
+            val status = assertIs<LoadStatus.Error<MyLineupErrorReason>>(viewModel.uiState.value.status)
+            assertEquals(MyLineupErrorReason.REMOVE_FAVORITE_FAILED, status.reason)
         }
 
     // --- test fixtures -------------------------------------------------------------------
