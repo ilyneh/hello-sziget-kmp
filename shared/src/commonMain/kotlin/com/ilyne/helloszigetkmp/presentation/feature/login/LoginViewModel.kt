@@ -7,7 +7,6 @@ import com.ilyne.helloszigetkmp.core.auth.CurrentUserProvider
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
-import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.core.repository.UserRepository
 import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -67,8 +66,9 @@ class LoginViewModel(
             try {
                 // In a debug build, DebugConfigStore's runtime override (defaulting to the
                 // compile-time SKIP_GOOGLE_SIGN_IN flag until the debug sheet changes it) decides
-                // this; outside debug, only the compile-time flag is ever consulted.
-                val skipGoogleSignIn = if (appConfig.isDebug()) debugConfigStore.getSkipGoogleSignIn() else SKIP_GOOGLE_SIGN_IN
+                // this; outside debug, the bypass is never available regardless of any stray
+                // compile-time/persisted value.
+                val skipGoogleSignIn = appConfig.isDebug() && debugConfigStore.getSkipGoogleSignIn()
                 if (skipGoogleSignIn) {
                     szigetAuthService.localSignIn()
                 } else {
