@@ -215,6 +215,27 @@ built/archived the project at least once so Swift Package Manager has checked ou
   `shared/src/commonMain/kotlin/.../core/auth/GoogleAuthConfig.kt` — update this if the OAuth
   Web Client ID ever changes (it is not build-time configurable).
 
+### iOS Keychain query attributes (`SecureSettingsFactory.ios.kt`)
+
+`TokenStorage`'s iOS backing (`shared/src/iosMain/kotlin/.../core/settings/SecureSettingsFactory.ios.kt`)
+uses `com.russhwolf.settings.KeychainSettings`, constructed with a set of "default properties"
+(currently `kSecAttrService` + `kSecAttrAccessible`). **Every one of those properties is folded
+into the query the library issues for every read/update/delete, not just for item creation.** If
+you ever add, remove, or change one of these properties, any item already stored under the old
+property set becomes invisible to the new query: reads silently return null (looks like "no
+session", easy to miss), but `SecItemUpdate` returns `errSecItemNotFound`, which the library turns
+into a thrown `"Keychain error: the specified item could not be found in the keychain"` — this
+surfaces as a sign-in failure specifically on any device/simulator that had already signed in with
+a build from *before* your change, since it hits the very next `tokenStorage.save()` after a
+successful Google auth (see git history around commit `4ca5fb0` for the real incident this
+happened from).
+
+If you change these properties again, either bump `KEYCHAIN_SERVICE_NAME` (points at a brand-new,
+empty keychain entry - simplest, but forces every existing session to sign in again) or add/update
+a raw `SecItemDelete` (or read-and-re-add) migration step in `createSecureSettings()` that queries
+by a strict subset of attributes guaranteed not to have changed, mirroring
+`purgeLegacyAccessibilityKeychainItem()`.
+
 ---
 
 ## Versioning
