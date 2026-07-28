@@ -104,6 +104,12 @@
     <string name="login_badge_artists">🎸 400+ Artists</string>
     <string name="login_badge_days">🌍 6 Days</string>
     <string name="login_badge_stages">🎪 7 Stages</string>
+    <string name="login_debug_button">DEBUG</string>
+    <string name="login_debug_sheet_title">Debug Settings</string>
+    <string name="login_debug_base_url_label">Base URL</string>
+    <string name="login_debug_base_url_placeholder">https://your-backend/api/v1</string>
+    <string name="login_debug_token_label">Auth Token</string>
+    <string name="login_debug_skip_google_sign_in_label">Skip Google Sign-In</string>
 
     <!-- Filter chip -->
     <string name="filter_chip_content_description">Filter Chip</string>

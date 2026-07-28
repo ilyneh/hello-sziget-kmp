@@ -1,0 +1,49 @@
+# maestro/flows/common/set_debug_config.yaml
+#
+# Shared subflow (see maestro/README.md's "Sharing actions between flows") - referenced via
+# `runFlow: ../common/set_debug_config.yaml` rather than run directly. Tagged "util" and excluded
+# from the main suite (see config.yaml's excludeTags) so `maestro test maestro` doesn't also try
+# to run this file as a standalone flow of its own.
+#
+# Opens the login screen's debug-only bottom sheet (the "DEBUG" button/login_debug_button,
+# only rendered when AppConfiguring.isDebug() is true - see LoginScreen.kt) and fills in a
+# runtime base URL / auth token via DebugConfigStore, then flips "Skip Google Sign-In" on and
+# saves. This is the runtime alternative to rebuilding the debug APK with
+# `-Psziget.localBackendUrl=...`/`-Psziget.localBearerToken=...`/`-Psziget.skipGoogleSignIn=true`
+# baked in at compile time (see maestro/README.md's "Running against a mocked backend"), so the
+# backend/token/bypass can be changed between runs without a rebuild+reinstall.
+#
+# Requires BASE_URL and TOKEN env vars, e.g.:
+#   maestro test --env BASE_URL=http://10.0.2.2:8081/api/v1 --env TOKEN=<bearer-token> \
+#     maestro/flows/login/login_debug_config_applies.yaml
+#
+# Assumes the app is already on the login screen (run after `launchApp: { clearState: true }`,
+# before `../common/sign_in.yaml` or a direct tap on "Continue with Google").
+appId: com.ilyne.helloszigetkmp.debug
+tags:
+  - util
+---
+- tapOn:
+    id: "login_debug_button"
+- tapOn:
+    id: "login_debug_base_url_input"
+- eraseText
+- inputText: ${BASE_URL}
+- tapOn:
+    id: "login_debug_token_input"
+- eraseText
+- inputText: ${TOKEN}
+# The switch's initial state is DebugConfigStore.getSkipGoogleSignIn(), which defaults to the
+# compile-time SKIP_GOOGLE_SIGN_IN flag (see AppConfig.kt) - not always off. Only tap it if it's
+# not already on, so this flow reliably ends with it on regardless of that starting state, instead
+# of unconditionally tapping and sometimes toggling it off.
+- runFlow:
+    when:
+      visible:
+        id: "login_debug_skip_google_sign_in_switch"
+        checked: false
+    commands:
+      - tapOn:
+          id: "login_debug_skip_google_sign_in_switch"
+- tapOn:
+    id: "login_debug_save_button"

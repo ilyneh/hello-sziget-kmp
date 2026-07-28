@@ -5,6 +5,7 @@ import com.ilyne.helloszigetkmp.core.api.auth.SzigetAuthApiService
 import com.ilyne.helloszigetkmp.core.api.auth.TokenDto
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
 import com.ilyne.helloszigetkmp.core.config.BEARER_TOKEN_LOCALHOST
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
@@ -239,6 +240,29 @@ class SzigetAuthServiceTest {
         }
 
     @Test
+    fun localSignIn_debugBuild_withTokenOverride_usesOverrideTokenInsteadOfLocalBearerToken() =
+        runTest {
+            val tokenStorage = TokenStorage(MapSettings())
+            val authProvider = FakeGoogleAuthProvider()
+            val debugConfigStore = DebugConfigStore(MapSettings())
+            debugConfigStore.setTokenOverride("debug-sheet-token")
+            val service = service(
+                appConfig = FakeAppConfig(isDebug = true),
+                authProvider = authProvider,
+                tokenStorage = tokenStorage,
+                authApiService = authApiService(),
+                debugConfigStore = debugConfigStore,
+            )
+
+            service.localSignIn()
+
+            assertEquals(0, authProvider.signInCallCount)
+            val savedToken = tokenStorage.read()
+            assertEquals("debug-sheet-token", savedToken?.accessToken)
+            assertEquals("", savedToken?.refreshToken)
+        }
+
+    @Test
     fun localSignIn_releaseBuild_ignoresBypass_fallsBackToRealSignIn() =
         runTest {
             val tokenStorage = TokenStorage(MapSettings())
@@ -377,6 +401,7 @@ class SzigetAuthServiceTest {
         settings: Settings = MapSettings(),
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
         usersSyncService: UsersSyncService = UsersSyncService(userRepository = UserRepository(dao = userDao)),
+        debugConfigStore: DebugConfigStore = DebugConfigStore(MapSettings()),
     ): SzigetAuthService =
         SzigetAuthService(
             appConfig = appConfig,
@@ -390,6 +415,7 @@ class SzigetAuthServiceTest {
             friendDao = friendDao,
             settings = settings,
             usersSyncService = usersSyncService,
+            debugConfigStore = debugConfigStore,
         )
 
     private fun authApiService(

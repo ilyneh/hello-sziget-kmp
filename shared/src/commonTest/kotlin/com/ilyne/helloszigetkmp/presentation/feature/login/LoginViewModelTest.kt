@@ -10,6 +10,8 @@ import com.ilyne.helloszigetkmp.core.auth.GoogleAuthProviding
 import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
+import com.ilyne.helloszigetkmp.core.config.SKIP_GOOGLE_SIGN_IN
 import com.ilyne.helloszigetkmp.core.db.dao.ArtistDao
 import com.ilyne.helloszigetkmp.core.db.dao.FriendDao
 import com.ilyne.helloszigetkmp.core.db.dao.UserDao
@@ -24,6 +26,8 @@ import com.ilyne.helloszigetkmp.core.sync.UsersSyncService
 import com.russhwolf.settings.MapSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -75,6 +79,13 @@ class LoginViewModelTest {
     private val json = Json { ignoreUnknownKeys = true }
     private val defaultToken = TokenDto(accessToken = "access-token-1", refreshToken = "refresh-token-1", tokenType = "bearer")
 
+    // LoginViewModel's initial debugSkipGoogleSignIn reads DebugConfigStore.getSkipGoogleSignIn(),
+    // which falls back to the SKIP_GOOGLE_SIGN_IN compile-time constant (itself driven by the
+    // sziget.skipGoogleSignIn Gradle property, which may be true in a local dev checkout with
+    // local.properties configured for e2e testing) - so LoginUiState()'s hardcoded `false` default
+    // isn't a safe expectation here regardless of environment.
+    private val defaultLoginUiState = LoginUiState(debugSkipGoogleSignIn = SKIP_GOOGLE_SIGN_IN)
+
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(dispatcher)
@@ -99,7 +110,7 @@ class LoginViewModelTest {
             )
 
             viewModel.uiState.test {
-                assertEquals(LoginUiState(), awaitItem())
+                assertEquals(defaultLoginUiState, awaitItem())
 
                 viewModel.signInWithGoogle()
 
@@ -128,11 +139,11 @@ class LoginViewModelTest {
             )
 
             viewModel.uiState.test {
-                assertEquals(LoginUiState(), awaitItem())
+                assertEquals(defaultLoginUiState, awaitItem())
 
                 viewModel.signInWithGoogle()
 
-                assertEquals(LoginUiState(isLoading = true), awaitItem())
+                assertEquals(defaultLoginUiState.copy(isLoading = true), awaitItem())
                 val errored = awaitItem()
                 assertEquals(false, errored.isLoading)
                 assertEquals(true, errored.error?.isNotBlank())
@@ -153,11 +164,11 @@ class LoginViewModelTest {
             )
 
             viewModel.uiState.test {
-                assertEquals(LoginUiState(), awaitItem())
+                assertEquals(defaultLoginUiState, awaitItem())
 
                 viewModel.signInWithGoogle()
 
-                assertEquals(LoginUiState(isLoading = true), awaitItem())
+                assertEquals(defaultLoginUiState.copy(isLoading = true), awaitItem())
                 val errored = awaitItem()
                 assertEquals(false, errored.isLoading)
                 // The token exchange itself succeeded (persisted before the failing API call).
@@ -178,6 +189,7 @@ class LoginViewModelTest {
         artistDao: ArtistDao = FakeArtistDao(),
         friendDao: FriendDao = FakeFriendDao(),
         currentUserProvider: CurrentUserProvider = CurrentUserProvider(),
+        debugConfigStore: DebugConfigStore = DebugConfigStore(MapSettings()),
     ): LoginViewModel {
         val userRepository = UserRepository(dao = userDao)
         val usersSyncService = UsersSyncService(userRepository)
@@ -193,12 +205,15 @@ class LoginViewModelTest {
             friendDao = friendDao,
             settings = MapSettings(),
             usersSyncService = usersSyncService,
+            debugConfigStore = debugConfigStore,
         )
         return LoginViewModel(
             szigetAuthService = szigetAuthService,
             userRepository = userRepository,
             usersSyncService = usersSyncService,
             currentUserProvider = currentUserProvider,
+            appConfig = appConfig,
+            debugConfigStore = debugConfigStore,
         )
     }
 
@@ -207,7 +222,7 @@ class LoginViewModelTest {
         googleLoginResult: TokenDto = defaultToken,
         googleLoginShouldFail: Boolean = false,
     ): SzigetAuthApiService {
-        val engine = MockEngine { request ->
+        val engine = mockEngine { request ->
             val path = request.url.encodedPath
             when {
                 path.endsWith("/google/mobile") && googleLoginShouldFail -> respondError(HttpStatusCode.Unauthorized)
@@ -221,6 +236,18 @@ class LoginViewModelTest {
         }
         return SzigetAuthApiService(client = client, appConfig = appConfig)
     }
+
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // tests above (StateFlow only guarantees the latest value reaches a collector, so an
+    // isLoading=true state emitted and overwritten before the collector is rescheduled is
+    // silently dropped instead of observed). Pinning the engine to Dispatchers.Main (the test
+    // dispatcher installed in setUp) keeps everything on one deterministic dispatcher.
+    private fun mockEngine(handler: MockRequestHandler) =
+        MockEngine(MockEngineConfig().apply {
+            addHandler(handler)
+            dispatcher = Dispatchers.Main
+        })
 
     private class FakeAppConfig(
         private val isDebug: Boolean = false,

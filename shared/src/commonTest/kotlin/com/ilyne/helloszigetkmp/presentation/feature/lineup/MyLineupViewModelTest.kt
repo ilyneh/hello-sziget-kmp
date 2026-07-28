@@ -223,9 +223,15 @@ class MyLineupViewModelTest {
         return settings
     }
 
+    // MockEngine's default dispatcher hops off the test dispatcher onto a real background
+    // dispatcher, which races the UnconfinedTestDispatcher-driven collector in the Turbine-based
+    // refresh tests below (StateFlow only guarantees the latest value reaches a collector, so a
+    // Loading state emitted and overwritten before the collector is rescheduled is silently
+    // dropped instead of observed). Pinning the engine to Dispatchers.Main (the test dispatcher
+    // installed in setUp) keeps everything on one deterministic dispatcher.
     private fun mockApi(): SzigetApiService =
         SzigetApiService(
-            client = HttpClient(MockEngine) { engine { addHandler { respondOk() } } },
+            client = HttpClient(MockEngine) { engine { addHandler { respondOk() }; dispatcher = Dispatchers.Main } },
             baseUrl = "https://unused.test",
         )
 

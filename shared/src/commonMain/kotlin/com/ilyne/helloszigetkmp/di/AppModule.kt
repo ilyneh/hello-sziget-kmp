@@ -9,6 +9,8 @@ import com.ilyne.helloszigetkmp.core.auth.SzigetAuthService
 import com.ilyne.helloszigetkmp.core.auth.TokenStorage
 import com.ilyne.helloszigetkmp.core.config.AppConfig
 import com.ilyne.helloszigetkmp.core.config.AppConfiguring
+import com.ilyne.helloszigetkmp.core.config.DebugConfigStore
+import com.ilyne.helloszigetkmp.core.config.DebugOverridableAppConfig
 import com.ilyne.helloszigetkmp.core.db.SzigetDatabase
 import com.ilyne.helloszigetkmp.core.db.createDatabase
 import com.ilyne.helloszigetkmp.core.db.getDatabaseBuilder
@@ -38,10 +40,14 @@ fun initKoin(platformModules: List<Module> = emptyList()) {
 
 val appModule = module {
     // Auth
-    single<AppConfiguring> { AppConfig() }
+    // Wrapped so DebugConfigStore's runtime base-URL override (set via the login screen's
+    // debug-only bottom sheet) transparently applies wherever AppConfiguring.baseUrlLocal() is
+    // consulted, with no per-call-site changes - see DebugOverridableAppConfig's kdoc.
+    single<AppConfiguring> { DebugOverridableAppConfig(delegate = AppConfig(), debugConfigStore = get()) }
     // Non-sensitive settings (e.g. soft-refresh timestamps, filter prefs): plain storage
     // (SharedPreferences / NSUserDefaults) that is wiped when the app is uninstalled.
     single { Settings() }
+    single { DebugConfigStore(settings = get()) }
     // Sensitive settings (auth tokens): Keychain/EncryptedSharedPreferences-backed, which on
     // iOS deliberately survives app deletion - only use this for data that should persist
     // across a reinstall.
@@ -68,6 +74,7 @@ val appModule = module {
             friendDao = get(),
             settings = get(),
             usersSyncService = get(),
+            debugConfigStore = get(),
         )
     }
     single { LogoutService(session = get()) }
@@ -93,6 +100,8 @@ val appModule = module {
             userRepository = get(),
             usersSyncService = get(),
             currentUserProvider = get(),
+            appConfig = get(),
+            debugConfigStore = get(),
         )
     }
 }
